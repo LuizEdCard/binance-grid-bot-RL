@@ -1,0 +1,108 @@
+# Configuration for the Grid Trading RL Bot
+
+# Exchange Settings (Binance Futures initially)
+exchange:
+  name: 'binance_futures'
+  # Add specific API endpoint URLs if needed
+
+# Grid Trading Parameters (Initial values, RL will adjust some)
+grid:
+  initial_levels: 10
+  leverage: 10 # Example leverage, adjust as needed
+  initial_spacing_perc: "0.005" # Initial grid spacing as percentage (0.5%)
+  # RL will control spacing, direction, and potentially profit margin
+
+# Trading Parameters
+trading:
+  capital_per_pair_usd: "100" # Capital allocated per trading pair
+  max_concurrent_pairs: 3 # Maximum number of pairs to trade simultaneously
+  cycle_interval_seconds: 60 # Time between trading logic cycles per pair
+
+# Reinforcement Learning Agent Parameters
+rl_agent:
+  algorithm: 'PPO' # PPO or SAC
+  state_features: ['rsi', 'atr', 'adx', 'volume', 'grid_context'] # Features for the RL state
+  reward_function:
+    profit_weight: 1.0
+    drawdown_penalty: 0.5
+    inefficiency_penalty: 0.2
+  training_frequency_steps: 1000 # How often to train based on steps (if not using trade count)
+  experience_replay_buffer_size: 10000
+  retraining_trade_threshold: 100 # Trigger retraining after this many trades across all pairs
+
+# Pair Selection Parameters
+pair_selection:
+  min_volume_usd_24h: 100000000 # 100M USD
+  min_atr_perc_24h: 2.0 # 2% ATR
+  max_spread_perc: 0.1 # 0.1% Spread
+  max_adx: 25 # Avoid strong trends for grid
+  update_interval_hours: 6
+  blacklist: ['EXAMPLE/USDT'] # Add problematic pairs here
+
+# Risk Management Parameters
+risk_management:
+  max_drawdown_perc: 10.0 # 10% overall drawdown circuit breaker
+  dynamic_sl_profit_lock_perc: 80.0 # Lock 80% of realized profit
+  tp_sl_ratio: 3.0 # Take Profit is 3x Stop Loss
+  loss_protection_trigger_perc: 15.0 # Close losing orders if they eat 15% of guaranteed profit
+  api_failure_timeout_minutes: 5 # Circuit breaker for API failure
+
+# Logging & Monitoring
+logging:
+  level: 'INFO' # DEBUG, INFO, WARNING, ERROR
+  log_file: '/home/ubuntu/grid_trading_rl_bot/logs/bot.log'
+  trade_log_file: '/home/ubuntu/grid_trading_rl_bot/logs/trades.csv'
+  log_to_console: True
+
+# Alerts (Telegram/Discord)
+alerts:
+  enabled: True # Set to True to enable alerts
+  # telegram_token: '' # Add Telegram Bot Token here in .env or directly
+  # telegram_chat_id: '' # Add Telegram Chat ID here in .env or directly
+  # discord_webhook_url: '' # Add Discord Webhook URL if using Discord
+
+# --- Sentiment Analysis Configuration --- #
+sentiment_analysis:
+  enabled: True # Set to True to enable sentiment analysis feature
+  fetch_interval_minutes: 60 # How often to fetch and analyze sentiment (e.g., every hour)
+  smoothing_window: 10 # Number of recent scores to average for the final score (0 or 1 to disable smoothing)
+  reddit:
+    enabled: True # Enable Reddit as a source
+    subreddits: # List of subreddits to monitor
+      - 'wallstreetbets'
+      - 'investing'
+      - 'CryptoCurrency'
+      # Add more relevant subreddits
+    posts_limit_per_subreddit: 10 # Max posts to fetch per subreddit each cycle
+    comments_limit_per_post: 5 # Max comments to fetch per post
+    time_filter: 'day' # Time filter for fetching posts ('all', 'day', 'hour', 'month', 'week', 'year')
+  # twitter: # Placeholder for future Twitter/X integration
+  #   enabled: False
+  #   keywords: ['bitcoin', 'ethereum', '$BTC', '$ETH']
+  #   tweets_limit: 50
+
+  # --- Sentiment Usage Rules (NEW) --- #
+  alerts:
+    enabled: True # Enable sentiment-based alerts
+    positive_threshold: 0.7 # Trigger alert if score >= this value
+    negative_threshold: -0.5 # Trigger alert if score <= this value
+    alert_cooldown_minutes: 120 # Avoid spamming alerts, wait this long before sending another of the same type
+
+  risk_adjustment:
+    enabled: True # Enable dynamic risk adjustment based on sentiment
+    leverage_reduction_threshold: -0.5 # Reduce leverage if score <= this value
+    leverage_reduction_factor: 0.5 # Multiply current leverage by this factor (e.g., 0.5 = 50% reduction)
+    # position_increase_threshold: 0.7 # Increase position size if score >= this value (Use with extreme caution!)
+    # position_increase_factor: 1.1 # Multiply position size by this factor (e.g., 1.1 = 10% increase)
+
+  pair_filtering:
+    enabled: True # Enable filtering new pairs based on sentiment
+    min_sentiment_for_new_pair: -0.3 # Do not start trading a new pair if sentiment <= this value
+
+  rl_feature:
+    enabled: True # Include sentiment score as a feature for the RL agent
+# ------------------------------------------- #
+
+# Operational Modes
+operation_mode: 'Shadow' # 'Production' or 'Shadow'
+

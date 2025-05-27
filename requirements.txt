@@ -1,0 +1,11 @@
+flask
+flask-cors
+pyyaml
+gymnasium
+pandas
+numpy
+xgboost
+scikit-learn
+tensorflow==2.11.0
+# Adicione outras dependências do seu projeto aqui
+
