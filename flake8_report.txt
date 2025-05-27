@@ -1,0 +1,812 @@
+src/bot_logic.py:10:1: F401 'decimal.Decimal' imported but unused
+src/bot_logic.py:12:30: E261 at least two spaces before inline comment
+src/bot_logic.py:13:19: E261 at least two spaces before inline comment
+src/bot_logic.py:19:1: E402 module level import not at top of file
+src/bot_logic.py:20:1: E402 module level import not at top of file
+src/bot_logic.py:21:1: E402 module level import not at top of file
+src/bot_logic.py:22:1: E402 module level import not at top of file
+src/bot_logic.py:23:1: E402 module level import not at top of file
+src/bot_logic.py:24:1: E402 module level import not at top of file
+src/bot_logic.py:25:1: E402 module level import not at top of file
+src/bot_logic.py:26:1: E402 module level import not at top of file
+src/bot_logic.py:27:1: E402 module level import not at top of file
+src/bot_logic.py:32:37: E261 at least two spaces before inline comment
+src/bot_logic.py:36:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:40:80: E501 line too long (94 > 79 characters)
+src/bot_logic.py:50:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:55:80: E501 line too long (89 > 79 characters)
+src/bot_logic.py:59:80: E501 line too long (172 > 79 characters)
+src/bot_logic.py:61:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:62:80: E501 line too long (100 > 79 characters)
+src/bot_logic.py:80:80: E501 line too long (106 > 79 characters)
+src/bot_logic.py:81:80: E501 line too long (145 > 79 characters)
+src/bot_logic.py:84:27: F541 f-string is missing placeholders
+src/bot_logic.py:84:80: E501 line too long (95 > 79 characters)
+src/bot_logic.py:89:80: E501 line too long (106 > 79 characters)
+src/bot_logic.py:90:80: E501 line too long (144 > 79 characters)
+src/bot_logic.py:93:27: F541 f-string is missing placeholders
+src/bot_logic.py:93:80: E501 line too long (95 > 79 characters)
+src/bot_logic.py:96:80: E501 line too long (83 > 79 characters)
+src/bot_logic.py:100:1: E305 expected 2 blank lines after class or function definition, found 1
+src/bot_logic.py:106:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:117:80: E501 line too long (100 > 79 characters)
+src/bot_logic.py:118:80: E501 line too long (85 > 79 characters)
+src/bot_logic.py:119:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:119:18: E117 over-indented
+src/bot_logic.py:119:80: E501 line too long (103 > 79 characters)
+src/bot_logic.py:120:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:120:80: E501 line too long (92 > 79 characters)
+src/bot_logic.py:122:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:122:18: E117 over-indented
+src/bot_logic.py:122:80: E501 line too long (107 > 79 characters)
+src/bot_logic.py:123:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:123:78: E261 at least two spaces before inline comment
+src/bot_logic.py:123:80: E501 line too long (105 > 79 characters)
+src/bot_logic.py:135:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:135:80: E501 line too long (131 > 79 characters)
+src/bot_logic.py:146:80: E501 line too long (89 > 79 characters)
+src/bot_logic.py:148:80: E501 line too long (139 > 79 characters)
+src/bot_logic.py:152:14: E111 indentation is not a multiple of 4
+src/bot_logic.py:152:14: E117 over-indented
+src/bot_logic.py:153:14: E111 indentation is not a multiple of 4
+src/bot_logic.py:155:80: E501 line too long (92 > 79 characters)
+src/bot_logic.py:156:52: E261 at least two spaces before inline comment
+src/bot_logic.py:162:80: E501 line too long (204 > 79 characters)
+src/bot_logic.py:168:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:170:80: E501 line too long (96 > 79 characters)
+src/bot_logic.py:171:80: E501 line too long (106 > 79 characters)
+src/bot_logic.py:176:80: E501 line too long (86 > 79 characters)
+src/bot_logic.py:178:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:184:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:193:80: E501 line too long (125 > 79 characters)
+src/bot_logic.py:199:80: E501 line too long (86 > 79 characters)
+src/bot_logic.py:200:80: E501 line too long (94 > 79 characters)
+src/bot_logic.py:204:80: E501 line too long (109 > 79 characters)
+src/bot_logic.py:209:80: E501 line too long (86 > 79 characters)
+src/bot_logic.py:211:80: E501 line too long (125 > 79 characters)
+src/bot_logic.py:213:80: E501 line too long (85 > 79 characters)
+src/bot_logic.py:215:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:218:80: E501 line too long (106 > 79 characters)
+src/bot_logic.py:222:80: E501 line too long (93 > 79 characters)
+src/bot_logic.py:224:80: E501 line too long (81 > 79 characters)
+src/bot_logic.py:228:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:233:24: E261 at least two spaces before inline comment
+src/bot_logic.py:237:52: E261 at least two spaces before inline comment
+src/bot_logic.py:237:80: E501 line too long (100 > 79 characters)
+src/bot_logic.py:240:80: E501 line too long (85 > 79 characters)
+src/bot_logic.py:241:80: E501 line too long (90 > 79 characters)
+src/bot_logic.py:245:80: E501 line too long (85 > 79 characters)
+src/bot_logic.py:248:41: E261 at least two spaces before inline comment
+src/bot_logic.py:248:80: E501 line too long (89 > 79 characters)
+src/bot_logic.py:253:80: E501 line too long (110 > 79 characters)
+src/bot_logic.py:256:80: E501 line too long (82 > 79 characters)
+src/bot_logic.py:259:80: E501 line too long (88 > 79 characters)
+src/bot_logic.py:260:80: E501 line too long (95 > 79 characters)
+src/bot_logic.py:262:80: E501 line too long (84 > 79 characters)
+src/bot_logic.py:266:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:267:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:276:80: E501 line too long (84 > 79 characters)
+src/bot_logic.py:285:39: E261 at least two spaces before inline comment
+src/bot_logic.py:286:36: E261 at least two spaces before inline comment
+src/bot_logic.py:287:28: E261 at least two spaces before inline comment
+src/bot_logic.py:290:80: E501 line too long (99 > 79 characters)
+src/bot_logic.py:293:80: E501 line too long (118 > 79 characters)
+src/bot_logic.py:296:31: E261 at least two spaces before inline comment
+src/bot_logic.py:296:80: E501 line too long (85 > 79 characters)
+src/bot_logic.py:297:80: E501 line too long (102 > 79 characters)
+src/bot_logic.py:302:80: E501 line too long (82 > 79 characters)
+src/bot_logic.py:303:80: E501 line too long (87 > 79 characters)
+src/bot_logic.py:309:80: E501 line too long (109 > 79 characters)
+src/bot_logic.py:312:49: E701 multiple statements on one line (colon)
+src/bot_logic.py:312:80: E501 line too long (88 > 79 characters)
+src/bot_logic.py:313:52: E701 multiple statements on one line (colon)
+src/bot_logic.py:313:80: E501 line too long (94 > 79 characters)
+src/bot_logic.py:315:80: E501 line too long (99 > 79 characters)
+src/bot_logic.py:319:44: E701 multiple statements on one line (colon)
+src/bot_logic.py:319:54: E261 at least two spaces before inline comment
+src/bot_logic.py:326:80: E501 line too long (120 > 79 characters)
+src/bot_logic.py:331:80: E501 line too long (104 > 79 characters)
+src/bot_logic.py:334:80: E501 line too long (92 > 79 characters)
+src/bot_logic.py:336:28: F821 undefined name 'praw'
+src/bot_logic.py:337:26: E111 indentation is not a multiple of 4
+src/bot_logic.py:337:26: E117 over-indented
+src/bot_logic.py:337:80: E501 line too long (102 > 79 characters)
+src/bot_logic.py:338:26: E114 indentation is not a multiple of 4 (comment)
+src/bot_logic.py:340:80: E501 line too long (112 > 79 characters)
+src/bot_logic.py:351:40: E261 at least two spaces before inline comment
+src/bot_logic.py:351:80: E501 line too long (89 > 79 characters)
+src/bot_logic.py:357:80: E501 line too long (158 > 79 characters)
+src/bot_logic.py:366:80: E501 line too long (110 > 79 characters)
+src/bot_logic.py:371:80: E501 line too long (108 > 79 characters)
+src/bot_logic.py:373:80: E501 line too long (136 > 79 characters)
+src/bot_logic.py:375:80: E501 line too long (86 > 79 characters)
+src/bot_logic.py:381:1: E302 expected 2 blank lines, found 1
+src/bot_logic.py:385:80: E501 line too long (81 > 79 characters)
+src/bot_logic.py:387:80: E501 line too long (84 > 79 characters)
+src/bot_logic.py:390:80: E501 line too long (124 > 79 characters)
+src/bot_logic.py:392:50: E261 at least two spaces before inline comment
+src/bot_logic.py:393:51: E261 at least two spaces before inline comment
+src/bot_logic.py:394:80: E501 line too long (97 > 79 characters)
+src/bot_logic.py:396:80: E501 line too long (106 > 79 characters)
+src/bot_logic.py:399:37: E261 at least two spaces before inline comment
+src/bot_logic.py:402:80: E501 line too long (205 > 79 characters)
+src/bot_logic.py:406:80: E501 line too long (146 > 79 characters)
+src/bot_logic.py:407:80: E501 line too long (219 > 79 characters)
+src/bot_logic.py:417:80: E501 line too long (107 > 79 characters)
+src/bot_logic.py:423:80: E501 line too long (91 > 79 characters)
+src/bot_logic.py:427:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:428:80: E501 line too long (93 > 79 characters)
+src/bot_logic.py:434:80: E501 line too long (91 > 79 characters)
+src/bot_logic.py:446:80: E501 line too long (81 > 79 characters)
+src/bot_logic.py:447:80: E501 line too long (86 > 79 characters)
+src/bot_logic.py:453:18: E114 indentation is not a multiple of 4 (comment)
+src/bot_logic.py:453:18: E117 over-indented (comment)
+src/bot_logic.py:453:80: E501 line too long (84 > 79 characters)
+src/bot_logic.py:454:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:454:18: E117 over-indented
+src/bot_logic.py:454:80: E501 line too long (98 > 79 characters)
+src/bot_logic.py:455:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:458:20: E261 at least two spaces before inline comment
+src/bot_logic.py:477:80: E501 line too long (95 > 79 characters)
+src/bot_logic.py:485:80: E501 line too long (90 > 79 characters)
+src/bot_logic.py:486:80: E501 line too long (108 > 79 characters)
+src/bot_logic.py:504:80: E501 line too long (121 > 79 characters)
+src/bot_logic.py:508:22: E111 indentation is not a multiple of 4
+src/bot_logic.py:508:22: E117 over-indented
+src/bot_logic.py:508:80: E501 line too long (81 > 79 characters)
+src/bot_logic.py:509:22: E111 indentation is not a multiple of 4
+src/bot_logic.py:509:43: E701 multiple statements on one line (colon)
+src/bot_logic.py:515:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:515:18: E117 over-indented
+src/bot_logic.py:515:80: E501 line too long (126 > 79 characters)
+src/bot_logic.py:516:18: E111 indentation is not a multiple of 4
+src/bot_logic.py:520:80: E501 line too long (87 > 79 characters)
+src/bot_logic.py:531:80: E501 line too long (147 > 79 characters)
+src/bot_logic.py:532:80: E501 line too long (145 > 79 characters)
+src/bot_logic.py:538:80: E501 line too long (95 > 79 characters)
+src/bot_logic.py:545:80: E501 line too long (88 > 79 characters)
+src/bot_logic.py:546:80: E501 line too long (107 > 79 characters)
+src/bot_logic.py:547:31: E701 multiple statements on one line (colon)
+src/bot_logic.py:547:80: E501 line too long (90 > 79 characters)
+src/bot_logic.py:552:19: E261 at least two spaces before inline comment
+src/bot_logic.py:557:80: E501 line too long (90 > 79 characters)
+src/bot_logic.py:560:80: E501 line too long (117 > 79 characters)
+src/bot_logic.py:562:80: E501 line too long (80 > 79 characters)
+src/bot_logic.py:565:71: E261 at least two spaces before inline comment
+src/bot_logic.py:565:80: E501 line too long (91 > 79 characters)
+src/bot_logic.py:568:14: E111 indentation is not a multiple of 4
+src/bot_logic.py:568:14: E117 over-indented
+src/bot_logic.py:568:80: E501 line too long (109 > 79 characters)
+src/bot_logic.py:572:80: E501 line too long (113 > 79 characters)
+src/bot_logic.py:573:41: E261 at least two spaces before inline comment
+src/bot_logic.py:585:80: E501 line too long (88 > 79 characters)
+src/bot_logic.py:588:80: E501 line too long (89 > 79 characters)
+src/bot_logic.py:596:30: E261 at least two spaces before inline comment
+src/bot_logic.py:597:37: E261 at least two spaces before inline comment
+src/bot_logic.py:604:80: E501 line too long (83 > 79 characters)
+src/bot_logic.py:611:48: E701 multiple statements on one line (colon)
+src/bot_logic.py:616:31: E261 at least two spaces before inline comment
+src/bot_logic.py:616:80: E501 line too long (83 > 79 characters)
+src/bot_logic.py:624:80: E501 line too long (121 > 79 characters)
+src/bot_logic.py:630:22: E111 indentation is not a multiple of 4
+src/bot_logic.py:630:22: E117 over-indented
+src/bot_logic.py:630:80: E501 line too long (81 > 79 characters)
+src/bot_logic.py:631:22: E114 indentation is not a multiple of 4 (comment)
+src/bot_logic.py:632:22: E111 indentation is not a multiple of 4
+src/bot_logic.py:633:26: E111 indentation is not a multiple of 4
+src/bot_logic.py:633:47: E701 multiple statements on one line (colon)
+src/bot_logic.py:634:22: E722 do not use bare 'except'
+src/bot_logic.py:634:22: E111 indentation is not a multiple of 4
+src/bot_logic.py:635:26: E111 indentation is not a multiple of 4
+src/bot_logic.py:635:30: E261 at least two spaces before inline comment
+src/bot_logic.py:638:80: E501 line too long (84 > 79 characters)
+src/bot_logic.py:644:1: E305 expected 2 blank lines after class or function definition, found 1
+src/bot_logic.py:654:80: E501 line too long (111 > 79 characters)
+src/bot_logic.py:661:14: E111 indentation is not a multiple of 4
+src/bot_logic.py:661:14: E117 over-indented
+src/bot_logic.py:662:1: W391 blank line at end of file
+src/core/altcoin_correlation.py:3:1: F401 'typing.Tuple' imported but unused
+src/core/altcoin_correlation.py:3:1: F401 'typing.Optional' imported but unused
+src/core/altcoin_correlation.py:5:1: F401 'time' imported but unused
+src/core/altcoin_correlation.py:7:1: E302 expected 2 blank lines, found 1
+src/core/altcoin_correlation.py:9:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:10:80: E501 line too long (81 > 79 characters)
+src/core/altcoin_correlation.py:12:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:15:80: E501 line too long (87 > 79 characters)
+src/core/altcoin_correlation.py:18:80: E501 line too long (99 > 79 characters)
+src/core/altcoin_correlation.py:27:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:28:80: E501 line too long (99 > 79 characters)
+src/core/altcoin_correlation.py:30:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:35:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:41:80: E501 line too long (101 > 79 characters)
+src/core/altcoin_correlation.py:48:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:49:80: E501 line too long (110 > 79 characters)
+src/core/altcoin_correlation.py:51:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:56:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:65:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:67:80: E501 line too long (82 > 79 characters)
+src/core/altcoin_correlation.py:69:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:71:80: E501 line too long (82 > 79 characters)
+src/core/altcoin_correlation.py:72:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:77:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:80:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:85:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:87:80: E501 line too long (83 > 79 characters)
+src/core/altcoin_correlation.py:90:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:92:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:94:80: E501 line too long (88 > 79 characters)
+src/core/altcoin_correlation.py:95:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:97:80: E501 line too long (91 > 79 characters)
+src/core/altcoin_correlation.py:98:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:107:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:113:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:115:80: E501 line too long (99 > 79 characters)
+src/core/altcoin_correlation.py:116:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:119:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:122:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:125:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:135:80: E501 line too long (95 > 79 characters)
+src/core/altcoin_correlation.py:138:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:141:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:143:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:153:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:156:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:162:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:164:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:168:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:170:80: E501 line too long (98 > 79 characters)
+src/core/altcoin_correlation.py:173:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:177:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:179:80: E501 line too long (132 > 79 characters)
+src/core/altcoin_correlation.py:180:80: E501 line too long (82 > 79 characters)
+src/core/altcoin_correlation.py:182:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:183:80: E501 line too long (84 > 79 characters)
+src/core/altcoin_correlation.py:184:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:189:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:199:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:205:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:207:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:210:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:216:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:218:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:223:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:225:80: E501 line too long (81 > 79 characters)
+src/core/altcoin_correlation.py:234:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:239:80: E501 line too long (132 > 79 characters)
+src/core/altcoin_correlation.py:241:80: E501 line too long (112 > 79 characters)
+src/core/altcoin_correlation.py:242:80: E501 line too long (91 > 79 characters)
+src/core/altcoin_correlation.py:247:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:251:1: E305 expected 2 blank lines after class or function definition, found 1
+src/core/altcoin_correlation.py:256:1: W293 blank line contains whitespace
+src/core/altcoin_correlation.py:261:80: E501 line too long (131 > 79 characters)
+src/core/altcoin_correlation.py:261:132: W292 no newline at end of file
+src/core/candlestick_patterns.py:1:1: F401 'numpy as np' imported but unused
+src/core/candlestick_patterns.py:4:1: F401 'typing.Tuple' imported but unused
+src/core/candlestick_patterns.py:4:1: F401 'typing.Optional' imported but unused
+src/core/candlestick_patterns.py:6:1: E302 expected 2 blank lines, found 1
+src/core/candlestick_patterns.py:8:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:14:80: E501 line too long (83 > 79 characters)
+src/core/candlestick_patterns.py:21:80: E501 line too long (81 > 79 characters)
+src/core/candlestick_patterns.py:25:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:31:80: E501 line too long (80 > 79 characters)
+src/core/candlestick_patterns.py:32:80: E501 line too long (82 > 79 characters)
+src/core/candlestick_patterns.py:34:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:44:80: E501 line too long (101 > 79 characters)
+src/core/candlestick_patterns.py:46:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:49:80: E501 line too long (86 > 79 characters)
+src/core/candlestick_patterns.py:52:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:55:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:58:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:62:80: E501 line too long (89 > 79 characters)
+src/core/candlestick_patterns.py:63:80: E501 line too long (93 > 79 characters)
+src/core/candlestick_patterns.py:64:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:70:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:76:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:79:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:87:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:89:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:92:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:95:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:105:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:107:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:110:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:114:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:116:13: F841 local variable 'is_bullish' is assigned to but never used
+src/core/candlestick_patterns.py:118:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:122:80: E501 line too long (97 > 79 characters)
+src/core/candlestick_patterns.py:125:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:137:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:140:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:144:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:148:80: E501 line too long (106 > 79 characters)
+src/core/candlestick_patterns.py:151:80: E501 line too long (106 > 79 characters)
+src/core/candlestick_patterns.py:155:80: E501 line too long (98 > 79 characters)
+src/core/candlestick_patterns.py:158:80: E501 line too long (98 > 79 characters)
+src/core/candlestick_patterns.py:159:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:170:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:173:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:176:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:182:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:185:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:189:80: E501 line too long (123 > 79 characters)
+src/core/candlestick_patterns.py:190:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:193:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:195:80: E501 line too long (102 > 79 characters)
+src/core/candlestick_patterns.py:196:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:198:80: E501 line too long (102 > 79 characters)
+src/core/candlestick_patterns.py:199:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:201:80: E501 line too long (93 > 79 characters)
+src/core/candlestick_patterns.py:202:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:204:80: E501 line too long (93 > 79 characters)
+src/core/candlestick_patterns.py:206:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:208:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:211:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:214:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:221:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:225:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:246:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:248:80: E501 line too long (97 > 79 characters)
+src/core/candlestick_patterns.py:249:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:259:1: E305 expected 2 blank lines after class or function definition, found 1
+src/core/candlestick_patterns.py:268:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:275:1: W293 blank line contains whitespace
+src/core/candlestick_patterns.py:277:80: E501 line too long (84 > 79 characters)
+src/core/candlestick_patterns.py:278:80: E501 line too long (105 > 79 characters)
+src/core/candlestick_patterns.py:281:80: E501 line too long (119 > 79 characters)
+src/core/candlestick_patterns.py:281:120: W292 no newline at end of file
+src/core/grid_logic.py:334:19: E999 SyntaxError: unterminated string literal (detected at line 334)
+src/core/pair_selector.py:89:87: E999 SyntaxError: unexpected character after line continuation character
+src/core/risk_management.py:100:88: E999 SyntaxError: unexpected character after line continuation character
+src/core/rl_agent.py:4:24: E261 at least two spaces before inline comment
+src/core/rl_agent.py:6:1: F401 'stable_baselines3.PPO' imported but unused
+src/core/rl_agent.py:6:1: F401 'stable_baselines3.SAC' imported but unused
+src/core/rl_agent.py:7:1: F401 'stable_baselines3.common.env_checker.check_env' imported but unused
+src/core/rl_agent.py:8:1: F401 'stable_baselines3.common.vec_env.DummyVecEnv' imported but unused
+src/core/rl_agent.py:8:1: F401 'stable_baselines3.common.vec_env.SubprocVecEnv' imported but unused
+src/core/rl_agent.py:9:1: F401 'stable_baselines3.common.callbacks.BaseCallback' imported but unused
+src/core/rl_agent.py:13:1: F401 'tensorflow as tf' imported but unused
+src/core/rl_agent.py:26:80: E501 line too long (185 > 79 characters)
+src/core/rl_agent.py:29:1: E302 expected 2 blank lines, found 1
+src/core/rl_agent.py:43:76: E261 at least two spaces before inline comment
+src/core/rl_agent.py:43:80: E501 line too long (88 > 79 characters)
+src/core/rl_agent.py:44:59: E261 at least two spaces before inline comment
+src/core/rl_agent.py:47:36: E261 at least two spaces before inline comment
+src/core/rl_agent.py:48:33: E261 at least two spaces before inline comment
+src/core/rl_agent.py:59:79: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:59:80: E501 line too long (94 > 79 characters)
+src/core/rl_agent.py:60:79: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:60:80: E501 line too long (94 > 79 characters)
+src/core/rl_agent.py:61:79: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:61:80: E501 line too long (94 > 79 characters)
+src/core/rl_agent.py:63:65: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:63:80: E501 line too long (80 > 79 characters)
+src/core/rl_agent.py:65:69: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:65:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:70:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:71:39: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:71:55: E261 at least two spaces before inline comment
+src/core/rl_agent.py:72:43: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:72:59: E261 at least two spaces before inline comment
+src/core/rl_agent.py:72:80: E501 line too long (99 > 79 characters)
+src/core/rl_agent.py:74:21: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:74:80: E501 line too long (89 > 79 characters)
+src/core/rl_agent.py:77:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:77:14: E117 over-indented
+src/core/rl_agent.py:77:80: E501 line too long (100 > 79 characters)
+src/core/rl_agent.py:82:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:84:18: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:84:18: E117 over-indented
+src/core/rl_agent.py:84:43: E261 at least two spaces before inline comment
+src/core/rl_agent.py:84:80: E501 line too long (100 > 79 characters)
+src/core/rl_agent.py:85:18: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:85:80: E501 line too long (99 > 79 characters)
+src/core/rl_agent.py:87:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:87:14: E117 over-indented
+src/core/rl_agent.py:87:80: E501 line too long (98 > 79 characters)
+src/core/rl_agent.py:90:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:90:14: E117 over-indented
+src/core/rl_agent.py:90:80: E501 line too long (108 > 79 characters)
+src/core/rl_agent.py:91:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:94:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:96:80: E501 line too long (96 > 79 characters)
+src/core/rl_agent.py:97:80: E501 line too long (126 > 79 characters)
+src/core/rl_agent.py:98:80: E501 line too long (96 > 79 characters)
+src/core/rl_agent.py:99:80: E501 line too long (92 > 79 characters)
+src/core/rl_agent.py:103:37: E261 at least two spaces before inline comment
+src/core/rl_agent.py:106:80: E501 line too long (149 > 79 characters)
+src/core/rl_agent.py:120:80: E501 line too long (93 > 79 characters)
+src/core/rl_agent.py:132:27: E261 at least two spaces before inline comment
+src/core/rl_agent.py:133:26: E261 at least two spaces before inline comment
+src/core/rl_agent.py:139:80: E501 line too long (89 > 79 characters)
+src/core/rl_agent.py:145:14: E114 indentation is not a multiple of 4 (comment)
+src/core/rl_agent.py:145:14: E117 over-indented (comment)
+src/core/rl_agent.py:146:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:146:14: E117 over-indented
+src/core/rl_agent.py:147:14: E114 indentation is not a multiple of 4 (comment)
+src/core/rl_agent.py:148:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:148:62: E261 at least two spaces before inline comment
+src/core/rl_agent.py:149:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:149:80: E501 line too long (98 > 79 characters)
+src/core/rl_agent.py:150:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:150:80: E501 line too long (87 > 79 characters)
+src/core/rl_agent.py:152:14: E114 indentation is not a multiple of 4 (comment)
+src/core/rl_agent.py:152:14: E117 over-indented (comment)
+src/core/rl_agent.py:153:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:153:14: E117 over-indented
+src/core/rl_agent.py:154:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:154:80: E501 line too long (110 > 79 characters)
+src/core/rl_agent.py:155:14: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:155:80: E501 line too long (102 > 79 characters)
+src/core/rl_agent.py:163:80: E501 line too long (147 > 79 characters)
+src/core/rl_agent.py:171:9: F841 local variable 'volume_p' is assigned to but never used
+src/core/rl_agent.py:175:22: E261 at least two spaces before inline comment
+src/core/rl_agent.py:177:20: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:177:73: E261 at least two spaces before inline comment
+src/core/rl_agent.py:177:80: E501 line too long (97 > 79 characters)
+src/core/rl_agent.py:178:17: E722 do not use bare 'except'
+src/core/rl_agent.py:178:23: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:179:57: E261 at least two spaces before inline comment
+src/core/rl_agent.py:182:28: E261 at least two spaces before inline comment
+src/core/rl_agent.py:187:38: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:190:17: E722 do not use bare 'except'
+src/core/rl_agent.py:190:23: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:191:62: E261 at least two spaces before inline comment
+src/core/rl_agent.py:191:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:194:23: E261 at least two spaces before inline comment
+src/core/rl_agent.py:196:20: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:196:80: E501 line too long (112 > 79 characters)
+src/core/rl_agent.py:196:88: E261 at least two spaces before inline comment
+src/core/rl_agent.py:197:17: E722 do not use bare 'except'
+src/core/rl_agent.py:197:23: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:198:58: E261 at least two spaces before inline comment
+src/core/rl_agent.py:198:80: E501 line too long (80 > 79 characters)
+src/core/rl_agent.py:203:32: E261 at least two spaces before inline comment
+src/core/rl_agent.py:207:80: E501 line too long (86 > 79 characters)
+src/core/rl_agent.py:208:56: E261 at least two spaces before inline comment
+src/core/rl_agent.py:208:80: E501 line too long (91 > 79 characters)
+src/core/rl_agent.py:210:26: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:210:26: E117 over-indented
+src/core/rl_agent.py:211:26: E111 indentation is not a multiple of 4
+src/core/rl_agent.py:211:76: E261 at least two spaces before inline comment
+src/core/rl_agent.py:211:80: E501 line too long (99 > 79 characters)
+src/core/rl_agent.py:212:17: E722 do not use bare 'except'
+src/core/rl_agent.py:212:23: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:216:32: E261 at least two spaces before inline comment
+src/core/rl_agent.py:223:57: E261 at least two spaces before inline comment
+src/core/rl_agent.py:223:80: E501 line too long (100 > 79 characters)
+src/core/rl_agent.py:224:17: E722 do not use bare 'except'
+src/core/rl_agent.py:224:23: E701 multiple statements on one line (colon)
+src/core/rl_agent.py:228:80: E501 line too long (83 > 79 characters)
+src/core/rl_agent.py:229:80: E501 line too long (88 > 79 characters)
+src/core/rl_agent.py:235:34: E261 at least two spaces before inline comment
+src/core/rl_agent.py:241:17: F841 local variable 'e' is assigned to but never used
+src/core/rl_agent.py:242:80: E501 line too long (83 > 79 characters)
+src/core/rl_agent.py:243:25: E261 at least two spaces before inline comment
+src/core/rl_agent.py:246:80: E501 line too long (81 > 79 characters)
+src/core/rl_agent.py:247:80: E501 line too long (90 > 79 characters)
+src/core/rl_agent.py:253:30: E261 at least two spaces before inline comment
+src/core/rl_agent.py:253:80: E501 line too long (83 > 79 characters)
+src/core/rl_agent.py:254:31: E261 at least two spaces before inline comment
+src/core/rl_agent.py:254:80: E501 line too long (81 > 79 characters)
+src/core/rl_agent.py:255:33: E261 at least two spaces before inline comment
+src/core/rl_agent.py:260:32: E261 at least two spaces before inline comment
+src/core/rl_agent.py:260:80: E501 line too long (81 > 79 characters)
+src/core/rl_agent.py:261:28: E261 at least two spaces before inline comment
+src/core/rl_agent.py:261:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:269:80: E501 line too long (179 > 79 characters)
+src/core/rl_agent.py:275:80: E501 line too long (82 > 79 characters)
+src/core/rl_agent.py:279:38: E261 at least two spaces before inline comment
+src/core/rl_agent.py:283:54: E261 at least two spaces before inline comment
+src/core/rl_agent.py:299:1: E302 expected 2 blank lines, found 1
+src/core/rl_agent.py:300:80: E501 line too long (99 > 79 characters)
+src/core/rl_agent.py:306:80: E501 line too long (104 > 79 characters)
+src/core/rl_agent.py:309:80: E501 line too long (84 > 79 characters)
+src/core/rl_agent.py:310:80: E501 line too long (91 > 79 characters)
+src/core/rl_agent.py:312:1: W293 blank line contains whitespace
+src/core/rl_agent.py:319:1: W293 blank line contains whitespace
+src/core/rl_agent.py:332:80: E501 line too long (115 > 79 characters)
+src/core/rl_agent.py:333:1: W293 blank line contains whitespace
+src/core/rl_agent.py:337:80: E501 line too long (94 > 79 characters)
+src/core/rl_agent.py:338:1: W293 blank line contains whitespace
+src/core/rl_agent.py:344:1: W293 blank line contains whitespace
+src/core/rl_agent.py:348:1: W293 blank line contains whitespace
+src/core/rl_agent.py:350:80: E501 line too long (91 > 79 characters)
+src/core/rl_agent.py:352:1: W293 blank line contains whitespace
+src/core/rl_agent.py:356:80: E501 line too long (94 > 79 characters)
+src/core/rl_agent.py:357:1: W293 blank line contains whitespace
+src/core/rl_agent.py:360:1: W293 blank line contains whitespace
+src/core/rl_agent.py:362:80: E501 line too long (81 > 79 characters)
+src/core/rl_agent.py:363:80: E501 line too long (97 > 79 characters)
+src/core/rl_agent.py:366:80: E501 line too long (107 > 79 characters)
+src/core/rl_agent.py:367:80: E501 line too long (101 > 79 characters)
+src/core/rl_agent.py:369:80: E501 line too long (87 > 79 characters)
+src/core/rl_agent.py:372:80: E501 line too long (101 > 79 characters)
+src/core/rl_agent.py:374:1: W293 blank line contains whitespace
+src/core/rl_agent.py:383:1: W293 blank line contains whitespace
+src/core/rl_agent.py:386:1: W293 blank line contains whitespace
+src/core/rl_agent.py:387:80: E501 line too long (89 > 79 characters)
+src/core/rl_agent.py:388:1: W293 blank line contains whitespace
+src/core/rl_agent.py:394:1: W293 blank line contains whitespace
+src/core/rl_agent.py:401:1: W293 blank line contains whitespace
+src/core/rl_agent.py:405:1: W293 blank line contains whitespace
+src/core/rl_agent.py:407:80: E501 line too long (85 > 79 characters)
+src/core/rl_agent.py:409:1: W293 blank line contains whitespace
+src/core/rl_agent.py:411:80: E501 line too long (80 > 79 characters)
+src/core/rl_agent.py:412:1: W293 blank line contains whitespace
+src/core/rl_agent.py:417:1: W293 blank line contains whitespace
+src/core/rl_agent.py:421:1: W293 blank line contains whitespace
+src/core/rl_agent.py:423:80: E501 line too long (155 > 79 characters)
+src/core/rl_agent.py:424:1: W293 blank line contains whitespace
+src/core/rl_agent.py:428:1: W293 blank line contains whitespace
+src/core/rl_agent.py:432:80: E501 line too long (115 > 79 characters)
+src/core/rl_agent.py:434:1: W293 blank line contains whitespace
+src/core/rl_agent.py:442:80: E501 line too long (82 > 79 characters)
+src/core/rl_agent.py:444:1: W293 blank line contains whitespace
+src/core/rl_agent.py:448:80: E501 line too long (128 > 79 characters)
+src/core/rl_agent.py:450:1: W293 blank line contains whitespace
+src/core/rl_agent.py:455:1: W293 blank line contains whitespace
+src/core/rl_agent.py:465:1: W293 blank line contains whitespace
+src/core/rl_agent.py:475:80: E501 line too long (86 > 79 characters)
+src/core/rl_agent.py:478:1: W293 blank line contains whitespace
+src/core/rl_agent.py:483:1: W293 blank line contains whitespace
+src/core/rl_agent.py:489:80: E501 line too long (85 > 79 characters)
+src/core/rl_agent.py:491:1: W293 blank line contains whitespace
+src/core/rl_agent.py:493:1: W293 blank line contains whitespace
+src/core/rl_agent.py:495:80: E501 line too long (80 > 79 characters)
+src/core/rl_agent.py:500:1: E302 expected 2 blank lines, found 1
+src/core/rl_agent.py:501:80: E501 line too long (88 > 79 characters)
+src/core/rl_agent.py:506:80: E501 line too long (91 > 79 characters)
+src/core/rl_agent.py:511:1: W293 blank line contains whitespace
+src/core/rl_agent.py:516:1: W293 blank line contains whitespace
+src/core/rl_agent.py:526:1: W293 blank line contains whitespace
+src/core/rl_agent.py:541:1: W391 blank line at end of file
+src/main.py:8:1: E402 module level import not at top of file
+src/main.py:9:1: E402 module level import not at top of file
+src/main.py:10:1: E402 module level import not at top of file
+src/main.py:11:1: E402 module level import not at top of file
+src/main.py:14:1: E402 module level import not at top of file
+src/main.py:15:1: E402 module level import not at top of file
+src/main.py:16:1: E402 module level import not at top of file
+src/main.py:17:1: E402 module level import not at top of file
+src/main.py:18:1: E402 module level import not at top of file
+src/main.py:19:1: F401 'core.pair_selector.PairSelector' imported but unused
+src/main.py:19:1: E402 module level import not at top of file
+src/main.py:23:1: E402 module level import not at top of file
+src/main.py:27:10: E261 at least two spaces before inline comment
+src/main.py:43:10: E261 at least two spaces before inline comment
+src/main.py:44:17: E261 at least two spaces before inline comment
+src/main.py:47:1: E302 expected 2 blank lines, found 1
+src/main.py:52:80: E501 line too long (80 > 79 characters)
+src/main.py:54:80: E501 line too long (81 > 79 characters)
+src/main.py:59:80: E501 line too long (86 > 79 characters)
+src/main.py:65:80: E501 line too long (81 > 79 characters)
+src/main.py:66:80: E501 line too long (88 > 79 characters)
+src/main.py:71:80: E501 line too long (93 > 79 characters)
+src/main.py:75:1: E302 expected 2 blank lines, found 1
+src/main.py:80:14: E111 indentation is not a multiple of 4
+src/main.py:80:14: E117 over-indented
+src/main.py:81:14: E111 indentation is not a multiple of 4
+src/main.py:84:80: E501 line too long (83 > 79 characters)
+src/main.py:106:80: E501 line too long (80 > 79 characters)
+src/main.py:116:1: E302 expected 2 blank lines, found 1
+src/main.py:119:80: E501 line too long (90 > 79 characters)
+src/main.py:125:1: E302 expected 2 blank lines, found 1
+src/main.py:132:19: F821 undefined name 'binance_client'
+src/main.py:134:80: E501 line too long (143 > 79 characters)
+src/main.py:140:1: E302 expected 2 blank lines, found 1
+src/main.py:148:80: E501 line too long (81 > 79 characters)
+src/main.py:155:80: E501 line too long (104 > 79 characters)
+src/main.py:157:1: E302 expected 2 blank lines, found 1
+src/main.py:162:37: E261 at least two spaces before inline comment
+src/main.py:165:80: E501 line too long (94 > 79 characters)
+src/main.py:167:80: E501 line too long (90 > 79 characters)
+src/main.py:175:80: E501 line too long (93 > 79 characters)
+src/main.py:181:1: E302 expected 2 blank lines, found 1
+src/main.py:191:80: E501 line too long (95 > 79 characters)
+src/main.py:195:15: E261 at least two spaces before inline comment
+src/main.py:201:80: E501 line too long (86 > 79 characters)
+src/main.py:205:80: E501 line too long (80 > 79 characters)
+src/main.py:207:1: E302 expected 2 blank lines, found 1
+src/main.py:213:80: E501 line too long (95 > 79 characters)
+src/main.py:216:1: E305 expected 2 blank lines after class or function definition, found 1
+src/main.py:220:51: E261 at least two spaces before inline comment
+src/main.py:220:80: E501 line too long (84 > 79 characters)
+src/main.py:221:1: W391 blank line at end of file
+src/models/tabular_model.py:6:1: F401 'sklearn.model_selection.train_test_split' imported but unused
+src/models/tabular_model.py:7:1: F401 'sklearn.metrics.accuracy_score' imported but unused
+src/models/tabular_model.py:11:1: E302 expected 2 blank lines, found 1
+src/models/tabular_model.py:18:80: E501 line too long (132 > 79 characters)
+src/models/tabular_model.py:36:1: E302 expected 2 blank lines, found 1
+src/models/tabular_model.py:37:80: E501 line too long (97 > 79 characters)
+src/models/tabular_model.py:40:1: E302 expected 2 blank lines, found 1
+src/models/user.py:5:1: E302 expected 2 blank lines, found 1
+src/rl/__init__.py:5:51: W292 no newline at end of file
+src/rl/agent.py:2:1: F401 'pandas as pd' imported but unused
+src/rl/agent.py:3:1: F401 'tensorflow as tf' imported but unused
+src/rl/agent.py:11:1: E302 expected 2 blank lines, found 1
+src/rl/agent.py:13:80: E501 line too long (88 > 79 characters)
+src/rl/agent.py:19:80: E501 line too long (94 > 79 characters)
+src/rl/agent.py:20:80: E501 line too long (88 > 79 characters)
+src/rl/agent.py:27:1: W293 blank line contains whitespace
+src/rl/agent.py:31:80: E501 line too long (96 > 79 characters)
+src/rl/agent.py:32:1: W293 blank line contains whitespace
+src/rl/agent.py:36:80: E501 line too long (87 > 79 characters)
+src/rl/agent.py:40:80: E501 line too long (90 > 79 characters)
+src/rl/agent.py:45:80: E501 line too long (97 > 79 characters)
+src/rl/agent.py:46:80: E501 line too long (83 > 79 characters)
+src/rl/agent.py:48:1: W293 blank line contains whitespace
+src/rl/agent.py:54:1: W293 blank line contains whitespace
+src/rl/agent.py:57:80: E501 line too long (81 > 79 characters)
+src/rl/agent.py:64:1: W293 blank line contains whitespace
+src/rl/agent.py:69:1: W293 blank line contains whitespace
+src/rl/agent.py:77:1: W293 blank line contains whitespace
+src/rl/agent.py:80:1: W293 blank line contains whitespace
+src/rl/agent.py:84:1: W293 blank line contains whitespace
+src/rl/agent.py:89:80: E501 line too long (100 > 79 characters)
+src/rl/agent.py:90:1: W293 blank line contains whitespace
+src/rl/agent.py:95:1: W293 blank line contains whitespace
+src/rl/agent.py:98:1: W293 blank line contains whitespace
+src/rl/agent.py:102:1: W293 blank line contains whitespace
+src/rl/agent.py:108:1: W293 blank line contains whitespace
+src/rl/agent.py:114:80: E501 line too long (89 > 79 characters)
+src/rl/agent.py:114:90: W292 no newline at end of file
+src/rl/environment.py:3:1: F401 'typing.List' imported but unused
+src/rl/environment.py:3:1: F401 'typing.Dict' imported but unused
+src/rl/environment.py:3:1: F401 'typing.Tuple' imported but unused
+src/rl/environment.py:3:1: F401 'typing.Any' imported but unused
+src/rl/environment.py:4:24: E261 at least two spaces before inline comment
+src/rl/environment.py:9:1: E302 expected 2 blank lines, found 1
+src/rl/environment.py:12:80: E501 line too long (81 > 79 characters)
+src/rl/environment.py:16:80: E501 line too long (198 > 79 characters)
+src/rl/environment.py:21:80: E501 line too long (121 > 79 characters)
+src/rl/environment.py:25:80: E501 line too long (96 > 79 characters)
+src/rl/environment.py:36:37: E261 at least two spaces before inline comment
+src/rl/environment.py:42:80: E501 line too long (149 > 79 characters)
+src/rl/environment.py:43:80: E501 line too long (98 > 79 characters)
+src/rl/environment.py:45:27: E261 at least two spaces before inline comment
+src/rl/environment.py:47:34: E261 at least two spaces before inline comment
+src/rl/environment.py:49:48: E261 at least two spaces before inline comment
+src/rl/environment.py:50:80: E501 line too long (152 > 79 characters)
+src/rl/environment.py:52:80: E501 line too long (88 > 79 characters)
+src/rl/environment.py:53:80: E501 line too long (82 > 79 characters)
+src/rl/environment.py:55:80: E501 line too long (92 > 79 characters)
+src/rl/environment.py:68:80: E501 line too long (151 > 79 characters)
+src/rl/environment.py:90:80: E501 line too long (81 > 79 characters)
+src/rl/environment.py:93:35: E261 at least two spaces before inline comment
+src/rl/environment.py:101:80: E501 line too long (121 > 79 characters)
+src/rl/environment.py:104:80: E501 line too long (84 > 79 characters)
+src/rl/environment.py:107:14: E114 indentation is not a multiple of 4 (comment)
+src/rl/environment.py:107:14: E117 over-indented (comment)
+src/rl/environment.py:108:14: E111 indentation is not a multiple of 4
+src/rl/environment.py:108:14: E117 over-indented
+src/rl/environment.py:108:80: E501 line too long (135 > 79 characters)
+src/rl/environment.py:109:14: E111 indentation is not a multiple of 4
+src/rl/environment.py:111:72: E203 whitespace before ':'
+src/rl/environment.py:111:80: E501 line too long (92 > 79 characters)
+src/rl/environment.py:113:80: E501 line too long (124 > 79 characters)
+src/rl/environment.py:131:80: E501 line too long (104 > 79 characters)
+src/rl/environment.py:131:82: E261 at least two spaces before inline comment
+src/rl/environment.py:136:18: E114 indentation is not a multiple of 4 (comment)
+src/rl/environment.py:136:18: E117 over-indented (comment)
+src/rl/environment.py:137:18: E111 indentation is not a multiple of 4
+src/rl/environment.py:137:18: E117 over-indented
+src/rl/environment.py:140:80: E501 line too long (111 > 79 characters)
+src/rl/environment.py:142:9: F841 local variable 'portfolio_value' is assigned to but never used
+src/rl/environment.py:145:80: E501 line too long (205 > 79 characters)
+src/rl/environment.py:145:154: E261 at least two spaces before inline comment
+src/rl/environment.py:146:80: E501 line too long (117 > 79 characters)
+src/rl/environment.py:146:87: E261 at least two spaces before inline comment
+src/rl/environment.py:147:80: E501 line too long (126 > 79 characters)
+src/rl/environment.py:147:89: E261 at least two spaces before inline comment
+src/rl/environment.py:153:80: E501 line too long (94 > 79 characters)
+src/rl/environment.py:159:14: E111 indentation is not a multiple of 4
+src/rl/environment.py:159:14: E117 over-indented
+src/rl/environment.py:159:80: E501 line too long (131 > 79 characters)
+src/rl/environment.py:160:14: E114 indentation is not a multiple of 4 (comment)
+src/rl/environment.py:161:14: E111 indentation is not a multiple of 4
+src/rl/environment.py:162:18: E111 indentation is not a multiple of 4
+src/rl/environment.py:163:14: E111 indentation is not a multiple of 4
+src/rl/environment.py:164:18: E111 indentation is not a multiple of 4
+src/rl/environment.py:164:80: E501 line too long (101 > 79 characters)
+src/rl/environment.py:165:18: E111 indentation is not a multiple of 4
+src/rl/environment.py:188:40: E261 at least two spaces before inline comment
+src/rl/environment.py:188:80: E501 line too long (80 > 79 characters)
+src/rl/environment.py:195:80: E501 line too long (84 > 79 characters)
+src/rl/environment.py:196:80: E501 line too long (89 > 79 characters)
+src/rl/environment.py:199:80: E501 line too long (85 > 79 characters)
+src/rl/environment.py:200:80: E501 line too long (106 > 79 characters)
+src/rl/environment.py:206:80: E501 line too long (104 > 79 characters)
+src/rl/environment.py:220:42: F821 undefined name 'current_price'
+src/rl/environment.py:220:63: F821 undefined name 'commission'
+src/rl/environment.py:221:51: E261 at least two spaces before inline comment
+src/rl/environment.py:223:40: F821 undefined name 'current_price'
+src/rl/environment.py:224:42: F821 undefined name 'commission'
+src/rl/environment.py:229:80: F821 undefined name 'current_price'
+src/rl/environment.py:229:80: E501 line too long (160 > 79 characters)
+src/rl/environment.py:233:80: E501 line too long (206 > 79 characters)
+src/rl/environment.py:233:130: F821 undefined name 'current_price'
+src/rl/environment.py:234:35: E261 at least two spaces before inline comment
+src/rl/environment.py:236:34: E261 at least two spaces before inline comment
+src/rl/environment.py:236:80: E501 line too long (83 > 79 characters)
+src/rl/environment.py:238:31: E261 at least two spaces before inline comment
+src/rl/environment.py:242:62: E261 at least two spaces before inline comment
+src/rl/environment.py:242:80: E501 line too long (85 > 79 characters)
+src/rl/environment.py:244:51: F821 undefined name 'current_price'
+src/rl/environment.py:245:52: F821 undefined name 'commission'
+src/rl/environment.py:251:80: E501 line too long (208 > 79 characters)
+src/rl/environment.py:251:132: F821 undefined name 'current_price'
+src/rl/environment.py:253:35: F821 undefined name 'current_price'
+src/rl/environment.py:253:80: E501 line too long (114 > 79 characters)
+src/rl/environment.py:254:40: E261 at least two spaces before inline comment
+src/rl/environment.py:254:80: E501 line too long (94 > 79 characters)
+src/rl/environment.py:255:45: E701 multiple statements on one line (colon)
+src/rl/environment.py:255:66: E261 at least two spaces before inline comment
+src/rl/environment.py:255:80: E501 line too long (103 > 79 characters)
+src/rl/environment.py:257:35: E261 at least two spaces before inline comment
+src/rl/environment.py:259:30: E261 at least two spaces before inline comment
+src/rl/environment.py:271:38: E261 at least two spaces before inline comment
+src/rl/environment.py:271:80: E501 line too long (91 > 79 characters)
+src/rl/environment.py:277:80: E501 line too long (84 > 79 characters)
+src/rl/environment.py:278:80: E501 line too long (120 > 79 characters)
+src/rl/environment.py:284:80: E501 line too long (111 > 79 characters)
+src/rl/environment.py:308:80: E501 line too long (95 > 79 characters)
+src/rl/environment.py:313:13: E261 at least two spaces before inline comment
+src/rl/environment.py:314:1: W391 blank line at end of file
+src/rl/train_rl_agent.py:8:1: E302 expected 2 blank lines, found 1
+src/rl/train_rl_agent.py:28:80: E501 line too long (91 > 79 characters)
+src/rl/train_rl_agent.py:34:1: E305 expected 2 blank lines after class or function definition, found 1
+src/rl/train_rl_agent.py:36:80: E501 line too long (104 > 79 characters)
+src/routes/model_api.py:6:1: F401 'os' imported but unused
+src/routes/model_api.py:11:1: E302 expected 2 blank lines, found 1
+src/routes/model_api.py:21:1: E302 expected 2 blank lines, found 1
+src/routes/user.py:6:1: E302 expected 2 blank lines, found 1
+src/routes/user.py:11:1: E302 expected 2 blank lines, found 1
+src/routes/user.py:13:1: W293 blank line contains whitespace
+src/routes/user.py:20:1: E302 expected 2 blank lines, found 1
+src/routes/user.py:25:1: E302 expected 2 blank lines, found 1
+src/routes/user.py:34:1: E302 expected 2 blank lines, found 1
+src/utils/alerter.py:9:18: E999 SyntaxError: unexpected character after line continuation character
+src/utils/api_client.py:23:37: E999 SyntaxError: unexpected character after line continuation character
+src/utils/logger.py:8:80: E501 line too long (84 > 79 characters)
+src/utils/logger.py:11:1: E302 expected 2 blank lines, found 1
+src/utils/logger.py:17:80: E501 line too long (87 > 79 characters)
+src/utils/logger.py:23:1: E305 expected 2 blank lines after class or function definition, found 1
+src/utils/logger.py:34:1: E302 expected 2 blank lines, found 1
+src/utils/logger.py:38:29: E261 at least two spaces before inline comment
+src/utils/logger.py:59:80: E501 line too long (84 > 79 characters)
+src/utils/logger.py:67:1: E305 expected 2 blank lines after class or function definition, found 1
+src/utils/logger.py:76:1: W391 blank line at end of file
+src/utils/sentiment_analyzer.py:9:1: E302 expected 2 blank lines, found 1
+src/utils/sentiment_analyzer.py:10:80: E501 line too long (90 > 79 characters)
+src/utils/sentiment_analyzer.py:12:80: E501 line too long (92 > 79 characters)
+src/utils/sentiment_analyzer.py:23:80: E501 line too long (91 > 79 characters)
+src/utils/sentiment_analyzer.py:24:80: E501 line too long (83 > 79 characters)
+src/utils/sentiment_analyzer.py:26:80: E501 line too long (84 > 79 characters)
+src/utils/sentiment_analyzer.py:29:80: E501 line too long (86 > 79 characters)
+src/utils/sentiment_analyzer.py:30:80: E501 line too long (90 > 79 characters)
+src/utils/sentiment_analyzer.py:31:80: E501 line too long (95 > 79 characters)
+src/utils/sentiment_analyzer.py:33:80: E501 line too long (85 > 79 characters)
+src/utils/sentiment_analyzer.py:34:80: E501 line too long (106 > 79 characters)
+src/utils/sentiment_analyzer.py:37:80: E501 line too long (98 > 79 characters)
+src/utils/sentiment_analyzer.py:48:80: E501 line too long (83 > 79 characters)
+src/utils/sentiment_analyzer.py:52:80: E501 line too long (90 > 79 characters)
+src/utils/sentiment_analyzer.py:57:80: E501 line too long (109 > 79 characters)
+src/utils/sentiment_analyzer.py:60:80: E501 line too long (112 > 79 characters)
+src/utils/sentiment_analyzer.py:62:80: E501 line too long (81 > 79 characters)
+src/utils/sentiment_analyzer.py:63:80: E501 line too long (86 > 79 characters)
+src/utils/sentiment_analyzer.py:70:80: E501 line too long (99 > 79 characters)
+src/utils/sentiment_analyzer.py:72:80: E501 line too long (108 > 79 characters)
+src/utils/sentiment_analyzer.py:74:80: E501 line too long (91 > 79 characters)
+src/utils/sentiment_analyzer.py:77:80: E501 line too long (95 > 79 characters)
+src/utils/sentiment_analyzer.py:85:58: E203 whitespace before ':'
+src/utils/sentiment_analyzer.py:87:80: E501 line too long (100 > 79 characters)
+src/utils/sentiment_analyzer.py:90:80: E501 line too long (101 > 79 characters)
+src/utils/sentiment_analyzer.py:93:80: E501 line too long (113 > 79 characters)
+src/utils/sentiment_analyzer.py:96:18: E111 indentation is not a multiple of 4
+src/utils/sentiment_analyzer.py:96:18: E117 over-indented
+src/utils/sentiment_analyzer.py:96:80: E501 line too long (108 > 79 characters)
+src/utils/sentiment_analyzer.py:97:18: E111 indentation is not a multiple of 4
+src/utils/sentiment_analyzer.py:100:80: E501 line too long (103 > 79 characters)
+src/utils/sentiment_analyzer.py:104:1: E305 expected 2 blank lines after class or function definition, found 1
+src/utils/sentiment_analyzer.py:127:1: W391 blank line at end of file
+src/utils/social_listener.py:129:62: E999 SyntaxError: f-string expression part cannot include a backslash
