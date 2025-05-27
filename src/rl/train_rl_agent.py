@@ -1,9 +1,11 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from rl.agent import RLTradingAgent
 from rl.environment import TradingEnvironment
 
 # Exemplo de uso: treinamento RL
+
 
 def train_rl_agent(data_path, episodes=10, model_save_path=None):
     df = pd.read_csv(data_path)
@@ -25,12 +27,19 @@ def train_rl_agent(data_path, episodes=10, model_save_path=None):
             state = next_state
             total_reward += reward
             if done:
-                print(f"Episódio {ep+1}/{episodes} - Recompensa total: {total_reward:.2f}")
+                print(
+                    f"Episódio {ep+1}/{episodes} - Recompensa total: {total_reward:.2f}"
+                )
                 break
             agent.replay(batch_size=32)
         if model_save_path:
             agent.model.save_weights(model_save_path)
 
+
 if __name__ == "__main__":
     # Exemplo de chamada
-    train_rl_agent("/caminho/para/dados.csv", episodes=20, model_save_path="/caminho/para/modelo_rl.h5")
+    train_rl_agent(
+        "/caminho/para/dados.csv",
+        episodes=20,
+        model_save_path="/caminho/para/modelo_rl.h5",
+    )
