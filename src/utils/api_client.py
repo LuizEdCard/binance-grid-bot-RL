@@ -57,26 +57,26 @@ RETRY_DELAY_SECONDS = [1, 2, 4, 8, 16]  # Exponential backoff
 
 
 class APIClient:
-    """Handles communication with the Binance Futures API.
-    Supports Production mode(real trading) and Shadow mode(real data, simulated orders).
+    """Lida com comunicação com as APIs da Binance (Spot e Futuros).
+    Suporta modo Production (trading real) e modo Shadow (dados reais, ordens simuladas).
     """
 
     def __init__(self, config: dict, operation_mode: str = "shadow"):
         self.client = None
         self.config = config
         self.operation_mode = operation_mode.lower()
-        # Shadow mode now uses Production API for data, simulates orders
-        log.info(f"APIClient initialized in {self.operation_mode.upper()} mode.")
+        # Modo shadow agora usa API de Produção para dados, simula ordens
+        log.info(f"APIClient inicializado no modo {self.operation_mode.upper()}.")
         self._connect()
 
     def _connect(self):
-        """Establishes connection to the Binance Production API."""
+        """Estabelece conexão com a API de Produção da Binance."""
         key = API_KEY
         secret = API_SECRET
 
         if not key or not secret:
             log.error(
-                "API_KEY/SECRET not found in .env file. Cannot connect to Binance Production."
+                "API_KEY/SECRET não encontrada no arquivo .env. Não é possível conectar à Produção da Binance."
             )
             self.client = None
             return
@@ -85,126 +85,153 @@ class APIClient:
         while retries < MAX_RETRIES:
             try:
                 log.info(
-                    f"Attempting to connect to Binance Futures Production (Attempt {retries + 1}/{MAX_RETRIES})..."
+                    f"Tentando conectar à Produção da Binance (Tentativa {retries + 1}/{MAX_RETRIES})..."
                 )
-                # Always connect to production, testnet=False
+                # Sempre conecta à produção, testnet=False
                 self.client = Client(key, secret, testnet=False)
-                # Test connection
+                # Testa conexão com Futures
                 self.client.futures_ping()
                 server_time = self.client.futures_time()["serverTime"]
                 log.info(
-                    f"Successfully connected to Binance Futures Production. Server time: {server_time}"
+                    f"Conectado com sucesso à Produção da Binance. Hora do servidor: {server_time}"
                 )
                 return
             except (BinanceAPIException, BinanceRequestException, ConnectionError) as e:
-                log.warning(f"Connection attempt {retries + 1} failed: {e}")
+                log.warning(f"Tentativa de conexão {retries + 1} falhou: {e}")
                 retries += 1
                 if retries < MAX_RETRIES:
                     delay = RETRY_DELAY_SECONDS[retries - 1]
-                    log.info(f"Retrying connection in {delay} seconds...")
+                    log.info(f"Tentando reconectar em {delay} segundos...")
                     time.sleep(delay)
                 else:
-                    log.error(f"Max connection retries reached. Failed to connect.")
+                    log.error(f"Máximo de tentativas de conexão atingido. Falha ao conectar.")
                     self.client = None
                     break
             except Exception as e:
-                log.error(f"An unexpected error occurred during connection: {e}")
+                log.error(f"Erro inesperado durante a conexão: {e}")
                 self.client = None
                 break
 
     def _make_request(self, method, *args, **kwargs):
-        """Makes an API request with error handling, retries, and Shadow mode simulation."""
+        """Faz uma requisição à API com tratamento de erros, tentativas e simulação no modo Shadow."""
         if not self.client:
-            log.error("API client is not connected. Attempting to reconnect...")
+            log.error("Cliente da API não está conectado. Tentando reconectar...")
             self._connect()
             if not self.client:
-                log.error("Reconnection failed. Cannot make API request.")
+                log.error("Reconexão falhou. Não é possível fazer requisição à API.")
                 return None
 
-        # --- Shadow Mode Simulation (for write operations) --- #
+        # --- Simulação do Modo Shadow (para operações de escrita) --- #
         method_name = method.__name__
         is_write_operation = method_name in [
             "futures_create_order",
             "futures_cancel_order",
             "futures_cancel_all_open_orders",
-            # Add other write methods if
-            # needed (e.g., adjusting
-            # leverage, margin type)
+            "create_order",  # Para Spot
+            "cancel_order",  # Para Spot
+            # Adicione outros métodos de escrita se
+            # necessário (ex: ajustar alavancagem, tipo de margem)
         ]
 
         if self.operation_mode == "shadow" and is_write_operation:
             log.info(
-                f"[SHADOW MODE] Simulating API call: {method_name} args={args} kwargs={kwargs}"
+                f"[MODO SHADOW] Simulando chamada da API: {method_name} args={args} kwargs={kwargs}"
             )
-            # Simulate responses for write operations
-            if method_name == "futures_create_order":
-                # Return a realistic-looking fake order response
-                # Use timestamp and random element for unique ID
+            # Simula respostas para operações de escrita
+            if method_name in ["futures_create_order", "create_order"]:
+                # Retorna uma resposta de ordem simulada realística
+                # Usa timestamp e elemento aleatório para ID único
                 simulated_order_id = int(time.time() * 1000) + random.randint(0, 999)
-                return {
+                # Resposta comum para Spot e Futuros
+                base_response = {
                     "orderId": simulated_order_id,
                     "symbol": kwargs.get("symbol"),
-                    "status": "NEW",  # Assume it gets accepted immediately
+                    "status": "NEW",  # Assume que é aceita imediatamente
                     "clientOrderId": f"shadow_{simulated_order_id}",
                     "price": kwargs.get("price"),
-                    "avgPrice": "0.00000",  # Not filled yet
                     "origQty": kwargs.get("quantity"),
                     "executedQty": "0.000",
-                    "cumQuote": "0",
                     "timeInForce": kwargs.get("timeInForce"),
                     "type": kwargs.get("type"),
                     "side": kwargs.get("side"),
-                    "stopPrice": "0",
                     "time": int(time.time() * 1000),
                     "updateTime": int(time.time() * 1000),
-                    "workingType": "CONTRACT_PRICE",
-                    "activatePrice": "0",
-                    "priceRate": "0",
-                    "origType": kwargs.get("type"),
-                    "positionSide": kwargs.get("positionSide", "BOTH"),
-                    "closePosition": False,
-                    "priceProtect": False,
-                    "reduceOnly": kwargs.get("reduceOnly", False),
                 }
-            elif method_name == "futures_cancel_order":
-                # Return a fake cancellation response
-                # Note: We don"t have the state here to know if it *was* NEW
-                # Assume cancellation is successful if requested
-                return {
+                
+                if method_name == "futures_create_order":
+                    # Campos específicos de Futuros
+                    base_response.update({
+                        "avgPrice": "0.00000",
+                        "cumQuote": "0",
+                        "stopPrice": "0",
+                        "workingType": "CONTRACT_PRICE",
+                        "activatePrice": "0",
+                        "priceRate": "0",
+                        "origType": kwargs.get("type"),
+                        "positionSide": kwargs.get("positionSide", "BOTH"),
+                        "closePosition": False,
+                        "priceProtect": False,
+                        "reduceOnly": kwargs.get("reduceOnly", False),
+                    })
+                else:  # create_order (Spot)
+                    # Campos específicos de Spot
+                    base_response.update({
+                        "cummulativeQuoteQty": "0.00000000",
+                        "fills": [],
+                    })
+                
+                return base_response
+            elif method_name in ["futures_cancel_order", "cancel_order"]:
+                # Retorna uma resposta de cancelamento simulada
+                # Nota: Não temos o estado aqui para saber se *era* NEW
+                # Assume que o cancelamento é bem-sucedido se solicitado
+                base_cancel_response = {
                     "orderId": kwargs.get("orderId"),
                     "symbol": kwargs.get("symbol"),
                     "status": "CANCELED",
                     "clientOrderId": f"shadow_{kwargs.get('orderId')}",
-                    "price": "0",  # Values might not be accurate for cancelled order
-                    "avgPrice": "0.00000",
+                    "price": "0",  # Valores podem não ser precisos para ordem cancelada
                     "origQty": "0",
                     "executedQty": "0",
-                    "cumQuote": "0",
                     "timeInForce": "GTC",
                     "type": "LIMIT",
-                    "side": "BUY",  # Side might not be known here
-                    "stopPrice": "0",
+                    "side": "BUY",  # Lado pode não ser conhecido aqui
                     "time": int(time.time() * 1000),
                     "updateTime": int(time.time() * 1000),
-                    "workingType": "CONTRACT_PRICE",
-                    "origType": "LIMIT",
-                    "positionSide": "BOTH",
-                    "closePosition": False,
-                    "priceProtect": False,
-                    "reduceOnly": False,
                 }
+                
+                if method_name == "futures_cancel_order":
+                    # Campos específicos de Futuros
+                    base_cancel_response.update({
+                        "avgPrice": "0.00000",
+                        "cumQuote": "0",
+                        "stopPrice": "0",
+                        "workingType": "CONTRACT_PRICE",
+                        "origType": "LIMIT",
+                        "positionSide": "BOTH",
+                        "closePosition": False,
+                        "priceProtect": False,
+                        "reduceOnly": False,
+                    })
+                else:  # cancel_order (Spot)
+                    # Campos específicos de Spot
+                    base_cancel_response.update({
+                        "cummulativeQuoteQty": "0.00000000",
+                    })
+                
+                return base_cancel_response
             elif method_name == "futures_cancel_all_open_orders":
-                # Simulate success, though no orders were actually cancelled
+                # Simula sucesso, embora nenhuma ordem tenha sido realmente cancelada
                 return {
                     "code": "200",
-                    "msg": "[SHADOW MODE] Simulated cancellation of all orders for symbol.",
+                    "msg": "[MODO SHADOW] Cancelamento simulado de todas as ordens para o símbolo.",
                 }
 
-            # Generic simulation for other write ops
+            # Simulação genérica para outras operações de escrita
             return {"status": "simulated_success"}
-        # --- End Shadow Mode Simulation --- #
+        # --- Fim da Simulação do Modo Shadow --- #
 
-        # --- Production Mode or Read Operation --- #
+        # --- Modo de Produção ou Operação de Leitura --- #
         retries = 0
         while retries < MAX_RETRIES:
             try:
@@ -341,6 +368,102 @@ class APIClient:
     def get_exchange_info(self):
         log.debug(f"Getting exchange info ({self.operation_mode.upper()})")
         return self._make_request(self.client.futures_exchange_info)
+
+    # --- Métodos para Mercado Spot --- #
+
+    def get_spot_account_balance(self):
+        """Obtém o saldo da conta Spot."""
+        log.debug(f"Buscando saldo da conta Spot ({self.operation_mode.upper()})")
+        return self._make_request(self.client.get_account)
+
+    def place_spot_order(
+        self, symbol, side, order_type, quantity, price=None, timeInForce=None, **kwargs
+    ):
+        """Coloca uma ordem no mercado Spot."""
+        params = {
+            "symbol": symbol,
+            "side": side,
+            "type": order_type,
+            "quantity": quantity,
+        }
+        if price and order_type == "LIMIT":
+            params["price"] = price
+        if timeInForce and order_type == "LIMIT":
+            params["timeInForce"] = timeInForce
+        params.update(kwargs)
+        log.info(f"Colocando ordem Spot ({self.operation_mode.upper()}): {params}")
+        return self._make_request(self.client.create_order, **params)
+
+    def cancel_spot_order(self, symbol, orderId):
+        """Cancela uma ordem no mercado Spot."""
+        log.info(
+            f"Cancelando ordem Spot ({self.operation_mode.upper()}): symbol={symbol}, orderId={orderId}"
+        )
+        return self._make_request(
+            self.client.cancel_order, symbol=symbol, orderId=orderId
+        )
+
+    def get_spot_order_status(self, symbol, orderId):
+        """Obtém o status de uma ordem no mercado Spot."""
+        log.debug(
+            f"Obtendo status da ordem Spot ({self.operation_mode.upper()}): symbol={symbol}, orderId={orderId}"
+        )
+        if self.operation_mode == "shadow":
+            log.warning(
+                f"[MODO SHADOW] get_spot_order_status chamado para ordem simulada {orderId}. Retornando None. GridLogic deve gerenciar estado."
+            )
+            return None  # Ou recuperar de cache local se implementado
+        return self._make_request(
+            self.client.get_order, symbol=symbol, orderId=orderId
+        )
+
+    def get_open_spot_orders(self, symbol=None):
+        """Obtém ordens abertas no mercado Spot."""
+        log.debug(
+            f"Obtendo ordens abertas Spot ({self.operation_mode.upper()}): symbol={symbol}"
+        )
+        if self.operation_mode == "shadow":
+            log.warning(
+                "[MODO SHADOW] get_open_spot_orders chamado. Retornando lista vazia. GridLogic deve gerenciar estado."
+            )
+            return []  # Retorna lista vazia pois não rastreamos ordens reais
+        params = {"symbol": symbol} if symbol else {}
+        return self._make_request(self.client.get_open_orders, **params)
+
+    def get_spot_klines(
+        self, symbol, interval, startTime=None, endTime=None, limit=500
+    ):
+        """Obtém dados de klines (candlesticks) do mercado Spot."""
+        log.debug(
+            f"Obtendo klines Spot ({self.operation_mode.upper()}): symbol={symbol}, interval={interval}"
+        )
+        return self._make_request(
+            self.client.get_klines,
+            symbol=symbol,
+            interval=interval,
+            startTime=startTime,
+            endTime=endTime,
+            limit=limit,
+        )
+
+    def get_spot_ticker(self, symbol=None):
+        """Obtém ticker do mercado Spot."""
+        log.debug(f"Obtendo ticker Spot ({self.operation_mode.upper()}): symbol={symbol}")
+        if symbol:
+            return self._make_request(self.client.get_symbol_ticker, symbol=symbol)
+        else:
+            return self._make_request(self.client.get_all_tickers)
+
+    def get_spot_exchange_info(self):
+        """Obtém informações de exchange do mercado Spot."""
+        log.debug(f"Obtendo informações de exchange Spot ({self.operation_mode.upper()})")
+        return self._make_request(self.client.get_exchange_info)
+
+    def get_futures_position_info(self, symbol=None):
+        """Obtém informações de posição do mercado Futuros."""
+        log.debug(f"Obtendo informações de posição Futuros ({self.operation_mode.upper()}): symbol={symbol}")
+        params = {"symbol": symbol} if symbol else {}
+        return self._make_request(self.client.futures_position_information, **params)
 
 
 # Example usage

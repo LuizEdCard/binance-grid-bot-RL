@@ -1,4 +1,5 @@
-# Risk Management Module for Grid Trading Bot
+# Módulo de Gerenciamento de Risco para Bot de Grid Trading
+# Suporta mercados Spot e Futuros
 
 import time
 from decimal import Decimal
@@ -10,22 +11,23 @@ from binance.enums import SIDE_SELL, SIDE_BUY, ORDER_TYPE_STOP_MARKET
 from ..utils.api_client import APIClient
 from ..utils.logger import log
 
-# Attempt to import TA-Lib
+# Tentativa de importar TA-Lib
 try:
     import talib
 
     talib_available = True
-    log.info("TA-Lib library found and imported successfully for RiskManager.")
+    log.info("Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.")
 except ImportError:
     talib_available = False
     log.warning(
-        "TA-Lib library not found for RiskManager. ATR-based SL and pattern checks will be unavailable. Please install TA-Lib for full functionality (see talib_installation_guide.md)."
+        "Biblioteca TA-Lib não encontrada para RiskManager. SL baseado em ATR e verificações de padrões estarão indisponíveis. Por favor, instale TA-Lib para funcionalidade completa (veja talib_installation_guide.md)."
     )
 
 
 class RiskManager:
-    """Handles risk management logic, including stop loss, profit protection, circuit breakers,
-    and dynamic risk adjustment based on market sentiment.
+    """Lida com lógica de gerenciamento de risco, incluindo stop loss, proteção de lucro, 
+    disjuntores e ajuste de risco dinâmico baseado no sentimento do mercado.
+    Suporta tanto mercados Spot quanto Futuros.
     """
 
     def __init__(
@@ -36,22 +38,29 @@ class RiskManager:
         api_client: APIClient,
         alerter,
         get_sentiment_score_func=None,
+        market_type: str = "futures",  # "futures" ou "spot"
     ):
         self.symbol = symbol
         self.config = config
-        # Need grid_logic to access current leverage/position info
+        self.market_type = market_type.lower()  # "futures" ou "spot"
+        # Precisa do grid_logic para acessar informações de alavancagem/posição atuais
         self.grid_logic = grid_logic
         self.api_client = api_client
         self.alerter = alerter
-        # Function to get the latest sentiment score
+        # Função para obter o último score de sentimento
         self.get_sentiment_score_func = get_sentiment_score_func
 
         self.risk_config = config.get("risk_management", {})
         self.grid_config = config.get("grid", {})
         self.sentiment_config = config.get("sentiment_analysis", {})
         self.risk_adjustment_config = self.sentiment_config.get("risk_adjustment", {})
+        
+        # Configurações específicas por mercado
+        self.market_specific_config = self.risk_config.get(
+            f"{self.market_type}_risk", {}
+        )
 
-        # --- Standard Risk Parameters --- #
+        # --- Parâmetros de Risco Padrão --- #
         self.max_drawdown_perc = (
             Decimal(str(self.risk_config.get("max_drawdown_perc", "10.0"))) / 100
         )
@@ -67,6 +76,23 @@ class RiskManager:
         self.api_failure_timeout_minutes = self.risk_config.get(
             "api_failure_timeout_minutes", 5
         )
+        
+        # --- Parâmetros Específicos do Mercado --- #
+        if self.market_type == "futures":
+            self.max_leverage = self.market_specific_config.get("max_leverage", 20)
+            self.liquidation_buffer_perc = Decimal(
+                str(self.market_specific_config.get("liquidation_buffer_perc", "15.0"))
+            ) / 100
+            self.max_position_size_perc = Decimal(
+                str(self.market_specific_config.get("max_position_size_perc", "50.0"))
+            ) / 100
+        else:  # spot
+            self.max_asset_allocation_perc = Decimal(
+                str(self.market_specific_config.get("max_asset_allocation_perc", "70.0"))
+            ) / 100
+            self.min_stable_balance_perc = Decimal(
+                str(self.market_specific_config.get("min_stable_balance_perc", "30.0"))
+            ) / 100
 
         # --- TA-Lib Specific Risk Config --- #
         self.use_atr_stop_loss = self.risk_config.get("use_atr_stop_loss", False)
@@ -109,28 +135,124 @@ class RiskManager:
         self.last_applied_leverage = None  # Track leverage applied by this module
 
         log.info(
-            f"[{self.symbol}] RiskManager initialized. Max Drawdown: {self.max_drawdown_perc*100}%, Use ATR SL: {self.use_atr_stop_loss}, Check Reversal Patterns: {self.check_reversal_patterns_sl}, Sentiment Risk Adj: {self.sentiment_risk_adj_enabled}"
+            f"[{self.symbol}] RiskManager inicializado para mercado {self.market_type.upper()}. Max Drawdown: {self.max_drawdown_perc*100}%, Use ATR SL: {self.use_atr_stop_loss}, Check Reversal Patterns: {self.check_reversal_patterns_sl}, Sentiment Risk Adj: {self.sentiment_risk_adj_enabled}"
         )
         if (
             self.use_atr_stop_loss or self.check_reversal_patterns_sl
         ) and not talib_available:
             log.warning(
-                f"[{self.symbol}] TA-Lib dependent risk features requested but library not found. Features disabled."
+                f"[{self.symbol}] Recursos de risco dependentes do TA-Lib solicitados mas biblioteca não encontrada. Recursos desabilitados."
             )
             self.use_atr_stop_loss = False
             self.check_reversal_patterns_sl = False
         if self.sentiment_risk_adj_enabled and self.get_sentiment_score_func is None:
             log.warning(
-                f"[{self.symbol}] Sentiment risk adjustment enabled, but no sentiment score function provided. Feature disabled."
+                f"[{self.symbol}] Ajuste de risco por sentimento habilitado, mas nenhuma função de score de sentimento fornecida. Recurso desabilitado."
             )
             self.sentiment_risk_adj_enabled = False
 
+    def check_spot_market_risks(self, account_info: dict) -> bool:
+        """Verifica riscos específicos do mercado Spot."""
+        if self.market_type != "spot":
+            return False
+            
+        try:
+            # Calcula alocação total em ativos não-stablecoins
+            total_balance_usd = Decimal("0")
+            non_stable_balance_usd = Decimal("0")
+            stable_coins = ["USDT", "USDC", "BUSD", "DAI", "TUSD"]
+            
+            for balance in account_info.get("balances", []):
+                asset = balance["asset"]
+                free_amount = Decimal(balance["free"])
+                locked_amount = Decimal(balance["locked"])
+                total_amount = free_amount + locked_amount
+                
+                if total_amount > 0:
+                    # Aproximação: assumir que ativos não-stable valem ~$50 cada (deve ser melhorado)
+                    if asset in stable_coins:
+                        balance_usd = total_amount  # Stablecoins = 1:1 USD
+                    else:
+                        # Para uma implementação real, deveria buscar preço atual do ativo
+                        balance_usd = total_amount * Decimal("50")  # Aproximação
+                    
+                    total_balance_usd += balance_usd
+                    if asset not in stable_coins:
+                        non_stable_balance_usd += balance_usd
+            
+            if total_balance_usd > 0:
+                non_stable_allocation = non_stable_balance_usd / total_balance_usd
+                stable_allocation = (total_balance_usd - non_stable_balance_usd) / total_balance_usd
+                
+                # Verificar alocação máxima em ativos não-stable
+                if non_stable_allocation > self.max_asset_allocation_perc:
+                    log.warning(
+                        f"[{self.symbol}] RISCO SPOT: Alocação em ativos não-stable ({non_stable_allocation*100:.1f}%) excede máximo ({self.max_asset_allocation_perc*100:.1f}%)"
+                    )
+                    self.alerter.send_message(
+                        f"[{self.symbol}] Risco Spot: Muita exposição em ativos não-stable ({non_stable_allocation*100:.1f}%)",
+                        level="WARNING"
+                    )
+                    return True
+                
+                # Verificar saldo mínimo em stablecoins
+                if stable_allocation < self.min_stable_balance_perc:
+                    log.warning(
+                        f"[{self.symbol}] RISCO SPOT: Saldo em stablecoins ({stable_allocation*100:.1f}%) abaixo do mínimo ({self.min_stable_balance_perc*100:.1f}%)"
+                    )
+                    self.alerter.send_message(
+                        f"[{self.symbol}] Risco Spot: Saldo em stablecoins muito baixo ({stable_allocation*100:.1f}%)",
+                        level="WARNING"
+                    )
+                    return True
+                    
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao verificar riscos do mercado Spot: {e}", exc_info=True)
+            
+        return False
+
+    def check_futures_market_risks(self, position_info: dict) -> bool:
+        """Verifica riscos específicos do mercado Futuros."""
+        if self.market_type != "futures":
+            return False
+            
+        try:
+            position_amt = Decimal(position_info.get("positionAmt", "0"))
+            if position_amt == 0:
+                return False
+                
+            entry_price = Decimal(position_info.get("entryPrice", "0"))
+            mark_price = Decimal(position_info.get("markPrice", "0"))
+            liquidation_price = Decimal(position_info.get("liquidationPrice", "0"))
+            
+            if liquidation_price > 0 and mark_price > 0:
+                # Calcula distância até liquidação
+                if position_amt > 0:  # Long
+                    liquidation_distance = (mark_price - liquidation_price) / mark_price
+                else:  # Short
+                    liquidation_distance = (liquidation_price - mark_price) / mark_price
+                
+                # Verificar buffer de liquidação
+                if liquidation_distance < self.liquidation_buffer_perc:
+                    log.warning(
+                        f"[{self.symbol}] RISCO FUTUROS: Muito próximo da liquidação! Distância: {liquidation_distance*100:.1f}% < Buffer: {self.liquidation_buffer_perc*100:.1f}%"
+                    )
+                    self.alerter.send_critical_alert(
+                        f"[{self.symbol}] PERIGO: Posição próxima da liquidação ({liquidation_distance*100:.1f}%)!"
+                    )
+                    return True
+                    
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao verificar riscos do mercado Futuros: {e}", exc_info=True)
+            
+        return False
+
     def set_initial_balance(self, balance: Decimal):
-        # ... (no changes) ...
+        """Define saldo inicial para cálculo de drawdown."""
         if self.initial_balance is None:
             self.initial_balance = balance
             log.info(
-                f"[{self.symbol}] Initial balance set for drawdown calculation: {self.initial_balance}"
+                f"[{self.symbol}] Saldo inicial definido para cálculo de drawdown: {self.initial_balance}"
             )
 
     def check_circuit_breakers(self, current_balance: Decimal) -> bool:
@@ -150,14 +272,20 @@ class RiskManager:
         return False
 
     def _fetch_recent_data_for_risk(self, periods_needed: int):
-        # ... (no changes) ...
+        """Busca dados recentes para cálculos de risco baseado no tipo de mercado."""
         if not talib_available:
             return None
         try:
-            limit = periods_needed + 5  # Add buffer
-            klines = self.api_client.get_futures_klines(
-                symbol=self.symbol, interval="1h", limit=limit
-            )
+            limit = periods_needed + 5  # Adiciona buffer
+            # Busca klines baseado no tipo de mercado
+            if self.market_type == "spot":
+                klines = self.api_client.get_spot_klines(
+                    symbol=self.symbol, interval="1h", limit=limit
+                )
+            else:  # futures
+                klines = self.api_client.get_futures_klines(
+                    symbol=self.symbol, interval="1h", limit=limit
+                )
             if not klines or len(klines) < periods_needed:
                 log.warning(
                     f"[{self.symbol}] Insufficient kline data ({len(klines) if klines else 0}/{periods_needed}) for TA-Lib risk calculation."
