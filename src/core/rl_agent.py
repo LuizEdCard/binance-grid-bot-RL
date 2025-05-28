@@ -8,9 +8,10 @@ import pandas as pd
 import yaml
 from gymnasium import spaces
 
-from ..rl.agent import RLTradingAgent
-from ..rl.environment import TradingEnvironment
-from ..utils.logger import log
+from rl.agent import RLTradingAgent
+from rl.environment import TradingEnvironment
+from utils.logger import setup_logger
+log = setup_logger("rl_agent")
 
 # Attempt to import TA-Lib
 try:

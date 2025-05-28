@@ -15,8 +15,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Required for technical indicators (ATR, ADX) and candlestick pattern recognition
 
 **Testing and Quality:**
-- Multiple flake8 reports suggest code quality checks are important
-- No explicit test runner configured - check for pytest or unittest setup
+- Use `flake8` for code quality checks (multiple reports available: flake8_report.txt, etc.)
+- Code includes test-like patterns but no formal test framework configured
+- When making changes, run flake8 to check code quality
 
 ## Architecture
 
@@ -32,8 +33,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **User Routes** (`src/routes/user.py`) - User management
 
 **Configuration:**
-- `src/config/config.yaml` - Main bot configuration (grid parameters, RL settings, sentiment analysis)
-- `.env` file expected for API keys (Binance, Telegram, Reddit)
+- `src/config/config.yaml` - Main bot configuration (grid parameters, RL settings, sentiment analysis, supports both spot and futures markets)
+- `.env` file expected for API keys (Binance, Telegram, Reddit) - must be created manually
+- Environment setup: Python 3.9+, TA-Lib C library prerequisite
 
 **Key Components:**
 - **Pair Selection** (`src/core/pair_selector.py`) - Intelligent pair filtering using volume, volatility, sentiment
@@ -49,8 +51,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 5. Flask API provides external control interface
 
 **Dependencies:**
-- Binance API for trading operations
+- Binance API for trading operations (spot and futures)
 - TensorFlow 2.11.0 for RL models
-- ONNX runtime for sentiment analysis
+- ONNX runtime for sentiment analysis (`llmware/slim-sentiment-onnx`)
 - PRAW for Reddit data collection
-- TA-Lib for technical indicators
+- TA-Lib for technical indicators (manual C library installation required)
+- Flask/Flask-CORS for API server
+- Stable-baselines3 for RL algorithms (PPO/SAC)
+
+**Development Notes:**
+- Code is primarily in Portuguese with English comments
+- Two main entry points: `bot_logic.py` (trading bot) and `main.py` (API server)
+- Supports concurrent multi-pair trading via threading
+- Mock mode available for testing without API credentials

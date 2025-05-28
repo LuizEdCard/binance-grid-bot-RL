@@ -6,10 +6,11 @@ from decimal import Decimal
 
 import numpy as np
 import pandas as pd
-from binance.enums import SIDE_SELL, SIDE_BUY, ORDER_TYPE_STOP_MARKET
+from binance.enums import SIDE_SELL, SIDE_BUY, FUTURE_ORDER_TYPE_STOP_MARKET
 
-from ..utils.api_client import APIClient
-from ..utils.logger import log
+from utils.api_client import APIClient
+from utils.logger import setup_logger
+log = setup_logger("risk_management")
 
 # Tentativa de importar TA-Lib
 try:
@@ -590,7 +591,7 @@ class RiskManager:
                 sl_order = self.api_client.place_futures_order(
                     symbol=self.symbol,
                     side=side,
-                    order_type=ORDER_TYPE_STOP_MARKET,
+                    order_type=FUTURE_ORDER_TYPE_STOP_MARKET,
                     quantity=formatted_close_qty,
                     stop_price=stop_price_str,
                     close_position=True,  # Ensure it closes the position

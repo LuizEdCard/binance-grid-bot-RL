@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from gymnasium import spaces
 
-from ..utils.logger import log
+from utils.logger import setup_logger
+log = setup_logger("rl_environment")
 
 
 class TradingEnvironment(gym.Env):
