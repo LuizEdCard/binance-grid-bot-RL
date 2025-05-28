@@ -6,8 +6,9 @@ from decimal import Decimal
 import numpy as np  # Import numpy for TA-Lib
 import pandas as pd
 
-from ..utils.api_client import APIClient
-from ..utils.logger import log
+from utils.api_client import APIClient
+from utils.logger import setup_logger
+log = setup_logger("pair_selector")
 
 # Attempt to import TA-Lib
 try:

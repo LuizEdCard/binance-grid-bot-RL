@@ -22,8 +22,8 @@ logging.basicConfig(level=logging.INFO)
 UTILS_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.dirname(UTILS_DIR)
 ROOT_DIR = os.path.dirname(SRC_DIR)
-ENV_PATH = os.path.join(ROOT_DIR, "config", ".env")
-CONFIG_PATH = os.path.join(ROOT_DIR, "config", "config.yaml")
+ENV_PATH = os.path.join(SRC_DIR, "config", ".env")
+CONFIG_PATH = os.path.join(SRC_DIR, "config", "config.yaml")
 
 load_dotenv(dotenv_path=ENV_PATH)
 

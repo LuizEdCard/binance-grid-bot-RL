@@ -1,11 +1,11 @@
 # Backend API using Flask
 
-from utils.logger import setup_logging
-from utils.api_client import BinanceFuturesClient
-from utils.alerter import TelegramAlerter
+from utils.logger import setup_logger
+from utils.api_client import APIClient
+from utils.alerter import Alerter
 from routes.model_api import model_api
 from core.risk_management import RiskManager
-from core.grid_logic import GridTradingBot
+from core.grid_logic import GridLogic
 from flask_cors import CORS
 from flask import Flask, jsonify, request
 import yaml
@@ -15,6 +15,17 @@ import sys
 
 # DON'T CHANGE THIS !!! Ensure the src directory is in the path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# Carrega as variáveis de ambiente do arquivo .env
+from dotenv import load_dotenv
+
+# Determinar o caminho para o arquivo .env na raiz do projeto
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+
+# Carregar variáveis do arquivo .env
+load_dotenv(dotenv_path)
+print(f"Carregando variáveis de ambiente de: {dotenv_path}")
+print(f"BINANCE_API_KEY presente: {'BINANCE_API_KEY' in os.environ}")
 
 
 # Importar rotas de modelos (tabular e RL)
@@ -34,7 +45,7 @@ with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 # Configurar logging
-logger = setup_logging(config["logging"])
+logger = setup_logger("flask_api")
 
 # Inicializar componentes (simplificado para API)
 # A inicialização completa pode ocorrer ao iniciar o bot via API
@@ -60,21 +71,29 @@ def initialize_components():
             logger.error("Chaves da API Binance não encontradas!")
             # Tratar erro apropriadamente
             return False
-        binance_spot_client = BinanceFuturesClient(api_key, api_secret, futures=False)
+        api_config = {
+            "key": api_key,
+            "secret": api_secret
+        }
+        operation_mode = config.get("operation_mode", "shadow").lower()
+        binance_spot_client = APIClient(api_config, operation_mode=operation_mode)
         logger.info("Cliente Binance Spot inicializado.")
-
+        
     if binance_futures_client is None:
         logger.info("Inicializando cliente Binance Futuros...")
         api_key = os.getenv("BINANCE_API_KEY", config["api"].get("key"))
         api_secret = os.getenv("BINANCE_API_SECRET", config["api"].get("secret"))
-        binance_futures_client = BinanceFuturesClient(api_key, api_secret, futures=True)
+        api_config = {
+            "key": api_key,
+            "secret": api_secret
+        }
+        operation_mode = config.get("operation_mode", "shadow").lower()
+        binance_futures_client = APIClient(api_config, operation_mode=operation_mode)
         logger.info("Cliente Binance Futuros inicializado.")
 
-    if alerter is None and config["telegram"]["enabled"]:
+    if alerter is None and config.get("alerts", {}).get("enabled", False):
         logger.info("Inicializando Alerter do Telegram...")
-        alerter = TelegramAlerter(
-            config["telegram"]["token"], config["telegram"]["chat_id"]
-        )
+        alerter = Alerter(config["alerts"])
         logger.info("Alerter do Telegram inicializado.")
     return True
 
@@ -94,16 +113,27 @@ def run_bot_thread(symbol, grid_config):
         else:
             client = binance_spot_client
 
-        risk_manager = RiskManager(config["risk_management"], alerter)
-        # rl_agent = RLAgent(config['rl_agent']) # RL desativado
-
-        bot = GridTradingBot(
+        # Create bot first without risk manager
+        bot = GridLogic(
             symbol=symbol,
             client=client,
             grid_config=grid_config,
-            risk_manager=risk_manager,
+            risk_manager=None,  # Will set it later after creating risk_manager
             # rl_agent=rl_agent, # RL desativado
             alerter=alerter,
+
+        # Then create risk manager with all required parameters
+        risk_manager = RiskManager(
+            symbol=symbol,
+            config=config,
+            grid_logic=bot,
+            api_client=client,
+            alerter=alerter,
+            market_type=market_type
+        )
+        
+        # Update bot with the risk manager
+        bot.risk_manager = risk_manager,
             logger=logger,
             trading_mode=config.get("trading_mode", "shadow"),
         )
@@ -134,17 +164,25 @@ def get_status():
 @app.route("/api/market_data", methods=["GET"])
 def get_market_data():
     """Busca dados de mercado (ex: símbolos, tickers)."""
+    logger.info("Recebida requisição para /api/market_data")
     if not initialize_components():
+        logger.error("Falha ao inicializar componentes")
         return jsonify({"error": "Falha ao inicializar cliente Binance"}), 500
     try:
+        logger.info("Tentando obter tickers do mercado spot...")
         # Exemplo: buscar tickers 24h
-        tickers = binance_spot_client.get_tickers()
+        tickers = binance_spot_client.get_spot_ticker()  # Este método retorna todos os tickers quando chamado sem argumentos
+        logger.info(f"Tickers obtidos: {tickers[:2] if isinstance(tickers, list) else tickers}")  # Mostra apenas os 2 primeiros tickers se for lista
         # Filtrar/formatar conforme necessidade do frontend
-        formatted_tickers = [
-            {"symbol": t["symbol"], "price": t["lastPrice"], "volume": t["volume"]}
-            for t in tickers
-            if "USDT" in t["symbol"]
-        ]
+        if isinstance(tickers, list):
+            formatted_tickers = [
+                {"symbol": t["symbol"], "price": t["price"], "volume": t.get("volume", "0")}
+                for t in tickers
+                if "USDT" in t["symbol"]
+            ]
+        else:
+            # Se for um único ticker
+            formatted_tickers = [{"symbol": tickers["symbol"], "price": tickers["price"], "volume": tickers.get("volume", "0")}]
         return jsonify(formatted_tickers)
     except Exception as e:
         logger.error(f"Erro ao buscar dados de mercado: {e}")
@@ -252,4 +290,4 @@ if __name__ == "__main__":
     # Usar host 0.0.0.0 para ser acessível externamente
     # Usar uma porta diferente da padrão do React (ex: 5000)
     # Debug=True para desenvolvimento
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)  # Mudando para porta 5000

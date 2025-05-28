@@ -18,8 +18,9 @@ from binance.enums import (
     ORDER_STATUS_REJECTED,
 )
 
-from ..utils.api_client import APIClient
-from ..utils.logger import log
+from utils.api_client import APIClient
+from utils.logger import setup_logger
+log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
 try:

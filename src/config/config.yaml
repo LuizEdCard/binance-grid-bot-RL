@@ -7,6 +7,11 @@ exchange:
   supported_markets: ['futures', 'spot']
   # Adicione URLs de endpoint específicos da API se necessário
 
+# Configuração da API
+api:
+  key: ${BINANCE_API_KEY}
+  secret: ${BINANCE_API_SECRET}
+
 # Parâmetros de Grid Trading (Valores iniciais, RL ajustará alguns)
 grid:
   initial_levels: 10
@@ -100,9 +105,9 @@ risk_management:
 # Logging & Monitoramento
 logging:
   level: 'INFO' # DEBUG, INFO, WARNING, ERROR
-  log_file: '/home/ubuntu/grid_trading_rl_bot/logs/bot.log'
-  trade_log_file: '/home/ubuntu/grid_trading_rl_bot/logs/trades.csv'
-  market_performance_log: '/home/ubuntu/grid_trading_rl_bot/logs/market_performance.csv'
+  log_file: 'logs/bot.log'
+  trade_log_file: 'logs/trades.csv'
+  market_performance_log: 'logs/market_performance.csv'
   log_to_console: True
 
 # Alertas (Telegram/Discord)

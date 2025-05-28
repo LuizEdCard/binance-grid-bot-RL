@@ -7,7 +7,7 @@ import yaml
 
 # Load configuration to get logging settings
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config", "config.yaml")
-LOG_DIR = "/home/ubuntu/grid_trading_rl_bot/logs"
+LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "logs")
 
 
 def load_config():
