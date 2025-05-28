@@ -1,65 +1,120 @@
-# Configuration for the Grid Trading RL Bot
+# Configuração para o Bot de Grid Trading com RL
 
-# Exchange Settings (Binance Futures initially)
+# Configurações de Exchange (Binance Spot e Futuros)
 exchange:
-  name: 'binance_futures'
-  # Add specific API endpoint URLs if needed
+  name: 'binance'
+  # Suporte para ambos os mercados: spot e futures
+  supported_markets: ['futures', 'spot']
+  # Adicione URLs de endpoint específicos da API se necessário
 
-# Grid Trading Parameters (Initial values, RL will adjust some)
+# Parâmetros de Grid Trading (Valores iniciais, RL ajustará alguns)
 grid:
   initial_levels: 10
-  leverage: 10 # Example leverage, adjust as needed
-  initial_spacing_perc: "0.005" # Initial grid spacing as percentage (0.5%)
-  # RL will control spacing, direction, and potentially profit margin
+  leverage: 10 # Alavancagem de exemplo para Futuros, ajuste conforme necessário
+  initial_spacing_perc: "0.005" # Espaçamento inicial do grid como porcentagem (0.5%)
+  # RL controlará espaçamento, direção e potencialmente margem de lucro
+  
+  # Configurações específicas por mercado
+  futures:
+    leverage: 10
+    use_isolated_margin: false
+    position_side: "BOTH"  # ou "LONG"/"SHORT" para hedge mode
+  
+  spot:
+    # No mercado Spot não há alavancagem, mas podemos definir outras configurações
+    min_order_size_usd: 10  # Tamanho mínimo da ordem em USD
+    max_base_asset_allocation: 0.5  # Máximo 50% do saldo em ativos base
 
-# Trading Parameters
+# Parâmetros de Trading
 trading:
-  capital_per_pair_usd: "100" # Capital allocated per trading pair
-  max_concurrent_pairs: 3 # Maximum number of pairs to trade simultaneously
-  cycle_interval_seconds: 60 # Time between trading logic cycles per pair
+  capital_per_pair_usd: "100" # Capital alocado por par de trading
+  max_concurrent_pairs: 3 # Número máximo de pares para negociar simultaneamente
+  cycle_interval_seconds: 60 # Tempo entre ciclos de lógica de trading por par
+  
+  # Configurações específicas por mercado
+  market_allocation:
+    futures_percentage: 60  # 60% do capital para Futuros
+    spot_percentage: 40     # 40% do capital para Spot
+  
+  # RL pode decidir mudar entre os mercados
+  allow_market_switching: true
+  market_switch_cooldown_minutes: 30  # Tempo mínimo entre mudanças de mercado
 
-# Reinforcement Learning Agent Parameters
+# Parâmetros do Agente de Reinforcement Learning
 rl_agent:
-  algorithm: 'PPO' # PPO or SAC
-  state_features: ['rsi', 'atr', 'adx', 'volume', 'grid_context'] # Features for the RL state
+  algorithm: 'PPO' # PPO ou SAC
+  state_features: ['rsi', 'atr', 'adx', 'volume', 'grid_context', 'market_performance'] # Features para o estado do RL
+  
+  # Configuração para decisão de mercado
+  market_decision:
+    enabled: true  # Habilita RL para escolher entre Spot e Futuros
+    market_switch_reward_bonus: 0.1  # Bônus por mudança bem-sucedida de mercado
+    market_consistency_bonus: 0.05   # Bônus por manter consistência no mercado
+  
   reward_function:
     profit_weight: 1.0
     drawdown_penalty: 0.5
     inefficiency_penalty: 0.2
-  training_frequency_steps: 1000 # How often to train based on steps (if not using trade count)
+    market_switch_penalty: 0.1  # Penalidade por mudanças frequentes de mercado
+  
+  training_frequency_steps: 1000 # Frequência de treinamento baseada em passos
   experience_replay_buffer_size: 10000
-  retraining_trade_threshold: 100 # Trigger retraining after this many trades across all pairs
+  retraining_trade_threshold: 100 # Disparar retreinamento após tantas negociações
 
-# Pair Selection Parameters
+# Parâmetros de Seleção de Pares
 pair_selection:
   min_volume_usd_24h: 100000000 # 100M USD
   min_atr_perc_24h: 2.0 # 2% ATR
   max_spread_perc: 0.1 # 0.1% Spread
-  max_adx: 25 # Avoid strong trends for grid
+  max_adx: 25 # Evitar tendências fortes para grid
   update_interval_hours: 6
-  blacklist: ['EXAMPLE/USDT'] # Add problematic pairs here
+  blacklist: ['EXAMPLE/USDT'] # Adicionar pares problemáticos aqui
+  
+  # Filtros específicos por mercado
+  futures_pairs:
+    preferred_symbols: ['BTCUSDT', 'ETHUSDT', 'ADAUSDT']
+    min_open_interest_usd: 50000000  # 50M USD interesse aberto mínimo
+  
+  spot_pairs:
+    preferred_symbols: ['BTCUSDT', 'ETHUSDT', 'BNBUSDT']
+    min_liquidity_depth: 1000000  # Profundidade mínima de liquidez
 
-# Risk Management Parameters
+# Parâmetros de Gerenciamento de Risco
 risk_management:
-  max_drawdown_perc: 10.0 # 10% overall drawdown circuit breaker
-  dynamic_sl_profit_lock_perc: 80.0 # Lock 80% of realized profit
-  tp_sl_ratio: 3.0 # Take Profit is 3x Stop Loss
-  loss_protection_trigger_perc: 15.0 # Close losing orders if they eat 15% of guaranteed profit
-  api_failure_timeout_minutes: 5 # Circuit breaker for API failure
+  max_drawdown_perc: 10.0 # 10% de quebra geral do circuito de rebaixamento
+  dynamic_sl_profit_lock_perc: 80.0 # Trava 80% do lucro realizado
+  tp_sl_ratio: 3.0 # Take Profit é 3x Stop Loss
+  loss_protection_trigger_perc: 15.0 # Fechar ordens perdedoras se comerem 15% do lucro garantido
+  api_failure_timeout_minutes: 5 # Quebra-circuito para falha da API
+  
+  # Gerenciamento de risco específico por mercado
+  futures_risk:
+    max_leverage: 20
+    liquidation_buffer_perc: 15.0  # Manter 15% de buffer de liquidação
+    max_position_size_perc: 50.0   # Máximo 50% do capital em uma posição
+  
+  spot_risk:
+    max_asset_allocation_perc: 70.0  # Máximo 70% em ativos que não sejam stablecoins
+    min_stable_balance_perc: 30.0    # Manter pelo menos 30% em stablecoins
 
-# Logging & Monitoring
+# Logging & Monitoramento
 logging:
   level: 'INFO' # DEBUG, INFO, WARNING, ERROR
   log_file: '/home/ubuntu/grid_trading_rl_bot/logs/bot.log'
   trade_log_file: '/home/ubuntu/grid_trading_rl_bot/logs/trades.csv'
+  market_performance_log: '/home/ubuntu/grid_trading_rl_bot/logs/market_performance.csv'
   log_to_console: True
 
-# Alerts (Telegram/Discord)
+# Alertas (Telegram/Discord)
 alerts:
-  enabled: True # Set to True to enable alerts
-  # telegram_token: '' # Add Telegram Bot Token here in .env or directly
-  # telegram_chat_id: '' # Add Telegram Chat ID here in .env or directly
-  # discord_webhook_url: '' # Add Discord Webhook URL if using Discord
+  enabled: True # Definir como True para habilitar alertas
+  # telegram_token: '' # Adicionar Token do Bot Telegram aqui no .env ou diretamente
+  # telegram_chat_id: '' # Adicionar ID do Chat Telegram aqui no .env ou diretamente
+  # discord_webhook_url: '' # Adicionar URL do Webhook Discord se usando Discord
+  
+  # Alertas específicos para mudanças de mercado
+  market_switch_alerts: True
+  performance_comparison_alerts: True
 
 # --- Sentiment Analysis Configuration --- #
 sentiment_analysis:
@@ -103,6 +158,9 @@ sentiment_analysis:
     enabled: True # Include sentiment score as a feature for the RL agent
 # ------------------------------------------- #
 
-# Operational Modes
-operation_mode: 'Shadow' # 'Production' or 'Shadow'
+# Modos Operacionais
+operation_mode: 'Shadow' # 'Production' ou 'Shadow'
+
+# Configuração de Mercado Padrão
+default_market_type: 'futures'  # 'futures' ou 'spot' - mercado inicial antes do RL decidir
 

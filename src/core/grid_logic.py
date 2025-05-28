@@ -1,10 +1,11 @@
-# Core logic for Grid Trading
+# Lógica central para Grid Trading
+# Suporta mercado Spot e Futuros, com RL decidindo entre os mercados
 
 import time
 from decimal import ROUND_DOWN, Decimal
 
-import numpy as np  # Import numpy for TA-Lib
-import pandas as pd  # Import pandas for data manipulation
+import numpy as np  # Importa numpy para TA-Lib
+import pandas as pd  # Importa pandas para manipulação de dados
 from binance.enums import (
     ORDER_TYPE_LIMIT,
     TIME_IN_FORCE_GTC,
@@ -20,27 +21,28 @@ from binance.enums import (
 from ..utils.api_client import APIClient
 from ..utils.logger import log
 
-# Attempt to import TA-Lib
+# Tentativa de importar TA-Lib
 try:
     import talib
 
     talib_available = True
-    log.info("TA-Lib library found and imported successfully for GridLogic.")
+    log.info("Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.")
 except ImportError:
     talib_available = False
     log.warning(
-        "TA-Lib library not found for GridLogic. Some advanced features (dynamic spacing based on ATR, pattern checks) will be unavailable. Please install TA-Lib for full functionality (see talib_installation_guide.md)."
+        "Biblioteca TA-Lib não encontrada para GridLogic. Algumas funcionalidades avançadas (espaçamento dinâmico baseado em ATR, verificações de padrões) estarão indisponíveis. Por favor, instale TA-Lib para funcionalidade completa (veja talib_installation_guide.md)."
     )
-    # No direct fallback needed here unless specific indicators are calculated
-    # within GridLogic itself
+    # Não é necessário fallback direto aqui, a menos que indicadores específicos sejam calculados
+    # dentro do próprio GridLogic
 
 
 class GridLogic:
-    """Encapsulates the core logic for grid trading strategy.
+    """Encapsula a lógica central para estratégia de grid trading.
 
-    Can be controlled by an RL agent for dynamic adjustments.
-    Supports Production (real trading) and Shadow (real data, simulated orders) modes.
-    Optionally uses TA-Lib for dynamic adjustments.
+    Pode ser controlada por um agente RL para ajustes dinâmicos.
+    Suporta modos Production (trading real) e Shadow (dados reais, ordens simuladas).
+    Agora suporta tanto mercado Spot quanto Futuros.
+    Opcionalmente usa TA-Lib para ajustes dinâmicos.
     """
 
     def __init__(
@@ -49,11 +51,13 @@ class GridLogic:
         config: dict,
         api_client: APIClient,
         operation_mode: str = "shadow",
+        market_type: str = "futures",  # "futures" ou "spot"
     ):
         self.symbol = symbol
         self.config = config
         self.api_client = api_client
         self.operation_mode = operation_mode.lower()
+        self.market_type = market_type.lower()  # "futures" ou "spot"
         self.grid_config = config.get("grid", {})
         self.risk_config = config.get("risk_management", {})
         self.exchange_info = None
@@ -64,86 +68,110 @@ class GridLogic:
         self.quantity_precision = None
         self.price_precision = None
 
-        # Grid parameters
+        # Parâmetros do grid
         self.num_levels = self.grid_config.get("initial_levels", 10)
         self.base_spacing_percentage = Decimal(
             self.grid_config.get("initial_spacing_perc", "0.005")
-        )  # Base spacing
+        )  # Espaçamento base
         self.use_dynamic_spacing = self.grid_config.get(
             "use_dynamic_spacing_atr", False
-        )  # New config
+        )  # Nova configuração
         self.dynamic_spacing_atr_period = self.grid_config.get(
             "dynamic_spacing_atr_period", 14
         )
         self.dynamic_spacing_multiplier = Decimal(
             str(self.grid_config.get("dynamic_spacing_atr_multiplier", "0.5"))
-        )  # Multiplier for ATR
+        )  # Multiplicador para ATR
         self.current_spacing_percentage = (
             self.base_spacing_percentage
-        )  # Actual spacing used
+        )  # Espaçamento real usado
         self.grid_direction = "neutral"
 
         self.grid_levels = []
-        self.active_grid_orders = {}  # Stores {level_price: order_id}
-        self.open_orders = {}  # Stores {order_id: order_details}
+        self.active_grid_orders = {}  # Armazena {level_price: order_id}
+        self.open_orders = {}  # Armazena {order_id: order_details}
 
-        # --- Shadow Mode State --- #
+        # --- Estado do Modo Shadow --- #
         # {order_id: {symbol, side, type, price, quantity, status, ...}}
         self.simulated_open_orders = {}
-        self.simulated_position = {
-            "positionAmt": Decimal("0"),
-            "entryPrice": Decimal("0"),
-            "markPrice": Decimal("0"),  # Updated from real ticker
-            "unRealizedProfit": Decimal("0"),
-            "liquidationPrice": Decimal("0"),  # Hard to simulate accurately
-        }
-        # ------------------------- #
-
-        # Use simulated state in shadow mode, real state otherwise
-        self.position = (
-            self.simulated_position
-            if self.operation_mode == "shadow"
-            else {
+        # Posição simulada - formato unificado para Spot e Futuros
+        if self.market_type == "spot":
+            self.simulated_position = {
+                "base_balance": Decimal("0"),  # Saldo da moeda base (ex: BTC)
+                "quote_balance": Decimal("0"),  # Saldo da moeda cotada (ex: USDT)
+                "avg_buy_price": Decimal("0"),  # Preço médio de compra
+                "total_bought": Decimal("0"),  # Quantidade total comprada
+                "unrealized_pnl": Decimal("0"),  # PnL não realizado
+            }
+        else:  # futures
+            self.simulated_position = {
                 "positionAmt": Decimal("0"),
                 "entryPrice": Decimal("0"),
-                "markPrice": Decimal("0"),
+                "markPrice": Decimal("0"),  # Atualizado pelo ticker real
                 "unRealizedProfit": Decimal("0"),
-                "liquidationPrice": Decimal("0"),
+                "liquidationPrice": Decimal("0"),  # Difícil de simular com precisão
             }
-        )
+        # ------------------------- #
+
+        # Usa estado simulado no modo shadow, estado real caso contrário
+        if self.operation_mode == "shadow":
+            self.position = self.simulated_position
+        else:
+            if self.market_type == "spot":
+                self.position = {
+                    "base_balance": Decimal("0"),
+                    "quote_balance": Decimal("0"),
+                    "avg_buy_price": Decimal("0"),
+                    "total_bought": Decimal("0"),
+                    "unrealized_pnl": Decimal("0"),
+                }
+            else:  # futures
+                self.position = {
+                    "positionAmt": Decimal("0"),
+                    "entryPrice": Decimal("0"),
+                    "markPrice": Decimal("0"),
+                    "unRealizedProfit": Decimal("0"),
+                    "liquidationPrice": Decimal("0"),
+                }
 
         self.trade_history = []
         self.total_realized_pnl = Decimal("0")
         self.fees_paid = Decimal("0")
-        self.total_trades = 0  # Counter for RL retraining
+        self.total_trades = 0  # Contador para retreinamento do RL
 
         log.info(
-            f"[{self.symbol}] GridLogic initialized in {self.operation_mode.upper()} mode. Dynamic Spacing (ATR): {self.use_dynamic_spacing}"
+            f"[{self.symbol}] GridLogic inicializado no modo {self.operation_mode.upper()} para mercado {self.market_type.upper()}. Espaçamento Dinâmico (ATR): {self.use_dynamic_spacing}"
         )
         if self.use_dynamic_spacing and not talib_available:
             log.warning(
-                f"[{self.symbol}] Dynamic spacing requested but TA-Lib not found. Falling back to fixed spacing."
+                f"[{self.symbol}] Espaçamento dinâmico solicitado mas TA-Lib não encontrado. Voltando para espaçamento fixo."
             )
             self.use_dynamic_spacing = False
 
         if not self._initialize_symbol_info():
             raise ValueError(
-                f"[{self.symbol}] Failed to initialize symbol info. Cannot start GridLogic."
+                f"[{self.symbol}] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic."
             )
 
     def _initialize_symbol_info(self) -> bool:
-        # ... (no changes) ...
-        log.info(f"[{self.symbol}] Initializing exchange information...")
-        self.exchange_info = self.api_client.get_exchange_info()
+        """Inicializa informações do símbolo para Spot ou Futuros."""
+        log.info(f"[{self.symbol}] Inicializando informações de exchange para mercado {self.market_type.upper()}...")
+        
+        # Busca informações de exchange baseado no tipo de mercado
+        if self.market_type == "spot":
+            self.exchange_info = self.api_client.get_spot_exchange_info()
+        else:  # futures
+            self.exchange_info = self.api_client.get_exchange_info()
+            
         if not self.exchange_info:
-            log.error(f"[{self.symbol}] Failed to fetch exchange info.")
+            log.error(f"[{self.symbol}] Falha ao buscar informações de exchange.")
             return False
         for item in self.exchange_info.get("symbols", []):
             if item["symbol"] == self.symbol:
                 self.symbol_info = item
                 break
         if not self.symbol_info:
-            log.error(f"[{self.symbol}] Symbol information not found in exchange info.")
+            log.error(f"[{self.symbol}] Informações do símbolo não encontradas nas informações de exchange.")
             return False
 
         self.quantity_precision = self.symbol_info.get("quantityPrecision")
@@ -172,17 +200,19 @@ class GridLogic:
         if price_filter:
             self.tick_size = Decimal(price_filter["tickSize"])
         else:
-            log.error(f"[{self.symbol}] Price filter not found.")
+            log.error(f"[{self.symbol}] Filtro de preço não encontrado.")
             return False
         if lot_size_filter:
             self.step_size = Decimal(lot_size_filter["stepSize"])
         else:
-            log.error(f"[{self.symbol}] Lot size filter not found.")
+            log.error(f"[{self.symbol}] Filtro de tamanho de lote não encontrado.")
             return False
         if min_notional_filter:
+            # Para Spot, usar 'minNotional', para Futuros usar 'notional'
+            notional_key = "minNotional" if self.market_type == "spot" else "notional"
             self.min_notional = Decimal(
-                min_notional_filter.get("notional", "5")
-            )  # Default 5 if key missing
+                min_notional_filter.get(notional_key, "5")
+            )  # Padrão 5 se chave estiver ausente
         else:
             market_lot_filter = next(
                 (
@@ -193,18 +223,18 @@ class GridLogic:
                 None,
             )
             if market_lot_filter:
-                self.min_notional = Decimal("5")  # Default to 5 USDT
+                self.min_notional = Decimal("5")  # Padrão para 5 USDT
                 log.warning(
-                    f"[{self.symbol}] MIN_NOTIONAL filter missing, using default: {self.min_notional} USDT"
+                    f"[{self.symbol}] Filtro MIN_NOTIONAL ausente, usando padrão: {self.min_notional} USDT"
                 )
             else:
                 log.error(
-                    f"[{self.symbol}] Min Notional filter (and fallback) not found."
+                    f"[{self.symbol}] Filtro Min Notional (e fallback) não encontrado."
                 )
                 return False
 
         log.info(
-            f"[{self.symbol}] Tick: {self.tick_size}, Step: {self.step_size}, MinNotional: {self.min_notional}, PricePrec: {self.price_precision}, QtyPrec: {self.quantity_precision}"
+            f"[{self.symbol}] Tick: {self.tick_size}, Step: {self.step_size}, MinNotional: {self.min_notional}, PricePrec: {self.price_precision}, QtyPrec: {self.quantity_precision} (Mercado: {self.market_type.upper()})"
         )
         if not all(
             [
@@ -216,13 +246,13 @@ class GridLogic:
             ]
         ):
             log.error(
-                f"[{self.symbol}] Failed to initialize all necessary symbol filters/precision."
+                f"[{self.symbol}] Falha ao inicializar todos os filtros/precisão necessários do símbolo."
             )
             return False
         return True
 
     def _format_price(self, price):
-        # ... (no changes) ...
+        """Formata preço de acordo com as regras do símbolo."""
         if self.tick_size is None or self.price_precision is None:
             return None
         try:
@@ -231,11 +261,11 @@ class GridLogic:
             ) * self.tick_size
             return f"{adjusted_price:.{self.price_precision}f}"
         except Exception as e:
-            log.error(f"[{self.symbol}] Error formatting price {price}: {e}")
+            log.error(f"[{self.symbol}] Erro ao formatar preço {price}: {e}")
             return None
 
     def _format_quantity(self, quantity):
-        # ... (no changes) ...
+        """Formata quantidade de acordo com as regras do símbolo."""
         if self.step_size is None or self.quantity_precision is None:
             return None
         try:
@@ -248,11 +278,11 @@ class GridLogic:
                 adjusted_quantity = self.step_size
             return f"{adjusted_quantity:.{self.quantity_precision}f}"
         except Exception as e:
-            log.error(f"[{self.symbol}] Error formatting quantity {quantity}: {e}")
+            log.error(f"[{self.symbol}] Erro ao formatar quantidade {quantity}: {e}")
             return None
 
     def _check_min_notional(self, price, quantity):
-        # ... (no changes) ...
+        """Verifica se a ordem atende ao valor nocional mínimo."""
         if not self.min_notional:
             return False
         try:
@@ -260,22 +290,127 @@ class GridLogic:
             meets = notional_value >= self.min_notional
             if not meets:
                 log.warning(
-                    f"[{self.symbol}] Order notional {notional_value:.4f} < min_notional {self.min_notional} (Price: {price}, Qty: {quantity})"
+                    f"[{self.symbol}] Nocional da ordem {notional_value:.4f} < min_notional {self.min_notional} (Preço: {price}, Qtd: {quantity})"
                 )
             return meets
         except Exception as e:
-            log.error(f"[{self.symbol}] Error checking min notional: {e}")
+            log.error(f"[{self.symbol}] Erro ao verificar nocional mínimo: {e}")
             return False
+
+    def _get_ticker(self):
+        """Obtém ticker baseado no tipo de mercado."""
+        if self.market_type == "spot":
+            return self.api_client.get_spot_ticker(symbol=self.symbol)
+        else:  # futures
+            return self.api_client.get_futures_ticker(symbol=self.symbol)
+
+    def _get_klines(self, interval="1h", limit=50):
+        """Obtém klines baseado no tipo de mercado."""
+        if self.market_type == "spot":
+            return self.api_client.get_spot_klines(symbol=self.symbol, interval=interval, limit=limit)
+        else:  # futures
+            return self.api_client.get_futures_klines(symbol=self.symbol, interval=interval, limit=limit)
+
+    def _place_order_unified(self, side, price_str, qty_str):
+        """Coloca ordem baseado no tipo de mercado."""
+        log.info(
+            f"[{self.symbol} - {self.operation_mode.upper()}] Colocando ordem {side} LIMIT no mercado {self.market_type.upper()} em {price_str}, Qtd: {qty_str}"
+        )
+        try:
+            if self.market_type == "spot":
+                # Ordem no mercado Spot
+                order = self.api_client.place_spot_order(
+                    symbol=self.symbol,
+                    side=side,
+                    order_type=ORDER_TYPE_LIMIT,
+                    quantity=qty_str,
+                    price=price_str,
+                    timeInForce=TIME_IN_FORCE_GTC,
+                )
+            else:  # futures
+                # Ordem no mercado Futuros
+                order = self.api_client.place_futures_order(
+                    symbol=self.symbol,
+                    side=side,
+                    order_type=ORDER_TYPE_LIMIT,
+                    quantity=qty_str,
+                    price=price_str,
+                    timeInForce=TIME_IN_FORCE_GTC,
+                )
+            
+            if order and "orderId" in order:
+                order_id = order["orderId"]
+                log.info(
+                    f"[{self.symbol}] Ordem {side} colocada com sucesso {order_id} em {price_str} no mercado {self.market_type.upper()}"
+                )
+                # Armazena detalhes da ordem (real ou simulada)
+                self.open_orders[order_id] = order
+                if self.operation_mode == "shadow":
+                    # Armazena estado da ordem simulada
+                    self.simulated_open_orders[order_id] = {
+                        "orderId": order_id,
+                        "symbol": self.symbol,
+                        "side": side,
+                        "type": ORDER_TYPE_LIMIT,
+                        "price": Decimal(price_str),
+                        "origQty": Decimal(qty_str),
+                        "executedQty": Decimal("0"),
+                        "status": ORDER_STATUS_NEW,
+                        "time": order.get("time", int(time.time() * 1000)),
+                        "market_type": self.market_type,  # Novo campo para identificar mercado
+                    }
+                return order_id
+            else:
+                log.error(
+                    f"[{self.symbol}] Falha ao colocar ordem {side} em {price_str}. Resposta: {order}"
+                )
+                return None
+        except Exception as e:
+            log.error(
+                f"[{self.symbol}] Exceção ao colocar ordem {side} em {price_str}: {e}"
+            )
+            return None
+
+    def _cancel_order_unified(self, order_id):
+        """Cancela ordem baseado no tipo de mercado."""
+        try:
+            if self.market_type == "spot":
+                success = self.api_client.cancel_spot_order(
+                    symbol=self.symbol, orderId=order_id
+                )
+            else:  # futures
+                success = self.api_client.cancel_futures_order(
+                    symbol=self.symbol, orderId=order_id
+                )
+            return success
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao cancelar ordem {order_id}: {e}")
+            return False
+
+    def _get_order_status_unified(self, order_id):
+        """Obtém status da ordem baseado no tipo de mercado."""
+        try:
+            if self.market_type == "spot":
+                return self.api_client.get_spot_order_status(
+                    symbol=self.symbol, orderId=order_id
+                )
+            else:  # futures
+                return self.api_client.get_futures_order_status(
+                    symbol=self.symbol, orderId=order_id
+                )
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao obter status da ordem {order_id}: {e}")
+            return None
 
     def update_grid_parameters(
         self, num_levels=None, spacing_percentage=None, direction=None
     ):
-        # ... (no changes, RL agent still controls base parameters) ...
+        """Atualiza parâmetros do grid (agente RL ainda controla parâmetros base)."""
         updated = False
         if num_levels is not None and num_levels != self.num_levels:
             self.num_levels = num_levels if num_levels % 2 == 0 else num_levels + 1
             log.info(
-                f"[{self.symbol}] RL Agent updated num_levels to: {self.num_levels}"
+                f"[{self.symbol}] Agente RL atualizou num_levels para: {self.num_levels}"
             )
             updated = True
         if (
@@ -284,9 +419,9 @@ class GridLogic:
         ):
             self.base_spacing_percentage = Decimal(str(spacing_percentage))
             log.info(
-                f"[{self.symbol}] RL Agent updated base_spacing_percentage to: {self.base_spacing_percentage}"
+                f"[{self.symbol}] Agente RL atualizou base_spacing_percentage para: {self.base_spacing_percentage}"
             )
-            # Recalculate current spacing if dynamic is off
+            # Recalcula espaçamento atual se dinâmico estiver desligado
             if not self.use_dynamic_spacing:
                 self.current_spacing_percentage = self.base_spacing_percentage
             updated = True
@@ -297,38 +432,36 @@ class GridLogic:
         ):
             self.grid_direction = direction
             log.info(
-                f"[{self.symbol}] RL Agent updated grid_direction to: {self.grid_direction}"
+                f"[{self.symbol}] Agente RL atualizou grid_direction para: {self.grid_direction}"
             )
             updated = True
         if updated:
-            # Redefine grid on next cycle if parameters changed
+            # Redefine grid no próximo ciclo se parâmetros mudaram
             self.grid_levels = []
             self.cancel_active_grid_orders()
             log.info(
-                f"[{self.symbol}] Grid parameters updated by RL agent. Grid will be redefined."
+                f"[{self.symbol}] Parâmetros do grid atualizados pelo agente RL. Grid será redefinido."
             )
 
     def _update_dynamic_spacing(self):
-        """Updates current_spacing_percentage based on ATR if dynamic spacing is enabled."""
+        """Atualiza current_spacing_percentage baseado no ATR se espaçamento dinâmico estiver habilitado."""
         if not self.use_dynamic_spacing or not talib_available:
             self.current_spacing_percentage = self.base_spacing_percentage
             return
 
         try:
-            # Fetch recent klines (e.g., 1h, enough for ATR calculation)
-            # Need at least atr_period + 1 candles
-            limit = self.dynamic_spacing_atr_period + 5  # Add buffer
-            klines = self.api_client.get_futures_klines(
-                symbol=self.symbol, interval="1h", limit=limit
-            )
+            # Busca klines recentes (ex: 1h, suficiente para cálculo de ATR)
+            # Precisa de pelo menos atr_period + 1 candles
+            limit = self.dynamic_spacing_atr_period + 5  # Adiciona buffer
+            klines = self._get_klines(interval="1h", limit=limit)
             if not klines or len(klines) < self.dynamic_spacing_atr_period:
                 log.warning(
-                    f"[{self.symbol}] Insufficient kline data ({len(klines) if klines else 0}) for dynamic ATR spacing. Using base spacing."
+                    f"[{self.symbol}] Dados de kline insuficientes ({len(klines) if klines else 0}) para espaçamento ATR dinâmico. Usando espaçamento base."
                 )
                 self.current_spacing_percentage = self.base_spacing_percentage
                 return
 
-            # Prepare data for TA-Lib
+            # Prepara dados para TA-Lib
             df = pd.DataFrame(
                 klines,
                 columns=[
@@ -350,7 +483,7 @@ class GridLogic:
             low_prices = pd.to_numeric(df["Low"]).values
             close_prices = pd.to_numeric(df["Close"]).values
 
-            # Calculate ATR
+            # Calcula ATR
             atr_series = talib.ATR(
                 high_prices,
                 low_prices,
@@ -368,51 +501,52 @@ class GridLogic:
                 atr_percentage = Decimal(str(latest_atr)) / Decimal(
                     str(last_close_price)
                 )
-                # Combine base spacing with ATR component
-                # Example: spacing = base + atr_perc * multiplier
+                # Combina espaçamento base com componente ATR
+                # Exemplo: spacing = base + atr_perc * multiplicador
                 dynamic_spacing = self.base_spacing_percentage + (
                     atr_percentage * self.dynamic_spacing_multiplier
                 )
-                # Add bounds to prevent extreme spacing
+                # Adiciona limites para prevenir espaçamento extremo
                 min_spacing = self.base_spacing_percentage / Decimal("2")
                 max_spacing = self.base_spacing_percentage * Decimal("3")
                 self.current_spacing_percentage = max(
                     min_spacing, min(max_spacing, dynamic_spacing)
                 )
                 log.info(
-                    f"[{self.symbol}] Dynamic spacing updated: ATR={latest_atr:.4f}, ATR%={atr_percentage*100:.3f}%, New Spacing%={self.current_spacing_percentage*100:.3f}%"
+                    f"[{self.symbol}] Espaçamento dinâmico atualizado: ATR={latest_atr:.4f}, ATR%={atr_percentage*100:.3f}%, Novo Espaçamento%={self.current_spacing_percentage*100:.3f}%"
                 )
             else:
                 log.warning(
-                    f"[{self.symbol}] Could not calculate valid ATR or price for dynamic spacing. Using base spacing."
+                    f"[{self.symbol}] Não foi possível calcular ATR válido ou preço para espaçamento dinâmico. Usando espaçamento base."
                 )
                 self.current_spacing_percentage = self.base_spacing_percentage
 
         except Exception as e:
             log.error(
-                f"[{self.symbol}] Error updating dynamic spacing: {e}", exc_info=True
+                f"[{self.symbol}] Erro ao atualizar espaçamento dinâmico: {e}", exc_info=True
             )
             self.current_spacing_percentage = self.base_spacing_percentage
 
     def define_grid_levels(self, current_price: float):
-        # Update dynamic spacing first if enabled
+        """Define níveis do grid baseado no preço atual."""
+        # Atualiza espaçamento dinâmico primeiro se habilitado
         if self.use_dynamic_spacing:
             self._update_dynamic_spacing()
         else:
             self.current_spacing_percentage = self.base_spacing_percentage
 
         log.info(
-            f"[{self.symbol}] Defining grid levels around price: {current_price} (Levels: {self.num_levels}, Spacing: {self.current_spacing_percentage*100:.3f}%, Direction: {self.grid_direction})"
-            + (" (Dynamic)" if self.use_dynamic_spacing else " (Fixed)")
+            f"[{self.symbol}] Definindo níveis do grid em torno do preço: {current_price} (Níveis: {self.num_levels}, Espaçamento: {self.current_spacing_percentage*100:.3f}%, Direção: {self.grid_direction})"
+            + (" (Dinâmico)" if self.use_dynamic_spacing else " (Fixo)")
         )
         if self.num_levels <= 0:
-            log.error(f"[{self.symbol}] Num levels <= 0. Cannot define grid.")
+            log.error(f"[{self.symbol}] Número de níveis <= 0. Não é possível definir grid.")
             self.grid_levels = []
             return
         self.grid_levels = []
         center_price_str = self._format_price(current_price)
         if not center_price_str:
-            log.error(f"[{self.symbol}] Could not format center price {current_price}.")
+            log.error(f"[{self.symbol}] Não foi possível formatar preço central {current_price}.")
             return
         center_price = Decimal(center_price_str)
 
@@ -427,41 +561,41 @@ class GridLogic:
                 self.num_levels // 3
             )
 
-        # Use current_spacing_percentage which might be dynamic
+        # Usa current_spacing_percentage que pode ser dinâmico
         spacing = self.current_spacing_percentage
 
         last_price = center_price
         for i in range(levels_below):
-            # Use geometric spacing: Price_n = Price_n-1 * (1 - spacing)
+            # Usa espaçamento geométrico: Price_n = Price_n-1 * (1 - spacing)
             level_price_raw = last_price * (Decimal("1") - spacing)
             level_price_str = self._format_price(level_price_raw)
             if level_price_str:
                 level_price = Decimal(level_price_str)
                 self.grid_levels.append({"price": level_price, "type": "buy"})
-                last_price = level_price  # Update last price for next calculation
+                last_price = level_price  # Atualiza último preço para próximo cálculo
             else:
                 log.warning(
-                    f"[{self.symbol}] Could not format lower grid level near {level_price_raw}. Stopping lower grid definition."
+                    f"[{self.symbol}] Não foi possível formatar nível de grid inferior próximo a {level_price_raw}. Parando definição de grid inferior."
                 )
                 break
 
         last_price = center_price
         for i in range(levels_above):
-            # Use geometric spacing: Price_n = Price_n-1 * (1 + spacing)
+            # Usa espaçamento geométrico: Price_n = Price_n-1 * (1 + spacing)
             level_price_raw = last_price * (Decimal("1") + spacing)
             level_price_str = self._format_price(level_price_raw)
             if level_price_str:
                 level_price = Decimal(level_price_str)
                 self.grid_levels.append({"price": level_price, "type": "sell"})
-                last_price = level_price  # Update last price for next calculation
+                last_price = level_price  # Atualiza último preço para próximo cálculo
             else:
                 log.warning(
-                    f"[{self.symbol}] Could not format upper grid level near {level_price_raw}. Stopping upper grid definition."
+                    f"[{self.symbol}] Não foi possível formatar nível de grid superior próximo a {level_price_raw}. Parando definição de grid superior."
                 )
                 break
 
         self.grid_levels.sort(key=lambda x: x["price"])
-        log.info(f"[{self.symbol}] Defined {len(self.grid_levels)} grid levels.")
+        log.info(f"[{self.symbol}] Definidos {len(self.grid_levels)} níveis de grid.")
 
     def _calculate_quantity_per_order(self, current_price: Decimal) -> Decimal:
         # ... (no changes) ...
@@ -484,51 +618,8 @@ class GridLogic:
         return Decimal(formatted_qty_str)
 
     def _place_order(self, side, price_str, qty_str):
-        # ... (no changes) ...
-        log.info(
-            f"[{self.symbol} - {self.operation_mode.upper()}] Placing {side} LIMIT order at {price_str}, Qty: {qty_str}"
-        )
-        try:
-            # APIClient handles simulation in shadow mode
-            order = self.api_client.place_futures_order(
-                symbol=self.symbol,
-                side=side,
-                order_type=ORDER_TYPE_LIMIT,
-                quantity=qty_str,
-                price=price_str,
-                timeInForce=TIME_IN_FORCE_GTC,
-            )
-            if order and "orderId" in order:
-                order_id = order["orderId"]
-                log.info(
-                    f"[{self.symbol}] Successfully placed {side} order {order_id} at {price_str}"
-                )
-                # Store order details (real or simulated)
-                self.open_orders[order_id] = order
-                if self.operation_mode == "shadow":
-                    # Store simulated order state
-                    self.simulated_open_orders[order_id] = {
-                        "orderId": order_id,
-                        "symbol": self.symbol,
-                        "side": side,
-                        "type": ORDER_TYPE_LIMIT,
-                        "price": Decimal(price_str),
-                        "origQty": Decimal(qty_str),
-                        "executedQty": Decimal("0"),
-                        "status": ORDER_STATUS_NEW,
-                        "time": order.get("time", int(time.time() * 1000)),
-                    }
-                return order_id
-            else:
-                log.error(
-                    f"[{self.symbol}] Failed to place {side} order at {price_str}. Response: {order}"
-                )
-                return None
-        except Exception as e:
-            log.error(
-                f"[{self.symbol}] Exception placing {side} order at {price_str}: {e}"
-            )
-            return None
+        """Método legado que chama o método unificado."""
+        return self._place_order_unified(side, price_str, qty_str)
 
     def place_initial_grid_orders(self):
         # ... (no changes) ...
@@ -540,9 +631,9 @@ class GridLogic:
             log.warning(f"[{self.symbol}] Initial grid orders seem active. Skipping.")
             return
 
-        ticker = self.api_client.get_futures_ticker(symbol=self.symbol)
+        ticker = self._get_ticker()
         if not ticker or "lastPrice" not in ticker:
-            log.error(f"[{self.symbol}] Could not get current price.")
+            log.error(f"[{self.symbol}] Não foi possível obter preço atual.")
             return
         current_price = Decimal(ticker["lastPrice"])
         quantity_per_order = self._calculate_quantity_per_order(current_price)
@@ -592,9 +683,7 @@ class GridLogic:
 
         for order_id in order_ids_to_check:
             try:
-                status = self.api_client.get_futures_order_status(
-                    symbol=self.symbol, orderId=order_id
-                )
+                status = self._get_order_status_unified(order_id)
                 time.sleep(0.05)  # Small delay
                 if status:
                     if status["status"] == ORDER_STATUS_FILLED:
@@ -900,10 +989,8 @@ class GridLogic:
         failed_count = 0
         for order_id in orders_to_cancel:
             try:
-                # APIClient handles simulation
-                success = self.api_client.cancel_futures_order(
-                    symbol=self.symbol, orderId=order_id
-                )
+                # APIClient lida com simulação
+                success = self._cancel_order_unified(order_id)
                 time.sleep(0.1)
                 if success:
                     log.info(f"[{self.symbol}] Cancelled order {order_id}.")
@@ -1002,13 +1089,13 @@ class GridLogic:
                         f"[{self.symbol}] Could not fetch production position info."
                     )
                     # Fetch ticker as fallback for mark price
-                    ticker = self.api_client.get_futures_ticker(symbol=self.symbol)
+                    ticker = self._get_ticker()
                     if ticker and "lastPrice" in ticker:
                         self.position["markPrice"] = Decimal(ticker["lastPrice"])
 
             elif self.operation_mode == "shadow":
                 # Update mark price from ticker
-                ticker = self.api_client.get_futures_ticker(symbol=self.symbol)
+                ticker = self._get_ticker()
                 if ticker and "lastPrice" in ticker:
                     mark_price = Decimal(ticker["lastPrice"])
                     self.position["markPrice"] = mark_price
@@ -1298,12 +1385,12 @@ class GridLogic:
 
         # 1. Check if grid needs (re)definition
         if not self.grid_levels:
-            ticker = self.api_client.get_futures_ticker(symbol=self.symbol)
+            ticker = self._get_ticker()
             if not ticker or "lastPrice" not in ticker:
                 log.error(
-                    f"[{self.symbol}] Cannot define grid, failed to get current price."
+                    f"[{self.symbol}] Não é possível definir grid, falha ao obter preço atual."
                 )
-                return  # Wait for next cycle
+                return  # Aguarda próximo ciclo
             current_price = float(ticker["lastPrice"])
             self.define_grid_levels(current_price)
             if self.grid_levels:
