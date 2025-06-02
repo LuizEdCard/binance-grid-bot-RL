@@ -1,22 +1,27 @@
-# /home/ubuntu/backend_consolidated/src/utils/sentiment_analyzer.py
+# sentiment_analyzer.py
 
 import json
 import os
+import pathlib
 
 import onnxruntime as ort
 from transformers import AutoTokenizer
 
 from .logger import log
 
+# Define base directories
+BASE_DIR = pathlib.Path(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+MODELS_DIR = os.path.join(BASE_DIR, "models", "sentiment_onnx")
+
 
 class SentimentAnalyzer:
     """Analyzes sentiment using a pre-trained ONNX model (llmware/slim-sentiment-onnx)."""
 
     def __init__(
-        self, model_dir="/home/ubuntu/backend_consolidated/models/sentiment_onnx"
+        self, model_dir=None
     ):
-        self.model_dir = model_dir
-        self.model_path = os.path.join(model_dir, "model.onnx")
+        self.model_dir = model_dir if model_dir is not None else MODELS_DIR
+        self.model_path = os.path.join(self.model_dir, "model.onnx")
         self.tokenizer = None
         self.session = None
         self._load_model()
@@ -25,10 +30,12 @@ class SentimentAnalyzer:
         """Loads the ONNX model and tokenizer."""
         try:
             if not os.path.exists(self.model_path):
-                log.error(
+                log.info(
                     f"Sentiment analysis ONNX model not found at: {self.model_path}"
                 )
-                raise FileNotFoundError(f"Model file not found: {self.model_path}")
+                log.info("Attempting to download model automatically...")
+                if not self._download_model():
+                    raise FileNotFoundError(f"Failed to download model to: {self.model_path}")
 
             log.info(f"Loading sentiment analysis tokenizer from: {self.model_dir}")
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir)
@@ -49,6 +56,60 @@ class SentimentAnalyzer:
             )
             self.tokenizer = None
             self.session = None
+    
+    def _download_model(self):
+        """Downloads the ONNX sentiment model automatically."""
+        try:
+            import requests
+            from huggingface_hub import hf_hub_download
+            
+            log.info("Starting automatic download of ONNX sentiment model...")
+            
+            # Create model directory
+            os.makedirs(self.model_dir, exist_ok=True)
+            
+            # Model repository details
+            repo_id = "llmware/slim-sentiment-onnx"
+            
+            # Download model files
+            model_files = [
+                "model.onnx",
+                "config.json", 
+                "tokenizer.json",
+                "tokenizer_config.json",
+                "vocab.txt"
+            ]
+            
+            for file_name in model_files:
+                try:
+                    log.info(f"Downloading {file_name}...")
+                    downloaded_path = hf_hub_download(
+                        repo_id=repo_id,
+                        filename=file_name,
+                        cache_dir=self.model_dir,
+                        local_dir=self.model_dir,
+                        local_dir_use_symlinks=False
+                    )
+                    log.info(f"Downloaded {file_name} successfully")
+                except Exception as e:
+                    log.warning(f"Failed to download {file_name}: {e}")
+                    # Continue with other files
+            
+            # Verify model.onnx was downloaded
+            if os.path.exists(self.model_path):
+                log.info("ONNX sentiment model downloaded successfully!")
+                return True
+            else:
+                log.error("Model download failed - model.onnx not found")
+                return False
+                
+        except ImportError as e:
+            log.error(f"Required libraries missing for model download: {e}")
+            log.error("Please install: pip install huggingface_hub")
+            return False
+        except Exception as e:
+            log.error(f"Failed to download ONNX model: {e}")
+            return False
 
     def analyze(self, text: str) -> dict | None:
         """Analyzes the sentiment of the input text.

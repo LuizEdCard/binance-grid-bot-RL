@@ -362,8 +362,12 @@ class APIClient:
 
     def get_futures_ticker(self, symbol=None):
         log.debug(f"Getting ticker ({self.operation_mode.upper()}): symbol={symbol}")
-        params = {"symbol": symbol} if symbol else {}
-        return self._make_request(self.client.futures_ticker, **params)
+        if symbol:
+            # Use futures_symbol_ticker when a specific symbol is requested
+            return self._make_request(self.client.futures_symbol_ticker, symbol=symbol)
+        else:
+            # Use futures_ticker when no symbol is specified (get all tickers)
+            return self._make_request(self.client.futures_ticker)
 
     def get_exchange_info(self):
         log.debug(f"Getting exchange info ({self.operation_mode.upper()})")

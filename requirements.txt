@@ -7,5 +7,19 @@ numpy
 xgboost
 scikit-learn
 tensorflow==2.11.0
+
+# Binance API
+python-binance
+
+# CCXT for correlation analysis
+ccxt
+
+# Sentiment Analysis
+requests
+huggingface_hub
+onnxruntime
+transformers
+
+# Existing dependencies
 # Adicione outras dependências do seu projeto aqui
 

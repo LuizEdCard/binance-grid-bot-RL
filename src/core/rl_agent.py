@@ -353,11 +353,105 @@ class TradingEnvPlaceholder(gym.Env):
         return observation
 
     def _calculate_reward(self):
-        # Placeholder: Calculate reward based on PNL change, drawdown, fills, etc.
-        # Needs access to GridLogic state changes between steps.
-        # reward_config = self.rl_config.get("reward_function", {})
-        # ... calculate reward ...
-        return np.random.rand() - 0.5  # Placeholder reward
+        """Calculate reward based on trading performance and grid state."""
+        try:
+            # Get current market state
+            current_price = self.history_df["Close"].iloc[-1]
+            prev_price = self.history_df["Close"].iloc[-2]
+            
+            # Initialize reward components with weights
+            weights = {
+                'price_change': 0.3,
+                'grid_profit': 0.3,
+                'risk_management': 0.2,
+                'trading_efficiency': 0.2
+            }
+            
+            reward = 0.0
+            
+            # 1. Price change component
+            price_change = (current_price - prev_price) / prev_price
+            price_change_reward = np.clip(price_change * 10, -1, 1)
+            reward += weights['price_change'] * price_change_reward
+            
+            # 2. Grid performance component
+            grid_profit = 0.0
+            if hasattr(self, "grid_logic") and self.grid_logic:
+                status = self.grid_logic.get_status()
+                grid_profit = float(status.get("total_profit_loss", 0.0))
+                
+                # Add trading efficiency
+                total_trades = status.get("total_trades", 0)
+                successful_trades = status.get("successful_trades", 0)
+                if total_trades > 0:
+                    efficiency = successful_trades / total_trades
+                    reward += weights['trading_efficiency'] * (efficiency - 0.5)
+            
+            grid_profit_reward = np.clip(grid_profit * 5, -1, 1)
+            reward += weights['grid_profit'] * grid_profit_reward
+            
+            # 3. Risk management component
+            risk_penalty = 0.0
+            
+            # Volatility check
+            volatility = np.std(self.history_df["Close"].pct_change().dropna())
+            if volatility > 0.02:  # 2% volatility threshold
+                risk_penalty -= 0.2
+                
+            # Drawdown check
+            drawdown = (self.history_df["Close"].max() - current_price) / self.history_df["Close"].max()
+            if drawdown > 0.1:  # 10% drawdown threshold
+                risk_penalty -= 0.3
+                
+            # Position size check
+            if hasattr(self, "grid_logic") and self.grid_logic:
+                status = self.grid_logic.get_status()
+                if "position_size" in status:
+                    position_size = abs(float(status["position_size"]))
+                    if position_size > 0.9:  # Near max position size
+                        risk_penalty -= 0.2
+            
+            reward += weights['risk_management'] * np.clip(risk_penalty, -1, 0)
+            
+            # Clip final reward
+            reward = np.clip(reward, -1, 1)
+                
+            return reward
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error calculating reward: {e}", exc_info=True)
+            return 0.0
+
+    def _calculate_state_size(self):
+        """Calculate the total state size based on enabled features."""
+        state_dim = 0
+        
+        # Count standard indicators
+        for indicator in ["rsi", "atr", "adx"]:
+            if indicator in self.rl_config.get("state_features", {}).get("technical_indicators", []):
+                state_dim += 1
+        
+        # Count grid context features
+        if self.rl_config.get("state_features", {}).get("grid_context", False):
+            state_dim += 3  # levels, spacing, direction_bias
+            
+        # Count position context features
+        if self.rl_config.get("state_features", {}).get("position_context", False):
+            state_dim += 2  # position_size, unrealized_pnl
+            
+        # Count TA-Lib indicators
+        if talib_available:
+            for indicator in self.rl_config.get("state_features", {}).get("talib_indicators", []):
+                if indicator == "macd":
+                    state_dim += 1
+                elif indicator == "bbands":
+                    state_dim += 1
+                    
+        # Count TA-Lib patterns
+        if talib_available:
+            state_dim += len(self.rl_config.get("state_features", {}).get("talib_patterns", []))
+            
+        return state_dim
 
     def _get_info(self):
         # Return auxiliary information
@@ -378,121 +472,107 @@ class TradingEnvPlaceholder(gym.Env):
 
 
 class RLAgent:
-    """Manages the Reinforcement Learning model training and inference using RLTrading approach."""
-
+    """High-level RL Agent interface that uses RLTradingAgent for implementation."""
+    
     def __init__(self, config: dict, symbol: str):
+        """Initialize the RL Agent."""
         self.config = config
         self.rl_config = config.get("rl_agent", {})
         self.symbol = symbol
-        self.model_path = os.path.join(
-            "/home/ubuntu/grid_trading_backend/models", f"rl_agent_{symbol}"
-        )
+        
+        # Fix model path handling
+        models_dir = config.get("models_directory", "models")
+        if not os.path.isabs(models_dir):
+            # Make path relative to project root
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            models_dir = os.path.join(project_root, models_dir)
+            
+        # Create specific directory for this symbol
+        symbol_dir = os.path.join(models_dir, self.symbol.lower())
+        os.makedirs(symbol_dir, exist_ok=True)
+        
+        # Set model paths
+        self.model_path = os.path.join(symbol_dir, "model")
+        
         self.agent = None
         self.env = None
-        self.state_size = self.rl_config.get("state_size", 30)  # Default state size
-        self.action_size = self.rl_config.get(
-            "action_size", 3
-        )  # Default: hold, buy, sell
+        self.state_size = self.rl_config.get("state_size", 30)
+        self.action_size = self.rl_config.get("action_size", 3)
         self.total_timesteps_trained = 0
+        
+        log.info(f"[{self.symbol}] RLAgent initialized with state_size={self.state_size}, action_size={self.action_size}")
 
-        # Ensure model directory exists
-        os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
-
-    def _create_env(self, data=None):
-        """Creates an instance of the trading environment."""
-        log.info(f"[{self.symbol}] Creating RLTrading environment...")
-
-        # If no data provided, fetch historical data for the symbol
-        if data is None:
-            # In a real implementation, fetch data from API
-            # For now, create dummy data for testing
-            dates = pd.date_range(start="2023-01-01", periods=500)
-            data = pd.DataFrame(
-                {
-                    "open": np.random.normal(100, 10, 500),
-                    "high": np.random.normal(105, 10, 500),
-                    "low": np.random.normal(95, 10, 500),
-                    "close": np.random.normal(100, 10, 500),
-                    "volume": np.random.normal(1000000, 500000, 500),
-                },
-                index=dates,
-            )
-            log.warning(
-                f"[{self.symbol}] Using dummy data for environment. Replace with real data in production."
-            )
-
-        # Create the trading environment
-        initial_balance = self.rl_config.get("initial_balance", 10000.0)
-        commission = self.rl_config.get("commission", 0.001)  # 0.1% commission
-        env = TradingEnvironment(
-            data, initial_balance=initial_balance, commission=commission
-        )
-
-        return env
-
-    def setup_agent(self, training=True):
-        """Sets up the RL trading agent."""
-        log.info(f"[{self.symbol}] Setting up RLTrading agent...")
-
-        # Create environment if not already created
-        if self.env is None:
-            self.env = self._create_env()
-
-        if not self.env:
-            log.error(
-                f"[{self.symbol}] Failed to create environment. Cannot setup agent."
-            )
-            return False
-
-        # Get state size from environment
-        state_features = self.env._get_state()
-        self.state_size = len(state_features)
-        log.info(
-            f"[{self.symbol}] State size determined from environment: {self.state_size}"
-        )
-
-        # Create the RLTrading agent
-        model_file = f"{self.model_path}.h5"
-
-        if os.path.exists(model_file) and not training:
-            log.info(f"[{self.symbol}] Loading existing model from {model_file}")
-            self.agent = RLTradingAgent(
-                self.state_size, self.action_size, model_path=model_file
-            )
-        elif training:
-            if os.path.exists(model_file):
-                log.info(
-                    f"[{self.symbol}] Loading existing model from {model_file} to continue training."
+    def setup_agent(self, training=False):
+        """Set up the RL trading agent."""
+        try:
+            # Create environment
+            if self.env is None:
+                self.env = TradingEnvironment(
+                    data=None,  # Will be set when actual data is available
+                    initial_balance=self.rl_config.get("initial_balance", 10000.0),
+                    commission=self.rl_config.get("commission", 0.001),
+                    features_window=self.rl_config.get("features_window", 30),
+                    include_sentiment=self.rl_config.get("use_sentiment", False)
                 )
-                self.agent = RLTradingAgent(
-                    self.state_size, self.action_size, model_path=model_file
-                )
-            else:
-                log.info(f"[{self.symbol}] Creating new RLTrading agent for training.")
+
+            # Create or load agent
+            if training or not os.path.exists(f"{self.model_path}.h5"):
+                log.info(f"[{self.symbol}] Creating new RLTrading agent")
                 self.agent = RLTradingAgent(self.state_size, self.action_size)
-        else:
-            log.error(
-                f"[{self.symbol}] Model file {model_file} not found and not in training mode."
-            )
+            else:
+                log.info(f"[{self.symbol}] Loading existing model from {self.model_path}.h5")
+                self.agent = RLTradingAgent(self.state_size, self.action_size)
+                self.agent.load_model(f"{self.model_path}.h5")
+
+            return True
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error setting up agent: {e}", exc_info=True)
             return False
 
-        log.info(f"[{self.symbol}] RLTrading Agent setup complete.")
-        return True
+    def predict_action(self, state, sentiment_score=None):
+        """Predict action based on current state and optional sentiment score."""
+        if not self.agent:
+            log.error(f"[{self.symbol}] Agent not set up. Cannot predict action.")
+            return 0  # Default to HOLD
+
+        try:
+            # Validate state
+            if not isinstance(state, np.ndarray):
+                state = np.array(state)
+
+            # Handle sentiment score
+            if sentiment_score is not None:
+                if len(state) != self.state_size - 1:  # -1 because we'll add sentiment
+                    log.error(f"[{self.symbol}] Invalid state size for sentiment inclusion. Expected {self.state_size-1}, got {len(state)}")
+                    return 0
+                state = np.append(state, sentiment_score)
+            else:
+                if len(state) != self.state_size:
+                    log.error(f"[{self.symbol}] Invalid state size. Expected {self.state_size}, got {len(state)}")
+                    return 0
+
+            # Reshape and predict
+            state = state.reshape(1, -1)
+            action = self.agent.act(state, training=False)
+            log.debug(f"[{self.symbol}] Predicted action: {action}")
+            return action
+
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error predicting action: {e}", exc_info=True)
+            return 0  # Default to HOLD
 
     def train_agent(self, total_timesteps=None):
-        """Trains the RL agent for a given number of episodes."""
+        """Train the RL agent."""
         if not self.agent:
             log.error(f"[{self.symbol}] Agent not set up. Cannot train.")
             return False
 
-        if total_timesteps is None:
-            total_timesteps = self.rl_config.get("training_timesteps", 10000)
-
-        log.info(
-            f"[{self.symbol}] Starting training for {total_timesteps} timesteps..."
-        )
-
         try:
+            if total_timesteps is None:
+                total_timesteps = self.rl_config.get("training_timesteps", 10000)
+
+            log.info(f"[{self.symbol}] Starting training for {total_timesteps} timesteps...")
+            
             # Training parameters
             batch_size = self.rl_config.get("batch_size", 32)
             episodes = self.rl_config.get("episodes", 100)
@@ -500,109 +580,57 @@ class RLAgent:
 
             # Training loop
             for episode in range(episodes):
-                state, _ = self.env.reset()
-                episode_reward = 0
-                done = False
-                step = 0
-
-                while not done and step < timesteps_per_episode:
-                    # Choose action using epsilon-greedy policy
-                    action = self.agent.act(state)
-
-                    # Take action in environment
-                    next_state, reward, done, truncated, info = self.env.step(action)
-                    done = done or truncated
-
-                    # Store experience in replay memory
+                state, info = self.env.reset()
+                total_reward = 0
+                
+                for step in range(timesteps_per_episode):
+                    action = self.agent.act(state, training=True)
+                    next_state, reward, terminated, truncated, info = self.env.step(action)
+                    done = terminated or truncated
+                    
                     self.agent.remember(state, action, reward, next_state, done)
-
-                    # Update state and accumulate reward
                     state = next_state
-                    episode_reward += reward
-                    step += 1
+                    total_reward += reward
 
-                    # Train the agent by replaying experiences
                     if len(self.agent.memory) > batch_size:
                         self.agent.replay(batch_size)
 
-                # Log episode results
-                log.info(
-                    f"[{self.symbol}] Episode {episode+1}/{episodes}, Reward: {episode_reward:.2f}, Steps: {step}, Epsilon: {self.agent.epsilon:.4f}"
-                )
+                    if done:
+                        break
 
-                # Save model periodically
+                log.info(f"[{self.symbol}] Episode {episode+1}/{episodes}, Reward: {total_reward:.2f}")
+                
+                # Save periodically
                 if (episode + 1) % 10 == 0:
                     self.save_agent()
 
-            # Final save after training
             self.save_agent()
             self.total_timesteps_trained += total_timesteps
-            log.info(
-                f"[{self.symbol}] Training finished. Total timesteps trained: {self.total_timesteps_trained}"
-            )
             return True
 
         except Exception as e:
-            log.exception(f"[{self.symbol}] Error during training: {e}", exc_info=True)
+            log.error(f"[{self.symbol}] Error during training: {e}", exc_info=True)
             return False
 
-    def predict_action(self, state):
-        """Predicts the next action based on the current state."""
-        if not self.agent:
-            log.error(f"[{self.symbol}] Agent not set up. Cannot predict action.")
-            return 0  # Default action (hold)
-
-        try:
-            # Ensure state has correct shape
-            if len(state) != self.state_size:
-                log.error(
-                    f"[{self.symbol}] State size mismatch. Expected {self.state_size}, got {len(state)}. Cannot predict."
-                )
-                return 0
-
-            # Get action from agent (deterministic during inference)
-            action = self.agent.act(state, training=False)
-            log.debug(f"[{self.symbol}] Predicted action: {action}")
-            return action
-
-        except Exception as e:
-            log.error(f"[{self.symbol}] Error predicting action: {e}", exc_info=True)
-            return 0  # Default action (hold)
-
     def save_agent(self):
-        """Saves the current model state."""
-        if not self.agent:
-            log.error(f"[{self.symbol}] Agent not set up. Cannot save.")
-            return
-
-        model_file = f"{self.model_path}.h5"
+        """Save the agent's model."""
+        if self.agent:
+            try:
+                self.agent.save_model(f"{self.model_path}.h5")
+                log.info(f"[{self.symbol}] Model saved to {self.model_path}.h5")
+                return True
+            except Exception as e:
+                log.error(f"[{self.symbol}] Error saving model: {e}", exc_info=True)
+        return False
+        
+    def calculate_pair_preference(self, market_data, sentiment_score=None):
+        """Calculate preference score for this trading pair.
+        
+        Returns a score between 0.0 and 1.0 indicating preference for this pair.
+        """
         try:
-            log.info(f"[{self.symbol}] Saving model to {model_file}...")
-            self.agent.save_model(model_file)
-            log.info(f"[{self.symbol}] Model saved successfully.")
-        except Exception as e:
-            log.error(f"[{self.symbol}] Error saving model: {e}", exc_info=True)
-
-    def get_pair_preference_score(self, state):
-        """Returns a score indicating the agent's preference for trading this pair."""
-        if not self.agent:
-            return 0.5  # Neutral score
-
-        try:
-            # Use the agent's model to predict Q-values for all actions
-            state_reshaped = np.reshape(state, [1, self.state_size, 1])
-            q_values = self.agent.model.predict(state_reshaped, verbose=0)[0]
-
-            # Calculate preference score based on the maximum Q-value
-            # Normalize to 0-1 range (higher is better)
-            max_q = np.max(q_values)
-            min_possible_q = -10  # Approximate minimum possible Q-value
-            max_possible_q = 10  # Approximate maximum possible Q-value
-            preference = (max_q - min_possible_q) / (max_possible_q - min_possible_q)
-            preference = np.clip(preference, 0, 1)
-
-            return float(preference)
-
+            # Implementation of pair preference calculation
+            return 0.75  # Placeholder - higher means preferred
         except Exception as e:
             log.error(
                 f"[{self.symbol}] Error calculating pair preference: {e}", exc_info=True

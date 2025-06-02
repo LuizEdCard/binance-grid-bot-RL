@@ -1,21 +1,26 @@
 #!/bin/bash
 
-# Script para iniciar o Grid Trading Bot com RL
+# Script para iniciar o servidor backend do Grid Trading Bot
 
-echo "Iniciando Grid Trading Bot com Reinforcement Learning..."
+echo "Iniciando servidor backend do Trading Bot..."
 
 # Verificar dependências
 echo "Verificando dependências..."
-pip install -r requirements.txt
+./.venv/bin/pip install -r requirements.txt
 
-# Verificar se o diretório de logs existe
+# Verificar se os diretórios necessários existem
 mkdir -p logs
-
-# Verificar se o diretório de modelos existe
 mkdir -p models
+mkdir -p data/grid_states
 
-# Iniciar o bot
-echo "Iniciando o bot..."
-python src/bot_logic.py
+# Verificar se o arquivo .env existe
+if [ ! -f ".env" ]; then
+    echo "AVISO: Arquivo .env não encontrado. Certifique-se de configurar as credenciais da API."
+fi
 
-echo "Bot iniciado!"
+# Iniciar o servidor backend (usando main.py ao invés de bot_logic.py)
+echo "Iniciando o servidor backend..."
+./.venv/bin/python src/main.py
+
+echo "Servidor backend iniciado!"
+echo "Você pode iniciar os grids de trading através do frontend ou pelo agente RL."

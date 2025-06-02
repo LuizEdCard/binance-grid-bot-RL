@@ -2,11 +2,11 @@
 
 from utils.social_listener import SocialListener
 from utils.sentiment_analyzer import SentimentAnalyzer
-from utils.logger import log, setup_logging
+from utils.logger import log, setup_logger
 from utils.api_client import APIClient
 from utils.alerter import Alerter
 from core.rl_agent import RLAgent
-from core.risk_management import RiskManagement
+from core.risk_management import RiskManager
 from core.pair_selector import PairSelector
 from core.grid_logic import GridLogic
 import praw  # Added import for praw
@@ -174,7 +174,7 @@ def trading_pair_worker(
     global_trade_counter: multiprocessing.Value,
 ):
     """Function executed by each process to manage a single trading pair."""
-    setup_logging(config, f"{symbol}_worker")
+    setup_logger(f"{symbol}_worker")
     log.info(f"[{symbol}] Worker process started (PID: {os.getpid()}).")
 
     operation_mode = config.get("operation_mode", "Shadow").lower()
@@ -187,7 +187,7 @@ def trading_pair_worker(
             symbol, config, api_client, operation_mode=operation_mode
         )
         # Pass the getter function for sentiment score
-        risk_manager = RiskManagement(
+        risk_manager = RiskManager(
             symbol,
             config,
             grid_logic,
@@ -221,24 +221,69 @@ def trading_pair_worker(
 
             try:
                 # 1. Get RL Action
+                # Get and validate RL action with better error handling
                 rl_action = None
+                if rl_agent:
+                    try:
+                        market_state = grid_logic.get_market_state()
+                        if market_state is None:
+                            log.error(f"[{symbol}] Failed to get market state for RL agent")
+                        else:
+                            # Validate market state format
+                            if not isinstance(market_state, (list, np.ndarray)):
+                                log.error(f"[{symbol}] Invalid market state format: {type(market_state)}")
+                            else:
+                                try:
+                                    market_state = np.array(market_state, dtype=np.float32)
+                                except (ValueError, TypeError) as e:
+                                    log.error(f"[{symbol}] Error converting market state to numpy array: {e}")
+                                else:
+                                    # Get sentiment if enabled
+                                    use_sentiment = config.get("sentiment_analysis", {}).get("rl_feature", {}).get("enabled", False)
+                                    if use_sentiment:
+                                        try:
+                                            current_sentiment = get_latest_sentiment_score(smoothed=True)
+                                            if current_sentiment is None:
+                                                log.warning(f"[{symbol}] No sentiment score available. Using RL without sentiment.")
+                                                rl_action = rl_agent.predict_action(market_state)
+                                            else:
+                                                rl_action = rl_agent.predict_action(market_state, sentiment_score=current_sentiment)
+                                                log.info(f"[{symbol}] RL agent action with sentiment {current_sentiment:.4f}: {rl_action}")
+                                        except Exception as e:
+                                            log.error(f"[{symbol}] Error getting RL action with sentiment: {e}", exc_info=True)
+                                            try:
+                                                rl_action = rl_agent.predict_action(market_state)
+                                                log.info(f"[{symbol}] RL agent action (fallback without sentiment): {rl_action}")
+                                            except Exception as e:
+                                                log.error(f"[{symbol}] Error getting fallback RL action: {e}", exc_info=True)
+                                    else:
+                                        try:
+                                            rl_action = rl_agent.predict_action(market_state)
+                                            log.info(f"[{symbol}] RL agent action: {rl_action}")
+                                        except Exception as e:
+                                            log.error(f"[{symbol}] Error getting RL action: {e}", exc_info=True)
+                    except Exception as e:
+                        log.error(f"[{symbol}] Error in RL agent processing: {e}", exc_info=True)
+                        rl_action = None
+
+                # 2. Validate RL action before using
+                if rl_action is not None:
+                    try:
+                        rl_action = float(rl_action)
+                        if not (-1 <= rl_action <= 1):
+                            log.warning(f"[{symbol}] Invalid RL action value: {rl_action}. Using default action.")
+                            rl_action = 0
+                    except (ValueError, TypeError) as e:
+                        log.error(f"[{symbol}] Error processing RL action: {e}")
+                        rl_action = 0
+
+                # 3. Pass validated RL action to grid_logic with error handling
                 try:
-                    # Get current market state (potentially including
-                    # sentiment)
-                    market_state = grid_logic.get_market_state()
-                    # TODO (Step 014): Add sentiment to market_state if RL integration is chosen
-                    # if config.get("sentiment_analysis", {}).get("rl_feature", {}).get("enabled", False):
-                    #     market_state["sentiment_score"] = current_sentiment
-
-                    if rl_agent and hasattr(rl_agent, "predict_action"):
-                        rl_action = rl_agent.predict_action(market_state)
-                        log.info(f"[{symbol}] RL agent suggested action: {rl_action}")
-                except Exception as rl_error:
-                    log.error(f"[{symbol}] Error getting RL action: {rl_error}")
-                    rl_action = None
-
-                # 2. Run Grid Logic Cycle
-                grid_logic.run_cycle(rl_action=rl_action)
+                    grid_logic.run_cycle(rl_action=rl_action)
+                except Exception as e:
+                    log.error(f"[{symbol}] Error in grid_logic cycle with RL action {rl_action}: {e}", exc_info=True)
+                    if "fatal" in str(e).lower():
+                        return  # Exit on fatal errors
 
                 # 3. Run Risk Management Checks (Now potentially uses
                 # sentiment)
@@ -302,19 +347,25 @@ def trading_pair_worker(
 def rl_training_worker(config: dict, stop_event: multiprocessing.Event):
     """Function executed by a separate process to train the RL agent."""
     # ... (RL training logic remains the same) ...
-    setup_logging(config, "rl_trainer")
+    setup_logger("rl_trainer")
     log.info(f"[RL Trainer] Training process started (PID: {os.getpid()}).")
     alerter = Alerter()  # For sending training status updates
 
     try:
         # Initialize RL agent specifically for training
         # Use a generic symbol or handle multiple models
-        rl_agent = RLAgent(config, symbol="GLOBAL")
-
-        if not rl_agent.setup_agent(training=True):
-            log.error("[RL Trainer] Failed to setup RL agent for training. Exiting.")
+        try:
+            rl_agent = RLAgent(config, symbol="GLOBAL")
+            if not rl_agent.setup_agent(training=True):
+                log.error("[RL Trainer] Failed to setup RL agent for training. Exiting.")
+                alerter.send_critical_alert(
+                    "RL Training process failed to initialize agent."
+                )
+                return
+        except Exception as e:
+            log.error(f"[RL Trainer] Error initializing RL agent: {e}", exc_info=True)
             alerter.send_critical_alert(
-                "RL Training process failed to initialize agent."
+                f"RL Training process failed to initialize agent: {e}"
             )
             return
 
@@ -350,7 +401,7 @@ def rl_training_worker(config: dict, stop_event: multiprocessing.Event):
 
 def sentiment_analysis_worker(config: dict, stop_event: threading.Event):
     """Function executed by a separate thread to fetch and analyze sentiment."""
-    setup_logging(config, "sentiment_analyzer")
+    setup_logger("sentiment_analyzer")
     log.info("[Sentiment] Analysis thread started.")
 
     sentiment_config = config.get("sentiment_analysis", {})
@@ -499,7 +550,7 @@ def sentiment_analysis_worker(config: dict, stop_event: threading.Event):
 class TradingBot:
     def __init__(self):
         self.config = load_config()
-        setup_logging(self.config, "main")
+        setup_logger("main")
         self.operation_mode = self.config.get("operation_mode", "Shadow").lower()
         log.info(f"Bot starting in {self.operation_mode.upper()} mode.")
         self.api_client = APIClient(self.config, operation_mode=self.operation_mode)
@@ -544,14 +595,10 @@ class TradingBot:
                 else ""
             )
         )
-        self.alerter.send_message(
-            f"\U0001f916 Trading Bot Starting Up ({self.operation_mode.upper()} Mode) \U0001f916"
-            + (
-                " with Sentiment Analysis"
-                if self.config.get("sentiment_analysis", {}).get("enabled")
-                else ""
-            )
-        )
+        sentiment_text = " with Sentiment Analysis" if self.config.get("sentiment_analysis", {}).get("enabled") else ""
+        mode_text = self.operation_mode.upper()
+        startup_message = f"\U0001F916 Trading Bot Starting Up - {mode_text} Mode \U0001F916{sentiment_text}"
+        self.alerter.send_message(startup_message, parse_mode=None)
 
         signal.signal(signal.SIGINT, self._handle_signal)
         signal.signal(signal.SIGTERM, self._handle_signal)

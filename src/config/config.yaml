@@ -1,171 +1,121 @@
-# Configuração para o Bot de Grid Trading com RL
-
-# Configurações de Exchange (Binance Spot e Futuros)
-exchange:
-  name: 'binance'
-  # Suporte para ambos os mercados: spot e futures
-  supported_markets: ['futures', 'spot']
-  # Adicione URLs de endpoint específicos da API se necessário
-
-# Configuração da API
+alerts:
+  enabled: false
+  market_switch_alerts: true
+  performance_comparison_alerts: true
 api:
   key: ${BINANCE_API_KEY}
   secret: ${BINANCE_API_SECRET}
-
-# Parâmetros de Grid Trading (Valores iniciais, RL ajustará alguns)
+default_market_type: spot
+exchange:
+  name: binance
+  supported_markets:
+  - futures
+  - spot
 grid:
-  initial_levels: 10
-  leverage: 10 # Alavancagem de exemplo para Futuros, ajuste conforme necessário
-  initial_spacing_perc: "0.005" # Espaçamento inicial do grid como porcentagem (0.5%)
-  # RL controlará espaçamento, direção e potencialmente margem de lucro
-  
-  # Configurações específicas por mercado
   futures:
-    leverage: 10
+    leverage: 1
+    position_side: BOTH
     use_isolated_margin: false
-    position_side: "BOTH"  # ou "LONG"/"SHORT" para hedge mode
-  
+  initial_levels: 10
+  initial_spacing_perc: '0.005'
+  leverage: 1
   spot:
-    # No mercado Spot não há alavancagem, mas podemos definir outras configurações
-    min_order_size_usd: 10  # Tamanho mínimo da ordem em USD
-    max_base_asset_allocation: 0.5  # Máximo 50% do saldo em ativos base
-
-# Parâmetros de Trading
-trading:
-  capital_per_pair_usd: "100" # Capital alocado por par de trading
-  max_concurrent_pairs: 3 # Número máximo de pares para negociar simultaneamente
-  cycle_interval_seconds: 60 # Tempo entre ciclos de lógica de trading por par
-  
-  # Configurações específicas por mercado
-  market_allocation:
-    futures_percentage: 60  # 60% do capital para Futuros
-    spot_percentage: 40     # 40% do capital para Spot
-  
-  # RL pode decidir mudar entre os mercados
-  allow_market_switching: true
-  market_switch_cooldown_minutes: 30  # Tempo mínimo entre mudanças de mercado
-
-# Parâmetros do Agente de Reinforcement Learning
+    max_base_asset_allocation: 0.5
+    min_order_size_usd: 10
+logging:
+  level: INFO
+  log_file: logs/bot.log
+  log_to_console: true
+  market_performance_log: logs/market_performance.csv
+  trade_log_file: logs/trades.csv
+operation_mode: Production
+pair_selection:
+  blacklist:
+  - EXAMPLE/USDT
+  futures_pairs:
+    min_open_interest_usd: 50000000
+    preferred_symbols:
+    - BTCUSDT
+    - ETHUSDT
+    - ADAUSDT
+  max_adx: 25
+  max_spread_perc: 0.1
+  min_atr_perc_24h: 2.0
+  min_volume_usd_24h: 100000000
+  spot_pairs:
+    min_liquidity_depth: 1000000
+    preferred_symbols:
+    - BTCUSDT
+    - ETHUSDT
+    - BNBUSDT
+  update_interval_hours: 6
+risk_management:
+  api_failure_timeout_minutes: 5
+  dynamic_sl_profit_lock_perc: 80.0
+  futures_risk:
+    liquidation_buffer_perc: 15.0
+    max_leverage: 20
+    max_position_size_perc: 50.0
+  loss_protection_trigger_perc: 15.0
+  max_drawdown_perc: 10.0
+  spot_risk:
+    max_asset_allocation_perc: 70.0
+    min_stable_balance_perc: 30.0
+  tp_sl_ratio: 3.0
 rl_agent:
-  algorithm: 'PPO' # PPO ou SAC
-  state_features: ['rsi', 'atr', 'adx', 'volume', 'grid_context', 'market_performance'] # Features para o estado do RL
-  
-  # Configuração para decisão de mercado
+  algorithm: PPO
+  experience_replay_buffer_size: 10000
   market_decision:
-    enabled: true  # Habilita RL para escolher entre Spot e Futuros
-    market_switch_reward_bonus: 0.1  # Bônus por mudança bem-sucedida de mercado
-    market_consistency_bonus: 0.05   # Bônus por manter consistência no mercado
-  
+    enabled: true
+    market_consistency_bonus: 0.05
+    market_switch_reward_bonus: 0.1
+  retraining_trade_threshold: 100
   reward_function:
-    profit_weight: 1.0
     drawdown_penalty: 0.5
     inefficiency_penalty: 0.2
-    market_switch_penalty: 0.1  # Penalidade por mudanças frequentes de mercado
-  
-  training_frequency_steps: 1000 # Frequência de treinamento baseada em passos
-  experience_replay_buffer_size: 10000
-  retraining_trade_threshold: 100 # Disparar retreinamento após tantas negociações
-
-# Parâmetros de Seleção de Pares
-pair_selection:
-  min_volume_usd_24h: 100000000 # 100M USD
-  min_atr_perc_24h: 2.0 # 2% ATR
-  max_spread_perc: 0.1 # 0.1% Spread
-  max_adx: 25 # Evitar tendências fortes para grid
-  update_interval_hours: 6
-  blacklist: ['EXAMPLE/USDT'] # Adicionar pares problemáticos aqui
-  
-  # Filtros específicos por mercado
-  futures_pairs:
-    preferred_symbols: ['BTCUSDT', 'ETHUSDT', 'ADAUSDT']
-    min_open_interest_usd: 50000000  # 50M USD interesse aberto mínimo
-  
-  spot_pairs:
-    preferred_symbols: ['BTCUSDT', 'ETHUSDT', 'BNBUSDT']
-    min_liquidity_depth: 1000000  # Profundidade mínima de liquidez
-
-# Parâmetros de Gerenciamento de Risco
-risk_management:
-  max_drawdown_perc: 10.0 # 10% de quebra geral do circuito de rebaixamento
-  dynamic_sl_profit_lock_perc: 80.0 # Trava 80% do lucro realizado
-  tp_sl_ratio: 3.0 # Take Profit é 3x Stop Loss
-  loss_protection_trigger_perc: 15.0 # Fechar ordens perdedoras se comerem 15% do lucro garantido
-  api_failure_timeout_minutes: 5 # Quebra-circuito para falha da API
-  
-  # Gerenciamento de risco específico por mercado
-  futures_risk:
-    max_leverage: 20
-    liquidation_buffer_perc: 15.0  # Manter 15% de buffer de liquidação
-    max_position_size_perc: 50.0   # Máximo 50% do capital em uma posição
-  
-  spot_risk:
-    max_asset_allocation_perc: 70.0  # Máximo 70% em ativos que não sejam stablecoins
-    min_stable_balance_perc: 30.0    # Manter pelo menos 30% em stablecoins
-
-# Logging & Monitoramento
-logging:
-  level: 'INFO' # DEBUG, INFO, WARNING, ERROR
-  log_file: 'logs/bot.log'
-  trade_log_file: 'logs/trades.csv'
-  market_performance_log: 'logs/market_performance.csv'
-  log_to_console: True
-
-# Alertas (Telegram/Discord)
-alerts:
-  enabled: True # Definir como True para habilitar alertas
-  # telegram_token: '' # Adicionar Token do Bot Telegram aqui no .env ou diretamente
-  # telegram_chat_id: '' # Adicionar ID do Chat Telegram aqui no .env ou diretamente
-  # discord_webhook_url: '' # Adicionar URL do Webhook Discord se usando Discord
-  
-  # Alertas específicos para mudanças de mercado
-  market_switch_alerts: True
-  performance_comparison_alerts: True
-
-# --- Sentiment Analysis Configuration --- #
+    market_switch_penalty: 0.1
+    profit_weight: 1.0
+  state_features:
+  - rsi
+  - atr
+  - adx
+  - volume
+  - grid_context
+  - market_performance
+  training_frequency_steps: 1000
 sentiment_analysis:
-  enabled: True # Set to True to enable sentiment analysis feature
-  fetch_interval_minutes: 60 # How often to fetch and analyze sentiment (e.g., every hour)
-  smoothing_window: 10 # Number of recent scores to average for the final score (0 or 1 to disable smoothing)
-  reddit:
-    enabled: True # Enable Reddit as a source
-    subreddits: # List of subreddits to monitor
-      - 'wallstreetbets'
-      - 'investing'
-      - 'CryptoCurrency'
-      # Add more relevant subreddits
-    posts_limit_per_subreddit: 10 # Max posts to fetch per subreddit each cycle
-    comments_limit_per_post: 5 # Max comments to fetch per post
-    time_filter: 'day' # Time filter for fetching posts ('all', 'day', 'hour', 'month', 'week', 'year')
-  # twitter: # Placeholder for future Twitter/X integration
-  #   enabled: False
-  #   keywords: ['bitcoin', 'ethereum', '$BTC', '$ETH']
-  #   tweets_limit: 50
-
-  # --- Sentiment Usage Rules (NEW) --- #
   alerts:
-    enabled: True # Enable sentiment-based alerts
-    positive_threshold: 0.7 # Trigger alert if score >= this value
-    negative_threshold: -0.5 # Trigger alert if score <= this value
-    alert_cooldown_minutes: 120 # Avoid spamming alerts, wait this long before sending another of the same type
-
-  risk_adjustment:
-    enabled: True # Enable dynamic risk adjustment based on sentiment
-    leverage_reduction_threshold: -0.5 # Reduce leverage if score <= this value
-    leverage_reduction_factor: 0.5 # Multiply current leverage by this factor (e.g., 0.5 = 50% reduction)
-    # position_increase_threshold: 0.7 # Increase position size if score >= this value (Use with extreme caution!)
-    # position_increase_factor: 1.1 # Multiply position size by this factor (e.g., 1.1 = 10% increase)
-
+    alert_cooldown_minutes: 120
+    enabled: true
+    negative_threshold: -0.5
+    positive_threshold: 0.7
+  enabled: true
+  fetch_interval_minutes: 60
   pair_filtering:
-    enabled: True # Enable filtering new pairs based on sentiment
-    min_sentiment_for_new_pair: -0.3 # Do not start trading a new pair if sentiment <= this value
-
+    enabled: true
+    min_sentiment_for_new_pair: -0.3
+  reddit:
+    comments_limit_per_post: 5
+    enabled: true
+    posts_limit_per_subreddit: 10
+    subreddits:
+    - wallstreetbets
+    - investing
+    - CryptoCurrency
+    time_filter: day
+  risk_adjustment:
+    enabled: true
+    leverage_reduction_factor: 0.5
+    leverage_reduction_threshold: -0.5
   rl_feature:
-    enabled: True # Include sentiment score as a feature for the RL agent
-# ------------------------------------------- #
-
-# Modos Operacionais
-operation_mode: 'Shadow' # 'Production' ou 'Shadow'
-
-# Configuração de Mercado Padrão
-default_market_type: 'futures'  # 'futures' ou 'spot' - mercado inicial antes do RL decidir
-
+    enabled: true
+  smoothing_window: 10
+trading:
+  allow_market_switching: true
+  capital_per_pair_usd: '10'
+  cycle_interval_seconds: 60
+  market_allocation:
+    futures_percentage: 60
+    spot_percentage: 40
+  market_switch_cooldown_minutes: 30
+  max_concurrent_pairs: 3
