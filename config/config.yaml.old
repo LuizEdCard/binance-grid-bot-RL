@@ -1,0 +1,37 @@
+# Configurações básicas
+api:
+  key: ""  # Sua API key aqui
+  secret: ""  # Seu API secret aqui
+  testnet: true  # Usar testnet por segurança
+
+# Configurações do grid trading
+grid:
+  symbol: "BTCUSDT"  # Par de trading
+  upper_price: 50000  # Preço máximo do grid
+  lower_price: 40000  # Preço mínimo do grid
+  grid_levels: 10     # Número de níveis do grid
+  quantity_per_grid: 0.001  # Quantidade por ordem
+
+# Configurações de gerenciamento de risco
+risk_management:
+  max_drawdown_perc: 10.0  # Máximo drawdown permitido (%)
+  use_atr_stop_loss: true  # Usar ATR para stop loss
+  atr_sl_period: 14        # Período do ATR
+  atr_sl_multiplier: 2.0   # Multiplicador do ATR
+
+# Configurações do reinforcement learning
+rl:
+  enabled: true
+  model_path: "models/rl_model"  # Caminho para salvar/carregar o modelo
+  training_episodes: 1000        # Número de episódios de treino
+  
+# Logging
+logging:
+  level: "INFO"
+  file: "logs/bot.log"
+
+# Alertas
+alerts:
+  telegram_token: ""  # Token do bot do Telegram
+  chat_id: ""        # ID do chat para enviar alertas
+

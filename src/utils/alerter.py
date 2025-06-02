@@ -130,6 +130,16 @@ class Alerter:
 
     def get_qty_precision(self, symbol: str) -> int:
         return self._get_symbol_precision(symbol, "quantity")
+    
+    def escape_markdown_v2(self, text: str) -> str:
+        """Escapes special characters for MarkdownV2."""
+        if not text:
+            return ""
+        # Characters that need to be escaped in MarkdownV2
+        escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+        for char in escape_chars:
+            text = text.replace(char, f'\\{char}')
+        return text
 
     async def send_message_async(
         self, text: str, parse_mode="MarkdownV2", photo: bytes = None
@@ -137,10 +147,22 @@ class Alerter:
         """Asynchronously sends a message (text and optional photo) to the configured Telegram chat."""
         if not self.enabled or not self.bot:
             log.debug(
-                f"Telegram disabled or not initialized. Message not sent: {text[:50]}..."
+                f"Telegram disabled or not initialized. Message not sent: {text[:50] if text else 'Empty'}..."
             )
             return False
+            
+        # Check if text is empty or None
+        if not text or text.strip() == "":
+            log.warning("Attempted to send empty message to Telegram. Skipping.")
+            return False
+            
         try:
+            # If using MarkdownV2, ensure proper escaping for simple text
+            if parse_mode == "MarkdownV2":
+                # Don't escape if text already contains markdown formatting
+                if not any(marker in text for marker in ['*', '_', '`', '[']):
+                    text = self.escape_markdown_v2(text)
+            
             if photo:
                 await self.bot.send_photo(
                     chat_id=TELEGRAM_CHAT_ID,
@@ -158,18 +180,31 @@ class Alerter:
         except telegram.error.BadRequest as e:
             log.error(f"Telegram BadRequest Error: {e}. Message: {text}")
             if parse_mode == "MarkdownV2":
-                log.warning("Retrying Telegram message with default parse mode.")
+                log.warning("Retrying Telegram message with HTML parse mode.")
                 try:
+                    # Convert some basic markdown to HTML
+                    html_text = text.replace('\\*', '<b>').replace('\\*', '</b>').replace('\\_', '<i>').replace('\\_', '</i>')
+                    html_text = html_text.replace('\\(', '(').replace('\\)', ')')
                     if photo:
                         await self.bot.send_photo(
-                            chat_id=TELEGRAM_CHAT_ID, photo=photo, caption=text
+                            chat_id=TELEGRAM_CHAT_ID, photo=photo, caption=html_text, parse_mode="HTML"
                         )
                     else:
-                        await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=text)
+                        await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=html_text, parse_mode="HTML")
                     return True
                 except Exception as retry_e:
-                    log.error(f"Telegram retry failed: {retry_e}")
-                    return False
+                    log.error(f"Telegram HTML retry failed: {retry_e}")
+                    # Final fallback - no parse mode
+                    try:
+                        plain_text = text.replace('\\', '').replace('*', '').replace('_', '').replace('`', '')
+                        if photo:
+                            await self.bot.send_photo(chat_id=TELEGRAM_CHAT_ID, photo=photo, caption=plain_text)
+                        else:
+                            await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=plain_text)
+                        return True
+                    except Exception as final_e:
+                        log.error(f"Telegram final retry failed: {final_e}")
+                        return False
             return False
         except Exception as e:
             log.error(f"Failed to send Telegram message: {e}")
@@ -197,78 +232,135 @@ class Alerter:
     def _generate_chart(
         self, klines, symbol: str, entry_price=None, tp_price=None, sl_price=None
     ):
-        """Generates a simple price chart using Matplotlib from kline data."""
-        if not klines or len(klines) < 2:
+        """Generates a professional candlestick chart with trading levels."""
+        if not klines or len(klines) < 10:
             log.warning(f"Not enough kline data to generate chart for {symbol}.")
             return None
         try:
-            # Assuming klines format: [open_time, open, high, low, close,
-            # volume, close_time, ...]
+            # Prepare DataFrame from klines data
             df = pd.DataFrame(
                 klines,
                 columns=[
-                    "Open time",
-                    "Open",
-                    "High",
-                    "Low",
-                    "Close",
-                    "Volume",
-                    "Close time",
-                    "Quote asset volume",
-                    "Number of trades",
-                    "Taker buy base asset volume",
-                    "Taker buy quote asset volume",
-                    "Ignore",
+                    "Open time", "Open", "High", "Low", "Close", "Volume",
+                    "Close time", "Quote asset volume", "Number of trades",
+                    "Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"
                 ],
             )
-            df["Close time"] = pd.to_datetime(df["Close time"], unit="ms")
+            
+            # Convert to proper data types
+            df["Open time"] = pd.to_datetime(df["Open time"], unit="ms")
+            df["Open"] = pd.to_numeric(df["Open"])
+            df["High"] = pd.to_numeric(df["High"])
+            df["Low"] = pd.to_numeric(df["Low"])
             df["Close"] = pd.to_numeric(df["Close"])
-
-            fig, ax = plt.subplots(figsize=(10, 5))
-            ax.plot(df["Close time"], df["Close"], label="Close Price")
-
-            # Add horizontal lines for entry, TP, SL if provided
+            df["Volume"] = pd.to_numeric(df["Volume"])
+            
+            # Take last 100 candles for better visualization
+            df = df.tail(100)
+            
+            # Create figure with dark theme
+            plt.style.use('dark_background')
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), 
+                                         gridspec_kw={'height_ratios': [3, 1]}, 
+                                         facecolor='#1e1e1e')
+            
+            # Plot candlestick chart
+            for idx, row in df.iterrows():
+                color = '#00ff88' if row['Close'] >= row['Open'] else '#ff4444'
+                
+                # Draw candlestick body
+                body_height = abs(row['Close'] - row['Open'])
+                body_bottom = min(row['Open'], row['Close'])
+                
+                ax1.bar(row['Open time'], body_height, bottom=body_bottom, 
+                       color=color, alpha=0.8, width=pd.Timedelta(minutes=45))
+                
+                # Draw wicks
+                ax1.plot([row['Open time'], row['Open time']], 
+                        [row['Low'], row['High']], 
+                        color=color, linewidth=1, alpha=0.7)
+            
+            # Add trading levels with enhanced styling
             if entry_price is not None:
-                ax.axhline(
-                    y=float(entry_price),
-                    color="blue",
-                    linestyle="--",
-                    linewidth=0.8,
-                    label=f"Entry: {entry_price}",
-                )
+                ax1.axhline(y=float(entry_price), color='#4da6ff', 
+                           linestyle='-', linewidth=2, alpha=0.8,
+                           label=f'Entry: ${entry_price}')
+                
             if tp_price is not None:
-                ax.axhline(
-                    y=float(tp_price),
-                    color="green",
-                    linestyle="--",
-                    linewidth=0.8,
-                    label=f"TP: {tp_price}",
-                )
+                ax1.axhline(y=float(tp_price), color='#00ff88', 
+                           linestyle='--', linewidth=2, alpha=0.8,
+                           label=f'Take Profit: ${tp_price}')
+                
             if sl_price is not None:
-                ax.axhline(
-                    y=float(sl_price),
-                    color="red",
-                    linestyle="--",
-                    linewidth=0.8,
-                    label=f"SL: {sl_price}",
-                )
-
-            ax.set_title(f"{symbol} Price Chart")
-            ax.set_ylabel("Price")
-            ax.set_xlabel("Time")
-            ax.legend()
-            plt.xticks(rotation=45)
+                ax1.axhline(y=float(sl_price), color='#ff4444', 
+                           linestyle='--', linewidth=2, alpha=0.8,
+                           label=f'Stop Loss: ${sl_price}')
+            
+            # Customize main chart
+            ax1.set_title(f'{symbol} - Last 100 Candles', color='white', fontsize=14, fontweight='bold')
+            ax1.set_ylabel('Price (USDT)', color='white', fontweight='bold')
+            ax1.grid(True, alpha=0.3)
+            ax1.legend(loc='upper left', facecolor='#2d2d2d', edgecolor='white')
+            
+            # Add volume chart
+            volume_colors = ['#00ff88' if df.iloc[i]['Close'] >= df.iloc[i]['Open'] 
+                           else '#ff4444' for i in range(len(df))]
+            ax2.bar(df['Open time'], df['Volume'], color=volume_colors, alpha=0.6)
+            ax2.set_ylabel('Volume', color='white', fontweight='bold')
+            ax2.set_xlabel('Time', color='white', fontweight='bold')
+            ax2.grid(True, alpha=0.3)
+            
+            # Format time axis
+            ax1.tick_params(colors='white')
+            ax2.tick_params(colors='white')
+            plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45)
+            
+            # Add timestamp
+            fig.text(0.99, 0.01, f'Generated: {pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")} UTC', 
+                    ha='right', va='bottom', color='gray', fontsize=8)
+            
             plt.tight_layout()
-
+            plt.subplots_adjust(bottom=0.1)
+            
+            # Save to buffer
             buf = io.BytesIO()
-            plt.savefig(buf, format="png")
+            plt.savefig(buf, format='png', dpi=150, facecolor='#1e1e1e', 
+                       bbox_inches='tight', pad_inches=0.2)
             buf.seek(0)
-            plt.close(fig)  # Close the figure to free memory
-            log.info(f"Generated chart for {symbol}.")
+            plt.close(fig)
+            
+            log.info(f"Generated professional candlestick chart for {symbol}.")
             return buf.getvalue()
+            
         except Exception as e:
             log.error(f"Error generating chart for {symbol}: {e}")
-            return None
+            # Fallback to simple line chart
+            try:
+                plt.style.use('default')
+                fig, ax = plt.subplots(figsize=(10, 5))
+                ax.plot(df["Open time"], df["Close"], label="Close Price", color='blue')
+                
+                if entry_price:
+                    ax.axhline(y=float(entry_price), color='blue', linestyle='--', 
+                              label=f'Entry: ${entry_price}')
+                if tp_price:
+                    ax.axhline(y=float(tp_price), color='green', linestyle='--', 
+                              label=f'TP: ${tp_price}')
+                if sl_price:
+                    ax.axhline(y=float(sl_price), color='red', linestyle='--', 
+                              label=f'SL: ${sl_price}')
+                
+                ax.set_title(f"{symbol} Price Chart")
+                ax.legend()
+                plt.tight_layout()
+                
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                plt.close(fig)
+                return buf.getvalue()
+            except:
+                return None
 
     # --- Specific Alert Types --- #
 
@@ -286,35 +378,75 @@ class Alerter:
         qty: Decimal,
         pnl: Decimal = None,
         klines_data=None,
+        tp1_price: Decimal = None,
+        tp2_price: Decimal = None,
+        sl_price: Decimal = None,
+        leverage: int = None,
     ):
-        """Sends a notification about a filled trade, optionally with a chart."""
-        side_emoji = (
-            "\U0001f7e2" if side.upper() == "BUY" else "\U0001f534"
-        )  # Green/Red circle
+        """Sends a notification about a filled trade with complete trading information."""
+        # Enhanced emojis for different sides
+        if side.upper() == "BUY":
+            side_emoji = "🟢📈"  # Green circle + chart up
+            action_emoji = "🚀"  # Rocket for buy
+        else:
+            side_emoji = "🔴📉"  # Red circle + chart down  
+            action_emoji = "🎯"  # Target for sell
+            
         price_precision = self.get_price_precision(symbol)
         qty_precision = self.get_qty_precision(symbol)
+        
+        # Calculate position value
+        position_value = float(price) * float(qty)
+        
+        # Format all values safely without markdown escaping initially
         price_str = f"{price:.{price_precision}f}"
         qty_str = f"{qty:.{qty_precision}f}"
-
-        symbol_safe = telegram.helpers.escape_markdown(symbol, version=2)
-        side_safe = telegram.helpers.escape_markdown(side.upper(), version=2)
-        price_safe = telegram.helpers.escape_markdown(price_str, version=2)
-        qty_safe = telegram.helpers.escape_markdown(qty_str, version=2)
-
-        text = f"{side_emoji} *Trade Filled* {side_emoji}\n\n`{symbol_safe}`\n*Side:* {side_safe}\n*Price:* {price_safe}\n*Quantity:* {qty_safe}"
+        value_str = f"{position_value:.2f}"
+        
+        # Build message without markdown to avoid escaping issues
+        text = f"{side_emoji} TRADE EXECUTED {action_emoji}\n\n"
+        text += f"📊 Symbol: {symbol}\n"
+        text += f"⚡ Side: {side.upper()}\n"
+        text += f"💰 Entry Price: ${price_str}\n"
+        text += f"📦 Quantity: {qty_str}\n"
+        text += f"💵 Position Value: ${value_str} USDT\n"
+        
+        if leverage:
+            text += f"🔥 Leverage: {leverage}x\n"
+            
+        if tp1_price:
+            tp1_str = f"{tp1_price:.{price_precision}f}"
+            text += f"🎯 TP1: ${tp1_str}\n"
+            
+        if tp2_price:
+            tp2_str = f"{tp2_price:.{price_precision}f}"
+            text += f"🎯 TP2: ${tp2_str}\n"
+            
+        if sl_price:
+            sl_str = f"{sl_price:.{price_precision}f}"
+            text += f"🛡️ Stop Loss: ${sl_str}\n"
 
         if pnl is not None:
             pnl_str = f"{pnl:.4f}"
-            pnl_safe = telegram.helpers.escape_markdown(pnl_str, version=2)
-            # Money bag / Chart decreasing
-            pnl_emoji = "\U0001f4b0" if pnl >= 0 else "\U0001f4c9"
-            text += f"\n*Realized PNL:* {pnl_safe} USDT {pnl_emoji}"
+            pnl_emoji = "💸" if pnl >= 0 else "💔"
+            profit_emoji = "✅" if pnl >= 0 else "❌"
+            text += f"\n{profit_emoji} Realized PNL: {pnl_str} USDT {pnl_emoji}\n"
+            
+        text += f"\n⏰ Timestamp: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')} UTC"
 
         photo_bytes = None
         if klines_data:
-            photo_bytes = self._generate_chart(klines_data, symbol, entry_price=price)
+            # Generate chart with all price levels
+            tp_prices = [tp1_price, tp2_price] if tp1_price and tp2_price else tp1_price
+            photo_bytes = self._generate_chart(
+                klines_data, symbol, 
+                entry_price=price, 
+                tp_price=tp1_price, 
+                sl_price=sl_price
+            )
 
-        self.send_message(text, photo=photo_bytes)
+        # Send without markdown to avoid formatting issues
+        self.send_message(text, parse_mode=None, photo=photo_bytes)
 
     def send_trend_recommendation(
         self,
@@ -325,46 +457,74 @@ class Alerter:
         sl_price: Decimal,
         confidence: float = None,
         klines_data=None,
+        market_type: str = "SPOT",
+        risk_reward_ratio: float = None,
     ):
-        """Sends a recommendation for a Long/Short entry based on trend analysis."""
+        """Sends a comprehensive trading recommendation with all important details."""
         direction_upper = direction.upper()
         if direction_upper not in ["LONG", "SHORT"]:
             log.error(f"Invalid direction for trend recommendation: {direction}")
             return
 
-        # Arrow up-right / down-right
-        arrow = "\U00002197" if direction_upper == "LONG" else "\U00002198"
+        # Enhanced emojis based on direction
+        if direction_upper == "LONG":
+            direction_emoji = "🟢🚀📈"  # Green + rocket + chart up
+            signal_emoji = "⬆️"
+        else:
+            direction_emoji = "🔴📉🎯"  # Red + chart down + target
+            signal_emoji = "⬇️"
+            
         price_precision = self.get_price_precision(symbol)
-
-        symbol_safe = telegram.helpers.escape_markdown(symbol, version=2)
-        direction_safe = telegram.helpers.escape_markdown(direction_upper, version=2)
-        entry_safe = telegram.helpers.escape_markdown(
-            f"{entry_price:.{price_precision}f}", version=2
-        )
-        tp_safe = telegram.helpers.escape_markdown(
-            f"{tp_price:.{price_precision}f}", version=2
-        )
-        sl_safe = telegram.helpers.escape_markdown(
-            f"{sl_price:.{price_precision}f}", version=2
-        )
-
-        text = f"{arrow} *Trend Recommendation* {arrow}\n\n`{symbol_safe}`\n*Direction:* {direction_safe}\n*Entry Suggestion:* ~{entry_safe}\n*Take Profit:* {tp_safe}\n*Stop Loss:* {sl_safe}"
-
+        
+        # Calculate potential profit/loss percentages
+        entry_float = float(entry_price)
+        tp_float = float(tp_price)
+        sl_float = float(sl_price)
+        
+        if direction_upper == "LONG":
+            profit_pct = ((tp_float - entry_float) / entry_float) * 100
+            loss_pct = ((entry_float - sl_float) / entry_float) * 100
+        else:
+            profit_pct = ((entry_float - tp_float) / entry_float) * 100
+            loss_pct = ((sl_float - entry_float) / entry_float) * 100
+            
+        # Calculate risk/reward if not provided
+        if not risk_reward_ratio:
+            risk_reward_ratio = profit_pct / loss_pct if loss_pct > 0 else 0
+        
+        # Build comprehensive message
+        text = f"{direction_emoji} TRADING SIGNAL {signal_emoji}\n\n"
+        text += f"📊 SYMBOL: {symbol}\n"
+        text += f"🎯 DIRECTION: {direction_upper}\n"
+        text += f"💰 ENTRY PRICE: ${entry_price:.{price_precision}f}\n"
+        text += f"🎯 TAKE PROFIT: ${tp_price:.{price_precision}f} (+{profit_pct:.2f}%)\n"
+        text += f"🛡️ STOP LOSS: ${sl_price:.{price_precision}f} (-{loss_pct:.2f}%)\n"
+        text += f"📊 MARKET: {market_type}\n"
+        
+        if risk_reward_ratio:
+            rr_emoji = "🟢" if risk_reward_ratio >= 2 else "🟡" if risk_reward_ratio >= 1.5 else "🔴"
+            text += f"{rr_emoji} RISK/REWARD: 1:{risk_reward_ratio:.2f}\n"
+        
         if confidence is not None:
-            conf_str = f"{confidence*100:.1f}%"
-            conf_safe = telegram.helpers.escape_markdown(conf_str, version=2)
-            text += f"\n*Confidence:* {conf_safe}"
-
-        text += "\n\n_Disclaimer: This is an automated suggestion, not financial advice. Trade responsibly._"
+            conf_pct = confidence * 100
+            conf_emoji = "🟢" if conf_pct >= 75 else "🟡" if conf_pct >= 50 else "🔴"
+            text += f"{conf_emoji} CONFIDENCE: {conf_pct:.1f}%\n"
+            
+        text += f"\n⏰ Signal Time: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')} UTC\n"
+        text += "\n⚠️ DISCLAIMER: Automated analysis only. DYOR and trade responsibly!"
 
         photo_bytes = None
         if klines_data:
-            # Generate chart with entry, TP, SL lines
+            # Generate enhanced chart with 100 candles
             photo_bytes = self._generate_chart(
-                klines_data, symbol, entry_price, tp_price, sl_price
+                klines_data[-100:],  # Last 100 candles
+                symbol, 
+                entry_price=entry_price, 
+                tp_price=tp_price, 
+                sl_price=sl_price
             )
 
-        self.send_message(text, photo=photo_bytes)
+        self.send_message(text, parse_mode=None, photo=photo_bytes)
 
 
 # Example Usage (requires valid .env and config)

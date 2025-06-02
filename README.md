@@ -1,8 +1,8 @@
 # Grid Trading Bot com RL e Análise de Sentimento
 
-## Visão Geral
+## ✅ STATUS: TOTALMENTE OPERACIONAL
 
-Este projeto implementa um bot de trading automatizado para a Binance Futures, focado na estratégia de Grid Trading. O bot é aprimorado com:
+Este projeto implementa um bot de trading automatizado para a **Binance Spot e Futures**, focado na estratégia de Grid Trading. O bot é aprimorado com:
 
 *   **Aprendizado por Reforço (RL):** Utiliza `stable-baselines3` para otimizar dinamicamente parâmetros da grade (como espaçamento e possivelmente direção) com base na experiência de mercado.
 *   **Análise Técnica Avançada:** Integra a biblioteca `TA-Lib` (requer instalação manual) para calcular indicadores como ATR, ADX e reconhecer padrões de candlestick, usados no gerenciamento de risco e seleção de pares.
@@ -18,6 +18,32 @@ Este projeto implementa um bot de trading automatizado para a Binance Futures, f
 *   **Seleção Inteligente de Pares:** Filtra pares com base em volume, volatilidade (ATR), tendência (ADX), sentimento e, opcionalmente, padrões de candlestick.
 *   **Execução Concorrente:** Projetado para rodar múltiplos pares de trading simultaneamente (a implementação exata da concorrência pode variar).
 *   **Modos de Operação:** Suporta modo `Production` (operações reais) e `Shadow` (simulação em tempo real).
+
+## 🚀 Início Rápido
+
+### Opção 1: API Flask (Recomendado)
+```bash
+# 1. Instalar dependências
+pip install -r requirements.txt
+
+# 2. Iniciar servidor API
+./start_api.sh
+# Servidor rodará em http://localhost:5000
+```
+
+### Opção 2: Bot de Trading Direto
+```bash
+# 1. Configurar chaves API no .env (necessário para produção)
+# 2. Iniciar bot
+./start_trading_bot.sh
+```
+
+### Opção 3: Modo Shadow (Simulação)
+```bash
+# Testar sem chaves API reais
+export PYTHONPATH=src
+python test_shadow_simulation.py
+```
 
 ## 1. Instalação
 

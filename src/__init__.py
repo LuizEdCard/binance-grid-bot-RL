@@ -1,0 +1,1 @@
+# Pacote principal do sistema de trading bot

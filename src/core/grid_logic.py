@@ -20,6 +20,7 @@ from binance.enums import (
 
 from utils.api_client import APIClient
 from utils.logger import setup_logger
+from utils.data_storage import shadow_storage
 log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
@@ -69,29 +70,10 @@ class GridLogic:
         self.quantity_precision = None
         self.price_precision = None
 
-        # Parâmetros do grid
-        self.num_levels = self.grid_config.get("initial_levels", 10)
-        self.base_spacing_percentage = Decimal(
-            self.grid_config.get("initial_spacing_perc", "0.005")
-        )  # Espaçamento base
-        self.use_dynamic_spacing = self.grid_config.get(
-            "use_dynamic_spacing_atr", False
-        )  # Nova configuração
-        self.dynamic_spacing_atr_period = self.grid_config.get(
-            "dynamic_spacing_atr_period", 14
-        )
-        self.dynamic_spacing_multiplier = Decimal(
-            str(self.grid_config.get("dynamic_spacing_atr_multiplier", "0.5"))
-        )  # Multiplicador para ATR
-        self.current_spacing_percentage = (
-            self.base_spacing_percentage
-        )  # Espaçamento real usado
-        self.grid_direction = "neutral"
-
-        self.grid_levels = []
-        self.active_grid_orders = {}  # Armazena {level_price: order_id}
-        self.open_orders = {}  # Armazena {order_id: order_details}
-
+        # Parâmetros do grid - sempre priorizar valores do frontend
+        self.num_levels = int(config.get("initial_levels") or self.grid_config.get("initial_levels", 10))
+        self.base_spacing_percentage = Decimal(str(config.get("initial_spacing_perc") or self.grid_config.get("initial_spacing_perc", "0.005")))
+        
         # --- Estado do Modo Shadow --- #
         # {order_id: {symbol, side, type, price, quantity, status, ...}}
         self.simulated_open_orders = {}
@@ -139,6 +121,21 @@ class GridLogic:
         self.total_realized_pnl = Decimal("0")
         self.fees_paid = Decimal("0")
         self.total_trades = 0  # Contador para retreinamento do RL
+        
+        # Inicializar atributos para recuperação de grid
+        self._recovery_attempted = False
+        self._grid_recovered = False
+        self._stopped = False
+        self.grid_direction = "neutral"
+        self.current_spacing_percentage = self.base_spacing_percentage
+        self.active_grid_orders = {}
+        self.open_orders = {}
+        self.grid_levels = []  # Initialize grid_levels
+
+        # Inicializar parâmetros de espaçamento dinâmico
+        self.use_dynamic_spacing = self.grid_config.get("use_dynamic_spacing", False)
+        self.dynamic_spacing_atr_period = self.grid_config.get("dynamic_spacing_atr_period", 14)
+        self.dynamic_spacing_multiplier = Decimal(str(self.grid_config.get("dynamic_spacing_multiplier", "0.5")))
 
         log.info(
             f"[{self.symbol}] GridLogic inicializado no modo {self.operation_mode.upper()} para mercado {self.market_type.upper()}. Espaçamento Dinâmico (ATR): {self.use_dynamic_spacing}"
@@ -175,8 +172,20 @@ class GridLogic:
             log.error(f"[{self.symbol}] Informações do símbolo não encontradas nas informações de exchange.")
             return False
 
+        # Obter precisões dos dados do símbolo ou calcular dos filtros
         self.quantity_precision = self.symbol_info.get("quantityPrecision")
         self.price_precision = self.symbol_info.get("pricePrecision")
+        
+        # Se precisões não estão disponíveis, calcular dos filtros
+        if self.quantity_precision is None or self.price_precision is None:
+            # Calcular precision baseado no stepSize e tickSize
+            if self.quantity_precision is None:
+                # Usar baseAssetPrecision ou calcular do stepSize
+                self.quantity_precision = self.symbol_info.get("baseAssetPrecision", 8)
+                
+            if self.price_precision is None:
+                # Usar quoteAssetPrecision ou calcular do tickSize  
+                self.price_precision = self.symbol_info.get("quoteAssetPrecision", 8)
         price_filter = next(
             (
                 f
@@ -360,6 +369,21 @@ class GridLogic:
                         "time": order.get("time", int(time.time() * 1000)),
                         "market_type": self.market_type,  # Novo campo para identificar mercado
                     }
+                    
+                    # NOVO: Salvar dados do trade simulado para RL
+                    shadow_storage.log_trade({
+                        "order_id": order_id,
+                        "symbol": self.symbol,
+                        "side": side,
+                        "price": float(price_str),
+                        "quantity": float(qty_str),
+                        "market_type": self.market_type,
+                        "operation_mode": self.operation_mode,
+                        "order_type": "LIMIT",
+                        "status": "NEW",
+                        "current_price": float(self.current_price) if hasattr(self, 'current_price') else None
+                    })
+                    
                 return order_id
             else:
                 log.error(
@@ -663,6 +687,10 @@ class GridLogic:
                 placed_count += 1
             time.sleep(0.1)
         log.info(f"[{self.symbol}] Placed {placed_count} initial grid orders.")
+        
+        # Save state after placing initial orders
+        if placed_count > 0:
+            self._save_grid_state()
 
     def check_and_handle_fills(self, current_kline=None):
         # ... (rest of the file remains unchanged for now) ...
@@ -687,6 +715,7 @@ class GridLogic:
                 status = self._get_order_status_unified(order_id)
                 time.sleep(0.05)  # Small delay
                 if status:
+                    log.debug(f"[{self.symbol}] Order {order_id} status: {status['status']} - Price: {status.get('price', 'N/A')}")
                     if status["status"] == ORDER_STATUS_FILLED:
                         log.info(f"[{self.symbol}] Order {order_id} FILLED.")
                         filled_orders_data.append(status)
@@ -712,14 +741,33 @@ class GridLogic:
                         ORDER_STATUS_REJECTED,
                     ]:
                         log.warning(
-                            f"[{self.symbol}] Order {order_id} has status {status['status']}. Removing from tracking."
+                            f"[{self.symbol}] Order {order_id} has status {status['status']}. Removing from tracking and recreating if needed."
                         )
                         if order_id in self.open_orders:
                             del self.open_orders[order_id]
+                        
+                        # Find and remove from active grid orders, then recreate
+                        canceled_price = None
                         for price, oid in list(self.active_grid_orders.items()):
                             if oid == order_id:
+                                canceled_price = price
                                 del self.active_grid_orders[price]
                                 break
+                        
+                        # Recreate the canceled order if it was part of our grid
+                        if canceled_price and not self._stopped:
+                            try:
+                                log.info(f"[{self.symbol}] Recreating canceled order at price {canceled_price}")
+                                # Determine order side based on current price
+                                current_price = self.current_price
+                                if current_price and canceled_price < current_price:
+                                    # Buy order
+                                    self._place_grid_order_at_level(canceled_price, "buy")
+                                elif current_price and canceled_price > current_price:
+                                    # Sell order
+                                    self._place_grid_order_at_level(canceled_price, "sell")
+                            except Exception as e:
+                                log.error(f"[{self.symbol}] Failed to recreate canceled order at {canceled_price}: {e}")
                     else:  # Still open (NEW, PARTIALLY_FILLED)
                         still_open_orders[order_id] = status
                 else:
@@ -739,6 +787,10 @@ class GridLogic:
         log.info(
             f"[{self.symbol}] Finished checking orders. {len(filled_orders_data)} filled, {len(self.open_orders)} still open."
         )
+        
+        # Auto-save state if there were changes
+        if filled_orders_data:
+            self._save_grid_state()
 
     def _check_fills_shadow(self, current_kline):
         if not self.simulated_open_orders or current_kline is None:
@@ -1050,6 +1102,105 @@ class GridLogic:
             "talib_available": talib_available,  # Expose TA-Lib status
         }
 
+    def _update_market_data(self):
+        """Atualiza dados de mercado (preços, klines, volume)."""
+        try:
+            # 1. Atualizar preço atual
+            ticker = self._get_ticker()
+            if ticker and "price" in ticker:
+                new_price = float(ticker["price"])
+                self.current_price = new_price
+                
+                # Atualizar histórico de preços
+                if not hasattr(self, "price_history"):
+                    self.price_history = []
+                
+                self.price_history.insert(0, new_price)
+                # Manter apenas últimos 100 preços
+                if len(self.price_history) > 100:
+                    self.price_history = self.price_history[:100]
+                    
+                log.debug(f"[{self.symbol}] Preço atualizado: {new_price}")
+            else:
+                log.warning(f"[{self.symbol}] Falha ao obter ticker")
+            
+            # 2. Atualizar dados de klines para indicadores técnicos
+            klines = self._get_klines(interval="1h", limit=50)
+            if klines and len(klines) > 0:
+                # Extrair preços de fechamento para indicadores
+                close_prices = []
+                for kline in klines:
+                    close_price = float(kline[4])  # Close price é o índice 4
+                    close_prices.append(close_price)
+                
+                # Reverter para ordem cronológica (mais antigo primeiro)
+                close_prices.reverse()
+                self.kline_closes = close_prices
+                
+                # Calcular volume recente
+                if len(klines) >= 24:  # Últimas 24 horas
+                    volumes = [float(kline[5]) for kline in klines[:24]]
+                    self.recent_volume = sum(volumes)
+                    
+                log.debug(f"[{self.symbol}] Klines atualizados: {len(close_prices)} preços, volume 24h: {getattr(self, 'recent_volume', 0):.2f}")
+            else:
+                log.warning(f"[{self.symbol}] Falha ao obter klines")
+                
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao atualizar dados de mercado: {e}", exc_info=True)
+    
+    def _check_balance_for_trading(self):
+        """Verifica se há saldo suficiente para operar."""
+        try:
+            if self.market_type == "futures":
+                # Para futuros, verificar saldo USDT
+                account_balance = self.api_client.get_futures_account_balance()
+                if account_balance:
+                    usdt_balance = None
+                    for balance in account_balance:
+                        if balance.get("asset") == "USDT":
+                            usdt_balance = float(balance.get("balance", 0))
+                            break
+                    
+                    if usdt_balance is None or usdt_balance < 10:  # Mínimo 10 USDT
+                        log.warning(f"[{self.symbol}] Saldo USDT insuficiente: {usdt_balance}")
+                        return False
+                        
+                    log.debug(f"[{self.symbol}] Saldo USDT: {usdt_balance:.2f}")
+                    return True
+                    
+            else:
+                # Para spot, verificar saldos dos ativos
+                account_info = self.api_client.get_spot_account_balance()
+                if account_info and "balances" in account_info:
+                    usdt_balance = 0
+                    base_balance = 0
+                    
+                    base_asset = self.symbol.replace("USDT", "").replace("BUSD", "").replace("USDC", "")
+                    
+                    for balance in account_info["balances"]:
+                        asset = balance["asset"]
+                        free_balance = float(balance["free"])
+                        
+                        if asset == "USDT":
+                            usdt_balance = free_balance
+                        elif asset == base_asset:
+                            base_balance = free_balance
+                    
+                    # Verificar se há pelo menos 10 USDT ou algum saldo do ativo base
+                    if usdt_balance < 10 and base_balance == 0:
+                        log.warning(f"[{self.symbol}] Saldos insuficientes - USDT: {usdt_balance:.2f}, {base_asset}: {base_balance:.6f}")
+                        return False
+                        
+                    log.debug(f"[{self.symbol}] Saldos - USDT: {usdt_balance:.2f}, {base_asset}: {base_balance:.6f}")
+                    return True
+                    
+            return False
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao verificar saldo: {e}")
+            return False
+    
     def _update_position_info(self):
         """Updates the position details (mark price, PnL) from the API or ticker."""
         try:
@@ -1201,31 +1352,38 @@ class GridLogic:
         )  # Clip to [-1, 1]
 
         # 4. Technical indicators (if TA-Lib available)
-        if (
-            talib_available
-            and hasattr(self, "price_history")
-            and len(self.price_history) >= 30
-        ):
-            prices = np.array(self.price_history[:30])
+        if talib_available:
+            # Usar dados de klines se disponíveis, senão price_history
+            prices_data = None
+            if hasattr(self, "kline_closes") and len(self.kline_closes) >= 30:
+                prices_data = np.array(self.kline_closes[-30:])  # Últimos 30 preços
+            elif hasattr(self, "price_history") and len(self.price_history) >= 30:
+                prices_data = np.array(self.price_history[:30])  # Primeiros 30 (mais recentes)
+                
+            if prices_data is not None and len(prices_data) >= 14:
+                # RSI
+                try:
+                    rsi = talib.RSI(prices_data, timeperiod=14)[-1] / 100.0
+                    state_features.append(rsi)
+                except BaseException:
+                    state_features.append(0.5)  # Neutral RSI
 
-            # RSI
-            try:
-                # Normalize to [0, 1]
-                rsi = talib.RSI(prices, timeperiod=14)[-1] / 100.0
-                state_features.append(rsi)
-            except BaseException:
-                state_features.append(0.5)  # Neutral RSI
-
-            # MACD
-            try:
-                macd, signal, hist = talib.MACD(prices)
-                # Normalize histogram
-                norm_hist = np.clip(
-                    (hist[-1] / (prices.mean() * 0.01)) / 2.0 + 0.5, 0, 1
-                )
-                state_features.append(norm_hist)
-            except BaseException:
-                state_features.append(0.5)  # Neutral MACD
+                # MACD
+                try:
+                    macd, signal, hist = talib.MACD(prices_data)
+                    if len(hist) > 0 and not np.isnan(hist[-1]):
+                        # Normalize histogram
+                        norm_hist = np.clip(
+                            (hist[-1] / (prices_data.mean() * 0.01)) / 2.0 + 0.5, 0, 1
+                        )
+                        state_features.append(norm_hist)
+                    else:
+                        state_features.append(0.5)
+                except BaseException:
+                    state_features.append(0.5)  # Neutral MACD
+            else:
+                # Dados insuficientes para indicadores
+                state_features.extend([0.5, 0.5])  # Neutral RSI and MACD
         else:
             # Add placeholders if TA-Lib not available
             state_features.extend([0.5, 0.5])  # Neutral RSI and MACD
@@ -1242,6 +1400,15 @@ class GridLogic:
         state_array = np.array(state_features, dtype=np.float32)
         # Replace NaN with neutral value
         state_array = np.nan_to_num(state_array, nan=0.5)
+
+        # NOVO: Salvar estado de mercado para treinamento RL
+        if self.operation_mode == "shadow":
+            current_price = float(self.current_price) if hasattr(self, 'current_price') else 0.0
+            shadow_storage.log_market_state(
+                symbol=self.symbol,
+                state=state_array.tolist(),
+                price=current_price
+            )
 
         return state_array
 
@@ -1262,6 +1429,9 @@ class GridLogic:
                 9: Aggressive bearish setup (more levels, tighter spacing, short direction)
         """
         log.info(f"[{self.symbol}] Applying RL discrete action: {action}")
+        
+        # NOVO: Capturar estado antes da ação para logging
+        previous_state = self.get_market_state() if hasattr(self, 'get_market_state') else None
 
         # Current parameters
         current_levels = self.num_levels
@@ -1300,14 +1470,14 @@ class GridLogic:
             )
 
         elif action == 3:  # Increase spacing
-            new_spacing = current_spacing + spacing_change
+            new_spacing = Decimal(str(current_spacing)) + spacing_change
             self.update_grid_parameters(spacing_percentage=float(new_spacing))
             log.info(
                 f"[{self.symbol}] RL action: Increased spacing from {current_spacing} to {new_spacing}"
             )
 
         elif action == 4:  # Decrease spacing
-            new_spacing = max(Decimal("0.001"), current_spacing - spacing_change)
+            new_spacing = max(Decimal("0.001"), Decimal(str(current_spacing)) - spacing_change)
             self.update_grid_parameters(spacing_percentage=float(new_spacing))
             log.info(
                 f"[{self.symbol}] RL action: Decreased spacing from {current_spacing} to {new_spacing}"
@@ -1333,7 +1503,7 @@ class GridLogic:
 
         elif action == 8:  # Aggressive bullish
             new_levels = min(20, current_levels + level_change)
-            new_spacing = max(Decimal("0.001"), current_spacing - spacing_change)
+            new_spacing = max(Decimal("0.001"), Decimal(str(current_spacing)) - spacing_change)
             self.update_grid_parameters(
                 num_levels=new_levels,
                 spacing_percentage=float(new_spacing),
@@ -1345,7 +1515,7 @@ class GridLogic:
 
         elif action == 9:  # Aggressive bearish
             new_levels = min(20, current_levels + level_change)
-            new_spacing = max(Decimal("0.001"), current_spacing - spacing_change)
+            new_spacing = max(Decimal("0.001"), Decimal(str(current_spacing)) - spacing_change)
             self.update_grid_parameters(
                 num_levels=new_levels,
                 spacing_percentage=float(new_spacing),
@@ -1357,13 +1527,96 @@ class GridLogic:
 
         else:
             log.warning(f"[{self.symbol}] Unknown RL action: {action}")
+            
+        # NOVO: Salvar ação RL aplicada para treinamento
+        if self.operation_mode == "shadow" and previous_state is not None:
+            # Capturar estado após a ação
+            next_state = self.get_market_state()
+            
+            # Calcular reward simples baseado na mudança de performance
+            reward = self._calculate_rl_reward(previous_state, next_state)
+            
+            # Salvar dados da ação para treinamento
+            shadow_storage.log_rl_action(
+                symbol=self.symbol,
+                state=previous_state.tolist() if hasattr(previous_state, 'tolist') else previous_state,
+                action=action,
+                reward=reward,
+                next_state=next_state.tolist() if hasattr(next_state, 'tolist') else next_state
+            )
+            
+            log.debug(f"[{self.symbol}] RL action logged: action={action}, reward={reward:.4f}")
+    
+    def _calculate_rl_reward(self, previous_state, next_state):
+        """Calcula reward simples para ação RL baseado na mudança de estado."""
+        try:
+            # Reward baseado em múltiplos fatores
+            reward = 0.0
+            
+            # 1. Reward baseado na posição (índices 15-16 do estado)
+            if len(previous_state) > 16 and len(next_state) > 16:
+                position_change = next_state[15] - previous_state[15]  # Mudança na posição normalizada
+                pnl_change = next_state[16] - previous_state[16]       # Mudança no PnL normalizado
+                
+                # Recompensar melhoria no PnL
+                reward += pnl_change * 10.0
+                
+                # Penalizar posições extremas
+                if abs(next_state[15]) > 0.8:  # Posição muito grande
+                    reward -= 1.0
+            
+            # 2. Reward baseado na volatilidade (índice 11)
+            if len(previous_state) > 11 and len(next_state) > 11:
+                volatility = next_state[11]
+                # Recompensar baixa volatilidade (mais estável)
+                reward += (1.0 - volatility) * 0.5
+            
+            # 3. Reward baseado no balanceamento do grid (índice 14)
+            if len(next_state) > 14:
+                grid_balance = abs(next_state[14])  # Quão balanceado está o grid
+                # Recompensar grid balanceado
+                reward += (1.0 - grid_balance) * 0.5
+            
+            # Garantir que reward está em range razoável
+            reward = max(-5.0, min(5.0, reward))
+            
+            return reward
+            
+        except Exception as e:
+            log.warning(f"[{self.symbol}] Erro ao calcular reward RL: {e}")
+            return 0.0
 
     def run_cycle(self, rl_action=None):
         """Main execution cycle for the grid logic."""
         log.info(f"[{self.symbol}] Running grid cycle...")
 
-        # 0. Update position info first
+        # 0. First run: Try to recover existing grid
+        if not self._recovery_attempted:
+            log.info(f"[{self.symbol}] 🔄 Primeira execução - verificando existência de grid ativo na Binance...")
+            grid_recovered = self.recover_active_grid()
+            
+            if grid_recovered:
+                log.info(f"[{self.symbol}] ✅ Grid ativo recuperado com sucesso da Binance!")
+                
+                # Pular para monitoramento direto das ordens recuperadas
+                self.check_and_handle_fills()
+                log.info(f"[{self.symbol}] ✅ Ciclo de recuperação concluído - monitorando ordens da Binance")
+                return
+            else:
+                log.info(f"[{self.symbol}] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid")
+
+        # 1. Update market data first (prices, klines, volume)
+        self._update_market_data()
+        
+        # 2. Update position/balance info
         self._update_position_info()
+        
+        # 2. Verificar se há saldo suficiente antes de operar
+        balance_ok = self._check_balance_for_trading()
+        log.debug(f"[{self.symbol}] Balance check result: {balance_ok}")
+        if not balance_ok:
+            log.warning(f"[{self.symbol}] Saldo insuficiente para trading. Pulando ciclo.")
+            return
 
         # Apply RL agent actions if provided
         if rl_action is not None:
@@ -1428,6 +1681,914 @@ class GridLogic:
         # externally for now)
 
         log.info(f"[{self.symbol}] Grid cycle finished.")
+
+    def get_status(self) -> dict:
+        """Retorna status atual do bot de grid trading."""
+        try:
+            # Obter preço atual
+            ticker = self._get_ticker()
+            current_price = 0.0
+            if ticker and "lastPrice" in ticker:
+                current_price = float(ticker["lastPrice"])
+
+            # Calcular PnL baseado no tipo de mercado
+            if self.market_type == "spot":
+                unrealized_pnl = float(self.position.get("unrealized_pnl", 0))
+                position_size = float(self.position.get("base_balance", 0))
+            else:  # futures
+                unrealized_pnl = float(self.position.get("unRealizedProfit", 0))
+                position_size = float(self.position.get("positionAmt", 0))
+
+            # Status base
+            status = {
+                "status": "running",
+                "symbol": self.symbol,
+                "market_type": self.market_type,
+                "operation_mode": self.operation_mode,
+                "current_price": current_price,
+                "grid_levels": len(self.grid_levels),
+                "active_orders": len(self.active_grid_orders),
+                "total_trades": self.total_trades,
+                "realized_pnl": float(self.total_realized_pnl),
+                "unrealized_pnl": unrealized_pnl,
+                "fees_paid": float(self.fees_paid),
+                "position_size": position_size,
+                "spacing_percentage": float(self.current_spacing_percentage),
+                "grid_direction": getattr(self, 'grid_direction', 'neutral')
+            }
+
+            # Adicionar informações de recuperação
+            if hasattr(self, '_grid_recovered'):
+                status["grid_recovered"] = self._grid_recovered
+                if self._grid_recovered:
+                    recovered_count = sum(1 for level in self.grid_levels if level.get('recovered', False))
+                    status["recovered_orders"] = recovered_count
+            
+            # Adicionar informações específicas do modo shadow
+            if self.operation_mode == "shadow":
+                status["simulated_orders"] = len(self.simulated_open_orders)
+                base_message = "Running in shadow mode (simulation)"
+            else:
+                base_message = "Running in production mode (real trading)"
+            
+            # Adicionar status de recuperação à mensagem
+            if hasattr(self, '_grid_recovered') and self._grid_recovered:
+                status["message"] = f"{base_message} - Grid recuperado de sessão anterior"
+            else:
+                status["message"] = base_message
+
+            return status
+
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao obter status: {e}")
+            return {
+                "status": "error",
+                "symbol": self.symbol,
+                "message": f"Error getting status: {str(e)}"
+            }
+
+    def stop(self):
+        """Para o bot de grid trading."""
+        try:
+            log.info(f"[{self.symbol}] Parando bot de grid trading...")
+            
+            # Cancelar todas as ordens ativas
+            if self.operation_mode == "production":
+                # Cancelar ordens reais
+                for order_id in list(self.active_grid_orders.values()):
+                    try:
+                        if self.market_type == "spot":
+                            self.api_client.cancel_spot_order(symbol=self.symbol, orderId=order_id)
+                        else:  # futures
+                            self.api_client.cancel_order(symbol=self.symbol, orderId=order_id)
+                        log.info(f"[{self.symbol}] Ordem {order_id} cancelada")
+                    except Exception as e:
+                        log.warning(f"[{self.symbol}] Erro ao cancelar ordem {order_id}: {e}")
+            else:
+                # Limpar ordens simuladas
+                self.simulated_open_orders.clear()
+                log.info(f"[{self.symbol}] Ordens simuladas limpas")
+
+            # Limpar estruturas de dados
+            self.active_grid_orders.clear()
+            self.open_orders.clear()
+            self.grid_levels.clear()
+            
+            # Marcar como parado
+            self._stopped = True
+            
+            log.info(f"[{self.symbol}] Bot parado com sucesso")
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao parar bot: {e}")
+            
+    @property
+    def is_stopped(self):
+        """Property alias for _stopped attribute."""
+        return self._stopped
+        
+    @is_stopped.setter
+    def is_stopped(self, value):
+        """Setter for is_stopped property."""
+        self._stopped = value
+
+    def recover_active_grid(self):
+        """Recupera grid ativo existente após reinicialização do bot.
+        
+        Verifica se há ordens ativas na exchange e reconstrói o estado do grid.
+        Prioriza a recuperação a partir das ordens ativas na Binance.
+        Verifica ambos os mercados (spot e futures) para maior robustez.
+        """
+        self._recovery_attempted = True
+        
+        if self.operation_mode != "production":
+            log.info(f"[{self.symbol}] Modo shadow - não há ordens reais para recuperar")
+            return False
+
+        try:
+            log.info(f"[{self.symbol}] 🔍 Verificando ordens ativas em ambos os mercados...")
+            
+            # Tentar mercado futures primeiro
+            futures_orders = None
+            try:
+                futures_orders = self.api_client._make_request(
+                    self.api_client.client.futures_get_open_orders,
+                    symbol=self.symbol
+                )
+                log.info(f"[{self.symbol}] Encontradas {len(futures_orders) if futures_orders else 0} ordens FUTURES")
+                if futures_orders:
+                    self.market_type = "futures"
+            except Exception as e:
+                log.warning(f"[{self.symbol}] Erro ao verificar mercado FUTURES: {e}")
+                futures_orders = None
+
+            # Se não encontrou no futures, tentar spot
+            spot_orders = None
+            if not futures_orders:
+                try:
+                    spot_orders = self.api_client._make_request(
+                        self.api_client.client.get_open_orders,
+                        symbol=self.symbol
+                    )
+                    log.info(f"[{self.symbol}] Encontradas {len(spot_orders) if spot_orders else 0} ordens SPOT")
+                    if spot_orders:
+                        self.market_type = "spot"
+                except Exception as e:
+                    log.warning(f"[{self.symbol}] Erro ao verificar mercado SPOT: {e}")
+                    spot_orders = None
+
+            # Usar as ordens encontradas
+            active_orders = futures_orders if futures_orders else spot_orders
+
+            if not active_orders:
+                log.info(f"[{self.symbol}] Nenhuma ordem ativa encontrada em nenhum mercado")
+                self._grid_recovered = False
+                return False
+            
+            log.info(f"[{self.symbol}] Usando ordens do mercado {self.market_type.upper()}")
+
+            # Filtrar apenas ordens LIMIT
+            grid_orders = []
+            for order in active_orders:
+                if order.get('type') == 'LIMIT' and order.get('status') in ['NEW', 'PARTIALLY_FILLED']:
+                    grid_orders.append({
+                        'orderId': order['orderId'],
+                        'price': float(order['price']),
+                        'origQty': float(order['origQty']),
+                        'executedQty': float(order.get('executedQty', 0)),
+                        'side': order['side'],
+                        'status': order['status'],
+                        'time': order.get('time', 0)
+                    })
+
+            if not grid_orders:
+                log.info(f"[{self.symbol}] Nenhuma ordem LIMIT ativa encontrada")
+                self._grid_recovered = False
+                return False
+
+            # Analisar espaçamento entre ordens
+            grid_orders.sort(key=lambda x: x['price'])
+            
+            # Exibir ordens encontradas para diagnóstico
+            log.info(f"[{self.symbol}] 📋 Ordens encontradas para análise:")
+            for i, order in enumerate(grid_orders[:5]):  # Mostrar até 5 ordens para não poluir o log
+                log.info(f"  #{i+1}: {order['side']} @ {order['price']} - Qtd: {order['origQty']}")
+            if len(grid_orders) > 5:
+                log.info(f"  ... e mais {len(grid_orders) - 5} ordens")
+                
+            # Análise separada para ordens de compra e venda
+            buy_orders = [o for o in grid_orders if o['side'] == 'BUY']
+            sell_orders = [o for o in grid_orders if o['side'] == 'SELL']
+            log.info(f"[{self.symbol}] 📊 Composição: {len(buy_orders)} ordens de compra, {len(sell_orders)} ordens de venda")
+            
+            # Calcular espaçamentos entre ordens consecutivas do mesmo tipo
+            spacings = []
+            
+            # Espaçamentos entre ordens de compra
+            if len(buy_orders) >= 2:
+                buy_orders.sort(key=lambda x: x['price'])
+                buy_spacings = []
+                for i in range(1, len(buy_orders)):
+                    price1 = buy_orders[i-1]['price']
+                    price2 = buy_orders[i]['price']
+                    spacing = abs((price2 - price1) / price1)
+                    buy_spacings.append(spacing)
+                    log.info(f"[{self.symbol}] BUY: Espaçamento entre {price1} e {price2}: {spacing*100:.2f}%")
+                
+                if buy_spacings:
+                    avg_buy_spacing = sum(buy_spacings) / len(buy_spacings)
+                    log.info(f"[{self.symbol}] 📏 Espaçamento médio entre ordens de COMPRA: {avg_buy_spacing*100:.2f}%")
+                    spacings.extend(buy_spacings)
+            
+            # Espaçamentos entre ordens de venda
+            if len(sell_orders) >= 2:
+                sell_orders.sort(key=lambda x: x['price'])
+                sell_spacings = []
+                for i in range(1, len(sell_orders)):
+                    price1 = sell_orders[i-1]['price']
+                    price2 = sell_orders[i]['price']
+                    spacing = abs((price2 - price1) / price1)
+                    sell_spacings.append(spacing)
+                    log.info(f"[{self.symbol}] SELL: Espaçamento entre {price1} e {price2}: {spacing*100:.2f}%")
+                
+                if sell_spacings:
+                    avg_sell_spacing = sum(sell_spacings) / len(sell_spacings)
+                    log.info(f"[{self.symbol}] 📏 Espaçamento médio entre ordens de VENDA: {avg_sell_spacing*100:.2f}%")
+                    spacings.extend(sell_spacings)
+            
+            # Se não houver espaçamentos por tipo, calcular entre todas as ordens
+            if not spacings:
+                for i in range(1, len(grid_orders)):
+                    price1 = grid_orders[i-1]['price']
+                    price2 = grid_orders[i]['price']
+                    spacing = abs((price2 - price1) / price1)
+                    spacings.append(spacing)
+                    log.info(f"[{self.symbol}] ALL: Espaçamento entre {price1} e {price2}: {spacing*100:.2f}%")
+
+            if spacings:
+                avg_spacing = sum(spacings) / len(spacings)
+                # Verificar se os espaçamentos são consistentes (variação < 30%)
+                spacing_variation = [abs(s - avg_spacing) / avg_spacing for s in spacings]
+                is_consistent = all(v < 0.30 for v in spacing_variation)
+                
+                log.info(f"[{self.symbol}] 📏 Espaçamento médio geral: {avg_spacing*100:.2f}%")
+                
+                if is_consistent:
+                    log.info(f"[{self.symbol}] ✅ Grid detectado! Espaçamento consistente ({avg_spacing*100:.2f}%)")
+                    
+                    # Atualizar parâmetros do grid
+                    self.current_spacing_percentage = Decimal(str(avg_spacing))
+                    self.base_spacing_percentage = Decimal(str(avg_spacing))
+                    self.num_levels = max(len(grid_orders), self.num_levels)
+                    
+                    # Determinar direção do grid baseado na distribuição de ordens
+                    if len(buy_orders) > len(sell_orders) * 1.5:
+                        self.grid_direction = "long"
+                        log.info(f"[{self.symbol}] 📈 Grid recuperado com viés LONG (mais ordens de compra)")
+                    elif len(sell_orders) > len(buy_orders) * 1.5:
+                        self.grid_direction = "short"
+                        log.info(f"[{self.symbol}] 📉 Grid recuperado com viés SHORT (mais ordens de venda)")
+                    else:
+                        self.grid_direction = "neutral"
+                        log.info(f"[{self.symbol}] ⚖️ Grid recuperado com viés NEUTRAL (balanceado)")
+                    
+                    # Reconstruir níveis do grid
+                    self.grid_levels = []
+                    for order in grid_orders:
+                        level = {
+                            'price': order['price'],
+                            'type': 'buy' if order['side'] == 'BUY' else 'sell',
+                            'quantity': order.get('origQty', 0),
+                            'order_id': order['orderId'],
+                            'status': 'active',
+                            'recovered': True
+                        }
+                        self.grid_levels.append(level)
+                        self.active_grid_orders[order['price']] = order['orderId']
+                        self.open_orders[order['orderId']] = order
+                    
+                    log.info(f"[{self.symbol}] ✅ Grid recuperado com sucesso! {len(self.grid_levels)} níveis ativos")
+                    
+                    # Obter ticker para verificar preço atual
+                    try:
+                        ticker = self._get_ticker()
+                        if ticker and 'lastPrice' in ticker:
+                            self.current_price = float(ticker['lastPrice'])
+                            log.info(f"[{self.symbol}] 📊 Preço atual: {self.current_price}")
+                            
+                            # Contar quantos níveis estão acima e abaixo do preço atual
+                            levels_below = sum(1 for level in self.grid_levels if level['price'] < self.current_price)
+                            levels_above = sum(1 for level in self.grid_levels if level['price'] > self.current_price)
+                            log.info(f"[{self.symbol}] 📊 Distribuição do grid: {levels_below} níveis abaixo e {levels_above} níveis acima do preço atual")
+                    except Exception as ticker_e:
+                        log.warning(f"[{self.symbol}] ⚠️ Não foi possível obter preço atual: {ticker_e}")
+                    
+                    self._grid_recovered = True
+                    
+                    # Salvar estado recuperado como backup
+                    self._save_grid_state()
+                    
+                    # Reinicializar symbol_info para o mercado correto
+                    self._initialize_symbol_info()
+                    
+                    return True
+                else:
+                    log.info(f"[{self.symbol}] ⚠️ Ordens encontradas mas espaçamento não consistente (variação > 25%)")
+                    # Mostrar os espaçamentos mais discrepantes
+                    for i, var in enumerate(spacing_variation):
+                        if var > 0.25:
+                            log.info(f"[{self.symbol}] Variação alta no espaçamento {i}: {var*100:.1f}%")
+                    
+                    # Verificar se temos pelo menos algumas ordens com espaçamento consistente
+                    consistent_spacings = [s for i, s in enumerate(spacings) if spacing_variation[i] < 0.30]
+                    if len(consistent_spacings) >= 3:  # Se tivermos pelo menos 3 espaçamentos consistentes
+                        log.info(f"[{self.symbol}] 🔄 Tentando recuperação parcial com {len(consistent_spacings)} espaçamentos consistentes")
+                        
+                        # Usar apenas espaçamentos consistentes para calcular média
+                        consistent_avg = sum(consistent_spacings) / len(consistent_spacings)
+                        log.info(f"[{self.symbol}] 📏 Espaçamento médio dos valores consistentes: {consistent_avg*100:.2f}%")
+                        
+                        # Continuar com recuperação mesmo com alguns espaçamentos inconsistentes
+                        self.current_spacing_percentage = Decimal(str(consistent_avg))
+                        self.base_spacing_percentage = Decimal(str(consistent_avg))
+                        
+                        # Reconstruir níveis do grid
+                        self.grid_levels = []
+                        for order in grid_orders:
+                            level = {
+                                'price': order['price'],
+                                'type': 'buy' if order['side'] == 'BUY' else 'sell',
+                                'quantity': order.get('origQty', 0),
+                                'order_id': order['orderId'],
+                                'status': 'active',
+                                'recovered': True
+                            }
+                            self.grid_levels.append(level)
+                            self.active_grid_orders[order['price']] = order['orderId']
+                            self.open_orders[order['orderId']] = order
+                        
+                        log.info(f"[{self.symbol}] ⚠️ Recuperação parcial do grid (alguns espaçamentos inconsistentes)")
+                        self._grid_recovered = True
+                        return True
+                        
+                    self._grid_recovered = False
+                    return False
+            else:
+                # Tentar recuperar mesmo se não conseguimos calcular espaçamentos
+                if len(grid_orders) >= 3:
+                    log.info(f"[{self.symbol}] ⚠️ Tentando recuperar grid mesmo sem calcular espaçamento")
+                    
+                    # Usar valor padrão de espaçamento
+                    self.current_spacing_percentage = Decimal("0.005")  # 0.5%
+                    self.base_spacing_percentage = Decimal("0.005")
+                    
+                    # Reconstruir níveis do grid de qualquer forma
+                    self.grid_levels = []
+                    for order in grid_orders:
+                        level = {
+                            'price': order['price'],
+                            'type': 'buy' if order['side'] == 'BUY' else 'sell',
+                            'quantity': order.get('origQty', 0),
+                            'order_id': order['orderId'],
+                            'status': 'active',
+                            'recovered': True
+                        }
+                        self.grid_levels.append(level)
+                        self.active_grid_orders[order['price']] = order['orderId']
+                        self.open_orders[order['orderId']] = order
+                    
+                    log.info(f"[{self.symbol}] ✅ Grid recuperado com ordens insuficientes para calcular espaçamento")
+                    self._grid_recovered = True
+                    return True
+                else:
+                    log.info(f"[{self.symbol}] ⚠️ Impossível calcular espaçamento (ordens insuficientes)")
+                    self._grid_recovered = False
+                    return False
+                
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro durante recuperação do grid: {e}", exc_info=True)
+            self._grid_recovered = False
+            return False
+
+    def _get_active_orders_from_exchange(self) -> list:
+        """Busca ordens ativas na exchange para o símbolo atual."""
+        try:
+            # Tentar múltiplas vezes em caso de falha de conexão
+            max_attempts = 3
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    if self.market_type == "spot":
+                        log.info(f"[{self.symbol}] Buscando ordens ativas no mercado SPOT (tentativa {attempt}/{max_attempts})...")
+                        orders = self.api_client.get_spot_open_orders(symbol=self.symbol)
+                    else:  # futures
+                        log.info(f"[{self.symbol}] Buscando ordens ativas no mercado FUTURES (tentativa {attempt}/{max_attempts})...")
+                        orders = self.api_client.get_futures_open_orders(symbol=self.symbol)  # Corrigido para usar método correto
+                    
+                    # Verificação de resposta válida
+                    if orders is None:
+                        log.warning(f"[{self.symbol}] API retornou None para ordens ativas (tentativa {attempt}/{max_attempts})")
+                        if attempt < max_attempts:
+                            time.sleep(2)  # Esperar 2 segundos antes de tentar novamente
+                            continue
+                        else:
+                            return []
+                    
+                    # Filtrar apenas ordens LIMIT que são do tipo grid
+                    grid_orders = []
+                    for order in orders:
+                        if (order.get('type') == 'LIMIT' and 
+                            order.get('status') in ['NEW', 'PARTIALLY_FILLED']):
+                            grid_orders.append({
+                                'orderId': order['orderId'],
+                                'price': float(order['price']),
+                                'origQty': float(order['origQty']),
+                                'executedQty': float(order.get('executedQty', 0)),
+                                'side': order['side'],
+                                'status': order['status'],
+                                'time': order.get('time', 0),
+                                'symbol': order.get('symbol', self.symbol)
+                            })
+                    
+                    if grid_orders:
+                        log.info(f"[{self.symbol}] ✅ Encontradas {len(grid_orders)} ordens LIMIT ativas")
+                        # Mostrar detalhes das ordens para diagnóstico
+                        for i, order in enumerate(grid_orders[:5]):  # Limitar a 5 ordens
+                            log.info(f"[{self.symbol}] Ordem #{i+1}: {order['side']} @ {order['price']}, Qtd={order['origQty']}")
+                        if len(grid_orders) > 5:
+                            log.info(f"[{self.symbol}] ... e mais {len(grid_orders) - 5} ordens")
+                    else:
+                        log.info(f"[{self.symbol}] Nenhuma ordem LIMIT ativa encontrada")
+                    
+                    return grid_orders
+                    
+                except Exception as api_error:
+                    log.warning(f"[{self.symbol}] Erro na tentativa {attempt}/{max_attempts} de buscar ordens: {api_error}")
+                    if attempt < max_attempts:
+                        time.sleep(2)  # Esperar 2 segundos antes de tentar novamente
+                    else:
+                        raise  # Re-levantar a exceção na última tentativa
+            
+            return []  # Caso todas as tentativas falhem
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro ao buscar ordens ativas: {e}", exc_info=True)
+            return []
+
+    def _reconstruct_grid_from_orders(self, active_orders: list) -> list:
+        """Reconstrói níveis do grid a partir das ordens ativas."""
+        try:
+            if not active_orders:
+                log.warning(f"[{self.symbol}] Nenhuma ordem ativa para reconstrução de grid")
+                return []
+            
+            # Separar ordens por tipo
+            buy_orders = [o for o in active_orders if o['side'] == 'BUY']
+            sell_orders = [o for o in active_orders if o['side'] == 'SELL']
+            
+            log.info(f"[{self.symbol}] 📊 Análise das ordens - Compra: {len(buy_orders)}, Venda: {len(sell_orders)}")
+            
+            # Validar que temos uma estrutura de grid (pelo menos algumas ordens de compra e venda)
+            if len(buy_orders) == 0 or len(sell_orders) == 0:
+                log.warning(f"[{self.symbol}] ⚠️ Estrutura de grid incompleta - faltando ordens de {'compra' if len(buy_orders) == 0 else 'venda'}")
+                # Continuar mesmo assim, pode ser um grid em construção ou unidirecional
+            
+            # Calcular espaçamento médio das ordens existentes
+            recovered_spacing = self._calculate_spacing_from_orders(active_orders)
+            if recovered_spacing:
+                log.info(f"[{self.symbol}] 📏 Espaçamento do grid recuperado: {recovered_spacing*100:.3f}%")
+                self.current_spacing_percentage = Decimal(str(recovered_spacing))
+                # Atualizar também o espaçamento base para usar em novos níveis
+                self.base_spacing_percentage = Decimal(str(recovered_spacing))
+            else:
+                log.warning(f"[{self.symbol}] ⚠️ Não foi possível calcular espaçamento do grid. Usando padrão: {self.base_spacing_percentage*100:.3f}%")
+            
+            # Verificar e recuperar tamanho do grid baseado no número de ordens
+            self.num_levels = max(len(active_orders), self.num_levels)
+            log.info(f"[{self.symbol}] 📐 Número de níveis do grid recuperado: {self.num_levels}")
+            
+            # Determinar direção do grid com base na proporção de ordens
+            if len(buy_orders) > len(sell_orders) * 1.5:
+                self.grid_direction = "long"
+                log.info(f"[{self.symbol}] 📈 Direção do grid recuperada: LONG (mais ordens de compra)")
+            elif len(sell_orders) > len(buy_orders) * 1.5:
+                self.grid_direction = "short"
+                log.info(f"[{self.symbol}] 📉 Direção do grid recuperada: SHORT (mais ordens de venda)")
+            else:
+                self.grid_direction = "neutral"
+                log.info(f"[{self.symbol}] ⚖️ Direção do grid recuperada: NEUTRAL (equilibrado)")
+            
+            # Reconstruir estruturas de dados
+            recovered_levels = []
+            self.open_orders = {}  # Limpar antes de reconstruir
+            self.active_grid_orders = {}  # Limpar antes de reconstruir
+            
+            for order in active_orders:
+                # Adicionar às ordens abertas com formato adequado para cada tipo de mercado
+                order_data = {
+                    'orderId': order['orderId'],
+                    'symbol': self.symbol,
+                    'side': order['side'],
+                    'type': 'LIMIT',
+                    'origQty': str(order['origQty']),
+                    'price': str(order['price']),
+                    'status': order['status'],
+                    'executedQty': str(order['executedQty']),
+                    'time': order['time']
+                }
+                
+                self.open_orders[order['orderId']] = order_data
+                
+                # Adicionar aos níveis ativos do grid
+                # Chave é o preço formatado como string para evitar problemas com Decimal
+                self.active_grid_orders[float(order['price'])] = order['orderId']
+                
+                # Criar nível do grid
+                # Determinar tipo baseado no lado da ordem
+                level_type = "buy" if order['side'] == 'BUY' else "sell"
+                
+                level = {
+                    'price': float(order['price']),
+                    'type': level_type,  # Formato esperado pelo grid
+                    'quantity': float(order['origQty']),
+                    'order_id': order['orderId'],
+                    'status': 'active',
+                    'recovered': True  # Marcar como recuperado
+                }
+                recovered_levels.append(level)
+            
+            # Ordenar níveis por preço
+            recovered_levels.sort(key=lambda x: x['price'])
+            
+            # Atualizar current_price baseado nas ordens
+            # Buscar o preço do mercado atual
+            try:
+                ticker = self._get_ticker()
+                if ticker and 'lastPrice' in ticker:
+                    self.current_price = float(ticker['lastPrice'])
+                    log.info(f"[{self.symbol}] 📊 Preço atual do mercado: {self.current_price}")
+            except Exception as price_error:
+                log.warning(f"[{self.symbol}] ⚠️ Não foi possível obter preço atual: {price_error}")
+                # Estimar preço atual usando a média das ordens
+                if recovered_levels:
+                    estimated_price = sum(level['price'] for level in recovered_levels) / len(recovered_levels)
+                    self.current_price = estimated_price
+                    log.info(f"[{self.symbol}] 📊 Preço atual estimado das ordens: {estimated_price}")
+            
+            log.info(f"[{self.symbol}] ✅ Grid reconstruído com sucesso! {len(recovered_levels)} níveis ativos")
+            return recovered_levels
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro ao reconstruir grid: {e}", exc_info=True)
+            return []
+
+    def _calculate_spacing_from_orders(self, orders: list) -> float:
+        """Calcula espaçamento médio das ordens, analisando ordens do mesmo tipo separadamente."""
+        try:
+            if len(orders) < 2:
+                log.warning(f"[{self.symbol}] Ordens insuficientes para calcular espaçamento")
+                return None
+
+            # Separar ordens por tipo
+            buy_orders = sorted([o for o in orders if o['side'] == 'BUY'], key=lambda x: float(x['price']))
+            sell_orders = sorted([o for o in orders if o['side'] == 'SELL'], key=lambda x: float(x['price']))
+            
+            log.info(f"[{self.symbol}] Analisando {len(buy_orders)} ordens de compra e {len(sell_orders)} ordens de venda")
+            
+            spacings = []
+            
+            # Analisar ordens de compra
+            if len(buy_orders) >= 2:
+                buy_spacings = []
+                for i in range(1, len(buy_orders)):
+                    price1 = float(buy_orders[i-1]['price'])
+                    price2 = float(buy_orders[i]['price'])
+                    spacing = abs((price2 - price1) / price1)
+                    buy_spacings.append(spacing)
+                    log.info(f"[{self.symbol}] BUY spacing: {spacing*100:.2f}% between {price1} and {price2}")
+                
+                if buy_spacings:
+                    avg_buy_spacing = sum(buy_spacings) / len(buy_spacings)
+                    log.info(f"[{self.symbol}] Average BUY spacing: {avg_buy_spacing*100:.2f}%")
+                    spacings.extend(buy_spacings)
+            
+            # Analisar ordens de venda
+            if len(sell_orders) >= 2:
+                sell_spacings = []
+                for i in range(1, len(sell_orders)):
+                    price1 = float(sell_orders[i-1]['price'])
+                    price2 = float(sell_orders[i]['price'])
+                    spacing = abs((price2 - price1) / price1)
+                    sell_spacings.append(spacing)
+                    log.info(f"[{self.symbol}] SELL spacing: {spacing*100:.2f}% between {price1} and {price2}")
+                
+                if sell_spacings:
+                    avg_sell_spacing = sum(sell_spacings) / len(sell_spacings)
+                    log.info(f"[{self.symbol}] Average SELL spacing: {avg_sell_spacing*100:.2f}%")
+                    spacings.extend(sell_spacings)
+            
+            # Se temos espaçamentos válidos, calcular média
+            if spacings:
+                avg_spacing = sum(spacings) / len(spacings)
+                log.info(f"[{self.symbol}] Overall average spacing: {avg_spacing*100:.2f}%")
+                
+                # Verificar consistência dentro de cada grupo (compra/venda)
+                spacing_variation = [abs(s - avg_spacing) / avg_spacing for s in spacings]
+                is_consistent = all(v < 0.30 for v in spacing_variation)  # Aumentado para 30%
+                
+                if is_consistent:
+                    log.info(f"[{self.symbol}] ✅ Grid spacing is consistent")
+                    return avg_spacing
+                else:
+                    # Se as variações são consistentes dentro de cada grupo, considerar válido
+                    if (len(buy_spacings) >= 2 and all(abs(s - avg_buy_spacing) / avg_buy_spacing < 0.30 for s in buy_spacings)) or \
+                       (len(sell_spacings) >= 2 and all(abs(s - avg_sell_spacing) / avg_sell_spacing < 0.30 for s in sell_spacings)):
+                        log.info(f"[{self.symbol}] ✅ Grid spacing is consistent within buy/sell groups")
+                        return avg_spacing
+                    
+                    log.info(f"[{self.symbol}] ❌ Grid spacing is not consistent")
+                    return None
+            
+            return None
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error calculating spacing: {e}")
+            return None
+
+    def _cleanup_orphaned_orders(self, orders: list):
+        """Cancela ordens órfãs que não conseguimos reconstruir."""
+        try:
+            log.warning(f"[{self.symbol}] Cancelando {len(orders)} ordens órfãs...")
+            
+            for order in orders:
+                try:
+                    if self.market_type == "spot":
+                        self.api_client.cancel_spot_order(symbol=self.symbol, orderId=order['orderId'])
+                    else:  # futures
+                        self.api_client.cancel_order(symbol=self.symbol, orderId=order['orderId'])
+                    
+                    log.info(f"[{self.symbol}] Ordem órfã {order['orderId']} cancelada")
+                    time.sleep(0.1)  # Pequena pausa entre cancelamentos
+                    
+                except Exception as e:
+                    log.warning(f"[{self.symbol}] Erro ao cancelar ordem órfã {order['orderId']}: {e}")
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro durante limpeza de ordens órfãs: {e}")
+
+    def _save_grid_state(self):
+        """Salva estado atual do grid para persistência."""
+        try:
+            import json
+            import os
+            
+            state_dir = os.path.join("data", "grid_states")
+            os.makedirs(state_dir, exist_ok=True)
+            
+            state_file = os.path.join(state_dir, f"{self.symbol}_state.json")
+            
+            state_data = {
+                'symbol': self.symbol,
+                'market_type': self.market_type,
+                'num_levels': self.num_levels,
+                'current_spacing_percentage': float(self.current_spacing_percentage),
+                'base_spacing_percentage': float(self.base_spacing_percentage),
+                'grid_levels': self.grid_levels,
+                'active_grid_orders': dict(self.active_grid_orders),
+                'last_updated': time.time(),
+                'operation_mode': self.operation_mode
+            }
+            
+            with open(state_file, 'w') as f:
+                json.dump(state_data, f, indent=2, default=str)
+            
+            log.debug(f"[{self.symbol}] Estado do grid salvo em {state_file}")
+            
+        except Exception as e:
+            log.warning(f"[{self.symbol}] Erro ao salvar estado do grid: {e}")
+
+    def _load_grid_state(self) -> dict:
+        """Carrega estado salvo do grid."""
+        try:
+            import json
+            import os
+            
+            state_file = os.path.join("data", "grid_states", f"{self.symbol}_state.json")
+            
+            if not os.path.exists(state_file):
+                return None
+            
+            with open(state_file, 'r') as f:
+                state_data = json.load(f)
+            
+            # Verificar se o estado não é muito antigo (máximo 24 horas)
+            if time.time() - state_data.get('last_updated', 0) > 86400:
+                log.info(f"[{self.symbol}] Estado salvo muito antigo - ignorando")
+                return None
+            
+            log.info(f"[{self.symbol}] Estado do grid carregado do arquivo")
+            return state_data
+            
+        except Exception as e:
+            log.warning(f"[{self.symbol}] Erro ao carregar estado do grid: {e}")
+            return None
+
+    def diagnose_grid(self, symbol=None, market_type=None):
+        """Função temporária para diagnosticar estado das ordens e recuperação do grid.
+        
+        Args:
+            symbol (str, optional): Símbolo a ser diagnosticado. Default é o símbolo da instância.
+            market_type (str, optional): Tipo de mercado a ser verificado. Default é o mercado atual.
+        """
+        symbol = symbol or self.symbol
+        market_type = market_type or self.market_type
+        
+        log.info(f"[{symbol}] Iniciando diagnóstico detalhado...")
+        
+        # Primeiro tentar mercado spot
+        try:
+            orders = self.api_client.get_spot_open_orders(symbol=symbol)
+            if orders:
+                log.info(f"[{symbol}] Encontradas {len(orders)} ordens no mercado SPOT:")
+                for order in orders:
+                    log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+        except Exception as e:
+            log.info(f"[{symbol}] Erro ao buscar ordens SPOT: {e}")
+        
+        # Depois tentar mercado futures
+        try:
+            orders = self.api_client.get_futures_open_orders(symbol=symbol)
+            if orders:
+                log.info(f"[{symbol}] Encontradas {len(orders)} ordens no mercado FUTURES:")
+                for order in orders:
+                    log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+        except Exception as e:
+            log.info(f"[{symbol}] Erro ao buscar ordens FUTURES: {e}")
+
+        # Verificar configuração atual
+        log.info(f"""
+        Configuração atual do grid:
+        - Mercado: {self.market_type}
+        - Número de níveis: {self.num_levels}
+        - Espaçamento base: {self.base_spacing_percentage*100:.2f}%
+        - Espaçamento atual: {self.current_spacing_percentage*100:.2f}%
+        - Níveis ativos: {len(self.grid_levels)}
+        - Ordens ativas: {len(self.active_grid_orders)}
+        """)
+        
+        # Verificar posição atual
+        try:
+            # Atualizar posição para ter informações mais recentes
+            self._update_position_info()
+            
+            if self.market_type == "futures":
+                position_amt = self.position.get("positionAmt", Decimal("0"))
+                entry_price = self.position.get("entryPrice", Decimal("0"))
+                unrealized_pnl = self.position.get("unRealizedProfit", Decimal("0"))
+                
+                log.info(f"""
+                Posição atual (FUTURES):
+                - Quantidade: {position_amt}
+                - Preço de entrada: {entry_price}
+                - PnL não realizado: {unrealized_pnl}
+                """)
+            else:  # spot
+                base_balance = self.position.get("base_balance", Decimal("0"))
+                quote_balance = self.position.get("quote_balance", Decimal("0"))
+                avg_buy_price = self.position.get("avg_buy_price", Decimal("0"))
+                
+                log.info(f"""
+                Posição atual (SPOT):
+                - Saldo base: {base_balance}
+                - Saldo quote: {quote_balance}
+                - Preço médio de compra: {avg_buy_price}
+                """)
+        except Exception as e:
+            log.info(f"[{symbol}] Erro ao verificar posição atual: {e}")
+            
+        # Verificar status de recuperação
+        recovery_status = "Sim" if getattr(self, '_grid_recovered', False) else "Não"
+        log.info(f"[{symbol}] Grid foi recuperado: {recovery_status}")
+        
+        # Retornar resultado do diagnóstico para uso em outros contextos
+        return {
+            "symbol": symbol,
+            "market_type": self.market_type,
+            "spot_orders": len(self.api_client.get_spot_open_orders(symbol=symbol) or []),
+            "futures_orders": len(self.api_client.get_futures_open_orders(symbol=symbol) or []),
+            "grid_levels": len(self.grid_levels),
+            "active_orders": len(self.active_grid_orders),
+            "recovered": getattr(self, '_grid_recovered', False)
+        }
+
+    def diagnose_grid_recovery(self):
+        """Diagnostica e tenta recuperar grid existente."""
+        try:
+            # 1. Verificar ordens spot
+            log.info(f"[{self.symbol}] 🔍 Verificando ordens SPOT...")
+            try:
+                spot_orders = self.api_client.get_spot_open_orders(symbol=self.symbol)
+                if spot_orders:
+                    log.info(f"[{self.symbol}] ✅ Encontradas {len(spot_orders)} ordens SPOT:")
+                    for order in spot_orders[:5]:  # Mostrar até 5 ordens
+                        log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+            except Exception as e:
+                log.error(f"[{self.symbol}] ❌ Erro ao verificar ordens SPOT: {e}")
+                spot_orders = []
+
+            # 2. Verificar ordens futures
+            log.info(f"[{self.symbol}] 🔍 Verificando ordens FUTURES...")
+            try:
+                futures_orders = self.api_client.get_futures_open_orders(symbol=self.symbol)
+                if futures_orders:
+                    log.info(f"[{self.symbol}] ✅ Encontradas {len(futures_orders)} ordens FUTURES:")
+                    for order in futures_orders[:5]:  # Mostrar até 5 ordens
+                        log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+            except Exception as e:
+                log.error(f"[{self.symbol}] ❌ Erro ao verificar ordens FUTURES: {e}")
+                futures_orders = []
+
+            # 3. Analisar ordens encontradas
+            if spot_orders:
+                log.info(f"[{self.symbol}] Tentando recuperar grid do mercado SPOT...")
+                self.market_type = "spot"
+                success = self._reconstruct_grid_from_orders(spot_orders)
+                if success:
+                    log.info(f"[{self.symbol}] ✅ Grid recuperado com sucesso do mercado SPOT")
+                    return True
+
+            if futures_orders:
+                log.info(f"[{self.symbol}] Tentando recuperar grid do mercado FUTURES...")
+                self.market_type = "futures"
+                success = self._reconstruct_grid_from_orders(futures_orders)
+                if success:
+                    log.info(f"[{self.symbol}] ✅ Grid recuperado com sucesso do mercado FUTURES")
+                    return True
+
+            log.info(f"[{self.symbol}] ❌ Não foi possível recuperar grid de nenhum mercado")
+            return False
+
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro durante diagnóstico: {e}")
+            return False
+
+    def diagnose_grid_state(self):
+        """Diagnóstico do estado atual do grid."""
+        try:
+            # Verificar ordens ativas em ambos os mercados
+            log.info(f"[{self.symbol}] 🔍 Verificando ordens em ambos os mercados...")
+
+            # Verificar spot
+            try:
+                spot_orders = self.api_client.get_spot_open_orders(symbol=self.symbol)
+                if spot_orders:
+                    log.info(f"[{self.symbol}] ✅ Encontradas {len(spot_orders)} ordens SPOT:")
+                    for order in spot_orders:
+                        log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+                        
+                    # Analisar espaçamento das ordens spot
+                    spot_orders.sort(key=lambda x: float(x['price']))
+                    for i in range(1, len(spot_orders)):
+                        price1 = float(spot_orders[i-1]['price'])
+                        price2 = float(spot_orders[i]['price'])
+                        spacing = (price2 - price1) / price1
+                        log.info(f"  - Espaçamento entre {price1} e {price2}: {spacing*100:.2f}%")
+                else:
+                    log.info(f"[{self.symbol}] ℹ️ Nenhuma ordem ativa no mercado SPOT")
+            except Exception as e:
+                log.error(f"[{self.symbol}] ❌ Erro ao verificar ordens SPOT: {e}")
+
+            # Verificar futures
+            try:
+                futures_orders = self.api_client.get_futures_open_orders(symbol=self.symbol)
+                if futures_orders:
+                    log.info(f"[{self.symbol}] ✅ Encontradas {len(futures_orders)} ordens FUTURES:")
+                    for order in futures_orders:
+                        log.info(f"  - Ordem {order['orderId']}: {order['side']} @ {order['price']}")
+                        
+                    # Analisar espaçamento das ordens futures
+                    futures_orders.sort(key=lambda x: float(x['price']))
+                    for i in range(1, len(futures_orders)):
+                        price1 = float(futures_orders[i-1]['price'])
+                        price2 = float(futures_orders[i]['price'])
+                        spacing = (price2 - price1) / price1
+                        log.info(f"  - Espaçamento entre {price1} e {price2}: {spacing*100:.2f}%")
+                else:
+                    log.info(f"[{self.symbol}] ℹ️ Nenhuma ordem ativa no mercado FUTURES")
+            except Exception as e:
+                log.error(f"[{self.symbol}] ❌ Erro ao verificar ordens FUTURES: {e}")
+
+            # Verificar estado atual do bot
+            log.info(f"""
+            Estado atual do bot:
+            - Mercado configurado: {self.market_type}
+            - Níveis no grid: {len(self.grid_levels)}
+            - Ordens ativas rastreadas: {len(self.active_grid_orders)}
+            - Grid recuperado: {getattr(self, '_grid_recovered', False)}
+            - Tentativa de recuperação feita: {getattr(self, '_recovery_attempted', False)}
+            """)
+
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro durante diagnóstico: {e}")
 
 
 # Example usage (for testing structure)
