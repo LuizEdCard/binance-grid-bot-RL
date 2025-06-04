@@ -1989,81 +1989,38 @@ class GridLogic:
                     self._save_grid_state()
                     
                     # Reinicializar symbol_info para o mercado correto
-                    self._initialize_symbol_info()
+                    if not self._initialize_symbol_info():
+                        log.error(f"[{self.symbol}] CRITICAL: Failed to re-initialize symbol info for auto-detected market_type '{self.market_type}' during grid recovery. Aborting recovery.")
+                        self._grid_recovered = False
+                        return False
                     
                     return True
-                else:
-                    log.info(f"[{self.symbol}] ⚠️ Ordens encontradas mas espaçamento não consistente (variação > 25%)")
+                else: # is_consistent is False and spacings is not empty
+                    log.info(f"[{self.symbol}] ⚠️ Ordens encontradas mas espaçamento não consistente (variação > 30%)")
                     # Mostrar os espaçamentos mais discrepantes
                     for i, var in enumerate(spacing_variation):
-                        if var > 0.25:
-                            log.info(f"[{self.symbol}] Variação alta no espaçamento {i}: {var*100:.1f}%")
+                        if var >= 0.30: # Log if variation is gte 30%
+                            log.info(f"[{self.symbol}] Variação alta no espaçamento {i}: {var*100:.1f}% (Avg: {avg_spacing*100:.2f}%, Current: {spacings[i]*100:.2f}%)")
                     
-                    # Verificar se temos pelo menos algumas ordens com espaçamento consistente
-                    consistent_spacings = [s for i, s in enumerate(spacings) if spacing_variation[i] < 0.30]
-                    if len(consistent_spacings) >= 3:  # Se tivermos pelo menos 3 espaçamentos consistentes
-                        log.info(f"[{self.symbol}] 🔄 Tentando recuperação parcial com {len(consistent_spacings)} espaçamentos consistentes")
-                        
-                        # Usar apenas espaçamentos consistentes para calcular média
-                        consistent_avg = sum(consistent_spacings) / len(consistent_spacings)
-                        log.info(f"[{self.symbol}] 📏 Espaçamento médio dos valores consistentes: {consistent_avg*100:.2f}%")
-                        
-                        # Continuar com recuperação mesmo com alguns espaçamentos inconsistentes
-                        self.current_spacing_percentage = Decimal(str(consistent_avg))
-                        self.base_spacing_percentage = Decimal(str(consistent_avg))
-                        
-                        # Reconstruir níveis do grid
-                        self.grid_levels = []
-                        for order in grid_orders:
-                            level = {
-                                'price': order['price'],
-                                'type': 'buy' if order['side'] == 'BUY' else 'sell',
-                                'quantity': order.get('origQty', 0),
-                                'order_id': order['orderId'],
-                                'status': 'active',
-                                'recovered': True
-                            }
-                            self.grid_levels.append(level)
-                            self.active_grid_orders[order['price']] = order['orderId']
-                            self.open_orders[order['orderId']] = order
-                        
-                        log.info(f"[{self.symbol}] ⚠️ Recuperação parcial do grid (alguns espaçamentos inconsistentes)")
-                        self._grid_recovered = True
-                        return True
-                        
+                    # Forçar falha na recuperação se espaçamento não for consistente
+                    log.error(f"[{self.symbol}] CRITICAL: Grid recovery aborted due to inconsistent spacing. Average spacing: {avg_spacing*100:.2f}%.")
                     self._grid_recovered = False
                     return False
-            else:
-                # Tentar recuperar mesmo se não conseguimos calcular espaçamentos
-                if len(grid_orders) >= 3:
-                    log.info(f"[{self.symbol}] ⚠️ Tentando recuperar grid mesmo sem calcular espaçamento")
-                    
-                    # Usar valor padrão de espaçamento
-                    self.current_spacing_percentage = Decimal("0.005")  # 0.5%
-                    self.base_spacing_percentage = Decimal("0.005")
-                    
-                    # Reconstruir níveis do grid de qualquer forma
-                    self.grid_levels = []
-                    for order in grid_orders:
-                        level = {
-                            'price': order['price'],
-                            'type': 'buy' if order['side'] == 'BUY' else 'sell',
-                            'quantity': order.get('origQty', 0),
-                            'order_id': order['orderId'],
-                            'status': 'active',
-                            'recovered': True
-                        }
-                        self.grid_levels.append(level)
-                        self.active_grid_orders[order['price']] = order['orderId']
-                        self.open_orders[order['orderId']] = order
-                    
-                    log.info(f"[{self.symbol}] ✅ Grid recuperado com ordens insuficientes para calcular espaçamento")
-                    self._grid_recovered = True
-                    return True
-                else:
-                    log.info(f"[{self.symbol}] ⚠️ Impossível calcular espaçamento (ordens insuficientes)")
-                    self._grid_recovered = False
-                    return False
+            else: # spacings is empty
+                # Se não há espaçamentos calculados, verificar se é porque havia poucas ordens
+                if len(grid_orders) < 2 : # Menos de 2 ordens totais, não dá pra calcular espaçamento
+                     log.info(f"[{self.symbol}] ⚠️ Ordens insuficientes ({len(grid_orders)}) para calcular espaçamento. Não é possível recuperar o grid.")
+                     self._grid_recovered = False
+                     return False
+                elif (len(buy_orders) < 2 and len(sell_orders) < 2) and (len(buy_orders) + len(sell_orders) >=2) : # Ex: 1 compra e 1 venda, ou só 1 ordem
+                     log.info(f"[{self.symbol}] ⚠️ Ordens insuficientes por tipo ({len(buy_orders)} compra(s), {len(sell_orders)} venda(s)) para calcular espaçamento de forma confiável. Não é possível recuperar o grid.")
+                     self._grid_recovered = False
+                     return False
+
+                # Se havia ordens suficientes para ter espaçamentos mas a lista `spacings` ficou vazia por algum outro motivo
+                log.error(f"[{self.symbol}] CRITICAL: Grid recovery aborted. Spacings list is empty even with {len(grid_orders)} orders found ({len(buy_orders)} buys, {len(sell_orders)} sells). This indicates an issue in spacing calculation logic or order type distribution.")
+                self._grid_recovered = False
+                return False
                 
         except Exception as e:
             log.error(f"[{self.symbol}] ❌ Erro durante recuperação do grid: {e}", exc_info=True)
