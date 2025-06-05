@@ -244,6 +244,7 @@ def initialize_components():
 
 def run_bot_thread(symbol, grid_config):
     """Função para rodar o bot em uma thread separada."""
+    bot = None  # Initialize bot to None
     try:
         logger.info(f"Iniciando bot para {symbol} em uma nova thread...")
         if not initialize_components():
@@ -314,15 +315,29 @@ def run_bot_thread(symbol, grid_config):
         logger.error(f"Erro na thread do bot para {symbol}: {e}", exc_info=True)
     finally:
         logger.info(f"Thread do bot para {symbol} finalizada.")
-        # Garantir cancelamento de ordens ao parar
-        try:
-            bot.stop()
-        except Exception as e:
-            logger.error(f"Erro ao cancelar ordens ao parar bot {symbol}: {e}")
+        # Garantir cancelamento de ordens ao parar, somente se bot foi inicializado
+        if bot and hasattr(bot, 'stop') and callable(getattr(bot, 'stop')):
+            try:
+                logger.info(f"Tentando parar o bot {symbol} e cancelar ordens...")
+                bot.stop()
+                logger.info(f"Bot {symbol} parado e ordens canceladas (se aplicável).")
+            except Exception as e:
+                logger.error(f"Erro ao chamar bot.stop() para {symbol} na finalização da thread: {e}", exc_info=True)
+        else:
+            logger.info(f"Bot {symbol} não foi totalmente inicializado ou não possui método stop, pulando chamada stop.")
+
         if symbol in bots:
-            del bots[symbol]
+            try:
+                del bots[symbol]
+                logger.info(f"Instância do bot {symbol} removida do dicionário 'bots'.")
+            except KeyError:
+                logger.warning(f"Bot {symbol} já havia sido removido do dicionário 'bots'.")
         if symbol in bot_threads:
-            del bot_threads[symbol]
+            try:
+                del bot_threads[symbol]
+                logger.info(f"Thread do bot {symbol} removida do dicionário 'bot_threads'.")
+            except KeyError:
+                logger.warning(f"Thread do bot {symbol} já havia sido removida do dicionário 'bot_threads'.")
 
 
 # --- Rotas da API ---

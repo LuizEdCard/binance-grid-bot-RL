@@ -24,7 +24,12 @@ class SentimentAnalyzer:
         self.model_path = os.path.join(self.model_dir, "model.onnx")
         self.tokenizer = None
         self.session = None
+        self.onnx_model_loaded = False  # Initialize status flag
         self._load_model()
+
+    def is_available(self) -> bool:
+        """Checks if the ONNX model was loaded successfully."""
+        return self.onnx_model_loaded
 
     def _load_model(self):
         """Loads the ONNX model and tokenizer."""
@@ -45,17 +50,19 @@ class SentimentAnalyzer:
             # providers = [("CUDAExecutionProvider", {"device_id": 0}), "CPUExecutionProvider"]
             providers = ["CPUExecutionProvider"]
             self.session = ort.InferenceSession(self.model_path, providers=providers)
+            self.onnx_model_loaded = True # Set flag on successful load
             log.info(
                 f"Sentiment analysis model loaded successfully using {self.session.get_providers()}"
             )
 
         except Exception as e:
             log.error(
-                f"Failed to load sentiment analysis model or tokenizer: {e}",
-                exc_info=True,
+                f"Failed to load sentiment analysis ONNX model or tokenizer from {self.model_dir}: {e}",
+                exc_info=True, # Keep exc_info for detailed traceback during first error
             )
             self.tokenizer = None
             self.session = None
+            self.onnx_model_loaded = False # Ensure flag is false on failure
     
     def _download_model(self):
         """Downloads the ONNX sentiment model automatically."""
@@ -72,43 +79,61 @@ class SentimentAnalyzer:
             repo_id = "llmware/slim-sentiment-onnx"
             
             # Download model files
+            # Added .onnx_data file if it's part of the repo for larger models
             model_files = [
                 "model.onnx",
                 "config.json", 
                 "tokenizer.json",
                 "tokenizer_config.json",
-                "vocab.txt"
+                "vocab.txt",
+                # Add "model.onnx_data" if applicable, though slim-sentiment-onnx might not need it.
+                # Check Hugging Face repo for actual file list if issues persist.
             ]
             
+            all_files_downloaded_or_exist = True
             for file_name in model_files:
+                file_path = os.path.join(self.model_dir, file_name)
+                if os.path.exists(file_path):
+                    log.info(f"File {file_name} already exists in {self.model_dir}. Skipping download.")
+                    continue
+
                 try:
-                    log.info(f"Downloading {file_name}...")
-                    downloaded_path = hf_hub_download(
+                    log.info(f"Downloading {file_name} to {self.model_dir}...")
+                    hf_hub_download(
                         repo_id=repo_id,
                         filename=file_name,
-                        cache_dir=self.model_dir,
-                        local_dir=self.model_dir,
-                        local_dir_use_symlinks=False
+                        local_dir=self.model_dir, # Download directly to the target model_dir
+                        local_dir_use_symlinks=False,
+                        # cache_dir=os.path.join(self.model_dir, ".cache") # Optional: use a subfolder for HF cache
                     )
-                    log.info(f"Downloaded {file_name} successfully")
+                    log.info(f"Downloaded {file_name} successfully to {self.model_dir}")
                 except Exception as e:
-                    log.warning(f"Failed to download {file_name}: {e}")
-                    # Continue with other files
+                    # If a specific file (like .onnx_data) is optional, this might not be critical
+                    # For core files like model.onnx or tokenizer, it is.
+                    if file_name in ["model.onnx", "config.json", "tokenizer.json", "vocab.txt"]:
+                        log.error(f"Critical file {file_name} failed to download: {e}", exc_info=True)
+                        all_files_downloaded_or_exist = False
+                        break # Stop if a critical file fails
+                    else:
+                        log.warning(f"Optional file {file_name} not found or failed to download: {e}")
             
-            # Verify model.onnx was downloaded
+            if not all_files_downloaded_or_exist:
+                log.error(f"One or more critical ONNX model files failed to download to {self.model_dir}.")
+                return False
+
+            # Verify model.onnx was downloaded specifically
             if os.path.exists(self.model_path):
-                log.info("ONNX sentiment model downloaded successfully!")
+                log.info(f"ONNX sentiment model files appear to be present in {self.model_dir}.")
                 return True
             else:
-                log.error("Model download failed - model.onnx not found")
+                log.error(f"Core model file model.onnx not found in {self.model_dir} after download attempt.")
                 return False
                 
-        except ImportError as e:
-            log.error(f"Required libraries missing for model download: {e}")
-            log.error("Please install: pip install huggingface_hub")
+        except ImportError:
+            log.error("Required library 'huggingface_hub' missing for model download. Please install: pip install huggingface_hub", exc_info=True)
             return False
         except Exception as e:
-            log.error(f"Failed to download ONNX model: {e}")
+            log.error(f"An unexpected error occurred during ONNX model download process: {e}", exc_info=True)
             return False
 
     def analyze(self, text: str) -> dict | None:

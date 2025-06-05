@@ -69,6 +69,7 @@ class GridLogic:
         self.min_notional = None
         self.quantity_precision = None
         self.price_precision = None
+        self.quote_asset = None # Added for quote asset
 
         # Parâmetros do grid - sempre priorizar valores do frontend
         self.num_levels = int(config.get("initial_levels") or self.grid_config.get("initial_levels", 10))
@@ -146,6 +147,9 @@ class GridLogic:
             )
             self.use_dynamic_spacing = False
 
+        # Determine quote asset
+        self._determine_quote_asset()
+
         if not self._initialize_symbol_info():
             raise ValueError(
                 f"[{self.symbol}] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic."
@@ -175,17 +179,7 @@ class GridLogic:
         # Obter precisões dos dados do símbolo ou calcular dos filtros
         self.quantity_precision = self.symbol_info.get("quantityPrecision")
         self.price_precision = self.symbol_info.get("pricePrecision")
-        
-        # Se precisões não estão disponíveis, calcular dos filtros
-        if self.quantity_precision is None or self.price_precision is None:
-            # Calcular precision baseado no stepSize e tickSize
-            if self.quantity_precision is None:
-                # Usar baseAssetPrecision ou calcular do stepSize
-                self.quantity_precision = self.symbol_info.get("baseAssetPrecision", 8)
-                
-            if self.price_precision is None:
-                # Usar quoteAssetPrecision ou calcular do tickSize  
-                self.price_precision = self.symbol_info.get("quoteAssetPrecision", 8)
+
         price_filter = next(
             (
                 f
@@ -209,14 +203,55 @@ class GridLogic:
 
         if price_filter:
             self.tick_size = Decimal(price_filter["tickSize"])
+            if self.price_precision is None:
+                tick_size_str = price_filter["tickSize"].rstrip("0")
+                if "." in tick_size_str:
+                    self.price_precision = len(tick_size_str.split(".")[1])
+                    log.info(f"[{self.symbol}] Price precision calculated from tickSize ({price_filter['tickSize']}): {self.price_precision}")
+                elif tick_size_str == "1":
+                    self.price_precision = 0
+                    log.info(f"[{self.symbol}] Price precision calculated from tickSize ({price_filter['tickSize']}): {self.price_precision}")
+                else: # Fallback if calculation is not straightforward
+                    self.price_precision = self.symbol_info.get("quoteAssetPrecision", 8)
+                    log.warning(f"[{self.symbol}] Could not calculate price precision from tickSize {price_filter['tickSize']}. Using quoteAssetPrecision: {self.price_precision}")
         else:
             log.error(f"[{self.symbol}] Filtro de preço não encontrado.")
-            return False
+            # Fallback if filter is missing
+            if self.price_precision is None:
+                self.price_precision = self.symbol_info.get("quoteAssetPrecision", 8)
+                log.warning(f"[{self.symbol}] PRICE_FILTER missing. Using quoteAssetPrecision for price_precision: {self.price_precision}")
+            # return False # Allow continuation if quoteAssetPrecision is available
+
         if lot_size_filter:
             self.step_size = Decimal(lot_size_filter["stepSize"])
+            if self.quantity_precision is None:
+                step_size_str = lot_size_filter["stepSize"].rstrip("0")
+                if "." in step_size_str:
+                    self.quantity_precision = len(step_size_str.split(".")[1])
+                    log.info(f"[{self.symbol}] Quantity precision calculated from stepSize ({lot_size_filter['stepSize']}): {self.quantity_precision}")
+                elif step_size_str == "1":
+                    self.quantity_precision = 0
+                    log.info(f"[{self.symbol}] Quantity precision calculated from stepSize ({lot_size_filter['stepSize']}): {self.quantity_precision}")
+                else: # Fallback
+                    self.quantity_precision = self.symbol_info.get("baseAssetPrecision", 8)
+                    log.warning(f"[{self.symbol}] Could not calculate quantity precision from stepSize {lot_size_filter['stepSize']}. Using baseAssetPrecision: {self.quantity_precision}")
         else:
             log.error(f"[{self.symbol}] Filtro de tamanho de lote não encontrado.")
-            return False
+            # Fallback if filter is missing
+            if self.quantity_precision is None:
+                self.quantity_precision = self.symbol_info.get("baseAssetPrecision", 8)
+                log.warning(f"[{self.symbol}] LOT_SIZE filter missing. Using baseAssetPrecision for quantity_precision: {self.quantity_precision}")
+            # return False # Allow continuation if baseAssetPrecision is available
+
+        # Fallback if still None after filter attempts
+        if self.price_precision is None:
+            self.price_precision = self.symbol_info.get("quoteAssetPrecision", 8)
+            log.info(f"[{self.symbol}] Price precision falling back to quoteAssetPrecision: {self.price_precision}")
+
+        if self.quantity_precision is None:
+            self.quantity_precision = self.symbol_info.get("baseAssetPrecision", 8)
+            log.info(f"[{self.symbol}] Quantity precision falling back to baseAssetPrecision: {self.quantity_precision}")
+
         if min_notional_filter:
             # Para Spot, usar 'minNotional', para Futuros usar 'notional'
             notional_key = "minNotional" if self.market_type == "spot" else "notional"
@@ -246,20 +281,54 @@ class GridLogic:
         log.info(
             f"[{self.symbol}] Tick: {self.tick_size}, Step: {self.step_size}, MinNotional: {self.min_notional}, PricePrec: {self.price_precision}, QtyPrec: {self.quantity_precision} (Mercado: {self.market_type.upper()})"
         )
+        # Updated check: ensure precisions are not None
         if not all(
             [
-                self.tick_size,
-                self.step_size,
-                self.min_notional,
+                self.tick_size is not None, # Check if Decimal was created
+                self.step_size is not None, # Check if Decimal was created
+                self.min_notional is not None, # Check if Decimal was created
                 self.quantity_precision is not None,
                 self.price_precision is not None,
             ]
         ):
             log.error(
-                f"[{self.symbol}] Falha ao inicializar todos os filtros/precisão necessários do símbolo."
+                f"[{self.symbol}] Falha ao inicializar todos os filtros/precisão necessários do símbolo. PricePrec: {self.price_precision}, QtyPrec: {self.quantity_precision}, Tick: {self.tick_size}, Step: {self.step_size}, MinNotional: {self.min_notional}"
             )
             return False
         return True
+
+    def _determine_quote_asset(self):
+        """Determines the quote asset from the symbol."""
+        common_quote_assets = ["USDT", "BUSD", "USDC", "BTC", "ETH", "BNB", "EUR", "GBP", "AUD", "JPY", "TRY"]
+        for qa in common_quote_assets:
+            if self.symbol.endswith(qa):
+                self.quote_asset = qa
+                log.info(f"[{self.symbol}] Determined quote asset: {self.quote_asset}")
+                return
+        # Fallback logic if not ending with common ones (e.g. for inverse contracts or less common pairs)
+        # This might need more sophisticated logic if many such pairs exist.
+        # For now, assume the last 3 or 4 chars if not in the list.
+        if len(self.symbol) > 4 and self.symbol[-4:].isalpha(): # e.g., BTCUSD_PERP (though PERP is not asset)
+             # A more robust way would be to check against a list of all quote assets from exchange info if available early
+            potential_quote = self.symbol[-4:]
+            # Basic check, this could be improved by checking if potential_quote is a known currency
+            if potential_quote.upper() == potential_quote : # simple check if it's all caps like an asset
+                 self.quote_asset = potential_quote
+                 log.info(f"[{self.symbol}] Determined quote asset (fallback 4 chars): {self.quote_asset}")
+                 return
+        if len(self.symbol) > 3 and self.symbol[-3:].isalpha():
+            potential_quote = self.symbol[-3:]
+            if potential_quote.upper() == potential_quote :
+                self.quote_asset = potential_quote
+                log.info(f"[{self.symbol}] Determined quote asset (fallback 3 chars): {self.quote_asset}")
+                return
+
+        log.warning(f"[{self.symbol}] Could not determine quote asset using common heuristics. Needs manual configuration or better logic.")
+        # Default to USDT if unable to determine, or raise an error
+        # For now, let it be None and see if _initialize_symbol_info can infer quoteAssetPrecision source
+        # self.quote_asset = "USDT" # Defaulting as a last resort, might be incorrect
+        # log.warning(f"[{self.symbol}] Defaulting quote asset to USDT. This might be incorrect.")
+
 
     def _format_price(self, price):
         """Formata preço de acordo com as regras do símbolo."""
@@ -634,11 +703,42 @@ class GridLogic:
             return Decimal("0")
         capital_per_grid = total_capital_usd / Decimal(str(num_grids))
         exposure_per_grid = capital_per_grid * leverage
+
+        # Ensure current_price is not zero to avoid division by zero
+        if current_price <= Decimal("0"):
+            log.error(f"[{self.symbol}] Preço atual inválido ({current_price}) para cálculo de quantidade.")
+            return Decimal("0")
+
         quantity = exposure_per_grid / current_price
+
+        # Check against min_notional before formatting
+        if self.min_notional is not None and self.min_notional > Decimal("0"):
+            notional_value = current_price * quantity
+            if notional_value < self.min_notional:
+                log.error(
+                    f"[{self.symbol}] ERRO DE CÁLCULO DE QUANTIDADE: "
+                    f"Valor nocional por ordem ({notional_value:.4f} USD) é menor que o mínimo nocional ({self.min_notional} USD) "
+                    f"para o capital total de {total_capital_usd} USD, {num_grids} níveis e preço atual {current_price}. "
+                    f"Quantidade calculada preliminar: {quantity:.8f}. Nenhuma ordem será colocada para este nível."
+                )
+                return Decimal("0")
+
         formatted_qty_str = self._format_quantity(quantity)
         if not formatted_qty_str:
-            log.error(f"[{self.symbol}] Failed to format quantity {quantity}.")
+            log.error(f"[{self.symbol}] Failed to format quantity {quantity:.8f}.")
             return Decimal("0")
+
+        # Final check with formatted quantity
+        if self.min_notional is not None and self.min_notional > Decimal("0"):
+            final_notional_value = current_price * Decimal(formatted_qty_str)
+            if final_notional_value < self.min_notional:
+                log.error(
+                    f"[{self.symbol}] ERRO DE CÁLCULO DE QUANTIDADE (PÓS-FORMATAÇÃO): "
+                    f"Valor nocional final por ordem ({final_notional_value:.4f} USD) é menor que o mínimo nocional ({self.min_notional} USD). "
+                    f"Quantidade formatada: {formatted_qty_str}. Nenhuma ordem será colocada."
+                )
+                return Decimal("0")
+
         log.info(f"[{self.symbol}] Calculated quantity per order: {formatted_qty_str}")
         return Decimal(formatted_qty_str)
 
@@ -676,8 +776,14 @@ class GridLogic:
             formatted_price_str = self._format_price(level_price)
             formatted_qty_str = self._format_quantity(quantity_per_order)
             if not formatted_price_str or not formatted_qty_str:
+                log.warning(f"[{self.symbol}] Could not format price or quantity for level {level_price}. Price: {formatted_price_str}, Qty: {formatted_qty_str}")
                 continue
             if not self._check_min_notional(formatted_price_str, formatted_qty_str):
+                try:
+                    notional_value = Decimal(formatted_price_str) * Decimal(formatted_qty_str)
+                    log.warning(f"[{self.symbol}] ORDEM NÃO COLOCADA: Valor nocional ({notional_value:.4f}) abaixo do mínimo ({self.min_notional}) para preço {formatted_price_str}, qtd {formatted_qty_str}.")
+                except Exception: # If formatting or decimal conversion fails for logging
+                    log.warning(f"[{self.symbol}] ORDEM NÃO COLOCADA: Valor nocional abaixo do mínimo para preço {formatted_price_str}, qtd {formatted_qty_str}. (Erro ao calcular nocional para log)")
                 continue
 
             side = SIDE_BUY if order_type == "buy" else SIDE_SELL
@@ -997,9 +1103,15 @@ class GridLogic:
                 if tp_order_id:
                     # Add this TP order to the grid tracking
                     self.active_grid_orders[tp_price] = tp_order_id
+            elif formatted_tp_price_str and formatted_tp_qty_str: # Log only if price/qty were formattable but notional failed
+                try:
+                    notional_value = Decimal(formatted_tp_price_str) * Decimal(formatted_tp_qty_str)
+                    log.warning(f"[{self.symbol}] ORDEM TP NÃO COLOCADA: Valor nocional ({notional_value:.4f}) abaixo do mínimo ({self.min_notional}) para preço {formatted_tp_price_str}, qtd {formatted_tp_qty_str}.")
+                except Exception:
+                    log.warning(f"[{self.symbol}] ORDEM TP NÃO COLOCADA: Valor nocional abaixo do mínimo para preço {formatted_tp_price_str}, qtd {formatted_tp_qty_str}. (Erro ao calcular nocional para log)")
             else:
                 log.warning(
-                    f"[{self.symbol}] Could not place TP order for fill {fill_data['orderId']}. Price/Qty/Notional issue."
+                    f"[{self.symbol}] Could not place TP order for fill {fill_data['orderId']}. Price/Qty formatting issue. TP Price: {formatted_tp_price_str}, TP Qty: {formatted_tp_qty_str}"
                 )
         else:
             log.warning(
@@ -1103,52 +1215,64 @@ class GridLogic:
         }
 
     def _update_market_data(self):
-        """Atualiza dados de mercado (preços, klines, volume)."""
+        """Atualiza dados de mercado (preços, klines, volume). Retém dados antigos em caso de falha."""
+        # 1. Atualizar preço atual
         try:
-            # 1. Atualizar preço atual
             ticker = self._get_ticker()
-            if ticker and "price" in ticker:
+            if ticker and "price" in ticker and ticker["price"] is not None:
                 new_price = float(ticker["price"])
-                self.current_price = new_price
-                
-                # Atualizar histórico de preços
-                if not hasattr(self, "price_history"):
-                    self.price_history = []
-                
-                self.price_history.insert(0, new_price)
-                # Manter apenas últimos 100 preços
-                if len(self.price_history) > 100:
-                    self.price_history = self.price_history[:100]
-                    
-                log.debug(f"[{self.symbol}] Preço atualizado: {new_price}")
-            else:
-                log.warning(f"[{self.symbol}] Falha ao obter ticker")
-            
-            # 2. Atualizar dados de klines para indicadores técnicos
-            klines = self._get_klines(interval="1h", limit=50)
+                if new_price > 0: # Ensure price is valid
+                    self.current_price = new_price
+                    # Atualizar histórico de preços
+                    if not hasattr(self, "price_history"):
+                        self.price_history = []
+                    self.price_history.insert(0, new_price)
+                    # Manter apenas últimos 100 preços
+                    if len(self.price_history) > 100:
+                        self.price_history = self.price_history[:100]
+                    log.debug(f"[{self.symbol}] Preço atualizado: {new_price}")
+                else:
+                    log.warning(f"[{self.symbol}] Preço do ticker inválido (<=0): {ticker['price']}. Usando preço anterior se disponível.")
+            elif ticker:
+                log.warning(f"[{self.symbol}] Ticker recebido mas sem chave 'price' ou valor None: {ticker}. Usando preço anterior se disponível.")
+            else: # ticker is None
+                log.warning(f"[{self.symbol}] Falha ao obter ticker (retornou None). Usando preço anterior se disponível.")
+        except Exception as e:
+            log.warning(f"[{self.symbol}] Exceção ao obter/processar ticker: {e}. Usando preço anterior se disponível.")
+
+        # 2. Atualizar dados de klines para indicadores técnicos
+        try:
+            klines = self._get_klines(interval="1h", limit=50) # Defaulting to 1h, 50 limit
             if klines and len(klines) > 0:
                 # Extrair preços de fechamento para indicadores
                 close_prices = []
-                for kline in klines:
-                    close_price = float(kline[4])  # Close price é o índice 4
+                for kline_data in klines: # Changed variable name
+                    close_price = float(kline_data[4])  # Close price é o índice 4
                     close_prices.append(close_price)
                 
                 # Reverter para ordem cronológica (mais antigo primeiro)
                 close_prices.reverse()
-                self.kline_closes = close_prices
+                self.kline_closes = close_prices # Store as instance variable
                 
                 # Calcular volume recente
                 if len(klines) >= 24:  # Últimas 24 horas
-                    volumes = [float(kline[5]) for kline in klines[:24]]
-                    self.recent_volume = sum(volumes)
+                    volumes = [float(kline_data[5]) for kline_data in klines[:24]] # Changed variable name
+                    self.recent_volume = sum(volumes) # Store as instance variable
                     
-                log.debug(f"[{self.symbol}] Klines atualizados: {len(close_prices)} preços, volume 24h: {getattr(self, 'recent_volume', 0):.2f}")
+                log.debug(f"[{self.symbol}] Klines atualizados: {len(self.kline_closes)} preços, volume 24h: {getattr(self, 'recent_volume', 0):.2f}")
             else:
-                log.warning(f"[{self.symbol}] Falha ao obter klines")
-                
+                log.warning(f"[{self.symbol}] Falha ao obter klines (retornou {type(klines)}) ou lista vazia. Usando klines anteriores se disponíveis.")
+                if not hasattr(self, "kline_closes"): # Initialize if not present
+                    self.kline_closes = []
+                if not hasattr(self, "recent_volume"):
+                    self.recent_volume = Decimal("0")
         except Exception as e:
-            log.error(f"[{self.symbol}] Erro ao atualizar dados de mercado: {e}", exc_info=True)
-    
+            log.warning(f"[{self.symbol}] Exceção ao obter/processar klines: {e}. Usando klines anteriores se disponíveis.")
+            if not hasattr(self, "kline_closes"): # Initialize if not present on error
+                self.kline_closes = []
+            if not hasattr(self, "recent_volume"):
+                self.recent_volume = Decimal("0")
+
     def _check_balance_for_trading(self):
         """Verifica se há saldo suficiente para operar."""
         try:
@@ -1202,78 +1326,64 @@ class GridLogic:
             return False
     
     def _update_position_info(self):
-        """Updates the position details (mark price, PnL) from the API or ticker."""
+        """Updates the position details (mark price, PnL) from the API or ticker. Retains old data on failure."""
         try:
             if self.operation_mode == "production":
-                pos_data = self.api_client.get_futures_position_info(symbol=self.symbol)
-                if pos_data:
-                    # Binance API returns a list, find the specific symbol
-                    symbol_pos = next(
-                        (p for p in pos_data if p.get("symbol") == self.symbol), None
-                    )
-                    if symbol_pos:
-                        self.position["positionAmt"] = Decimal(
-                            symbol_pos.get("positionAmt", "0")
+                # Assuming futures for production position info, adjust if spot production is primary
+                if self.market_type == "futures":
+                    pos_data_list = self.api_client.get_futures_position_info(symbol=self.symbol)
+                    if pos_data_list: # API returns a list of positions
+                        symbol_pos = next(
+                            (p for p in pos_data_list if p.get("symbol") == self.symbol), None
                         )
-                        self.position["entryPrice"] = Decimal(
-                            symbol_pos.get("entryPrice", "0")
-                        )
-                        self.position["markPrice"] = Decimal(
-                            symbol_pos.get("markPrice", "0")
-                        )
-                        self.position["unRealizedProfit"] = Decimal(
-                            symbol_pos.get("unRealizedProfit", "0")
-                        )
-                        self.position["liquidationPrice"] = Decimal(
-                            symbol_pos.get("liquidationPrice", "0")
-                        )
-                    else:
-                        # No position exists, reset
-                        self.position = {
-                            "positionAmt": Decimal("0"),
-                            "entryPrice": Decimal("0"),
-                            "markPrice": Decimal("0"),
-                            "unRealizedProfit": Decimal("0"),
-                            "liquidationPrice": Decimal("0"),
-                        }
-                else:
-                    log.warning(
-                        f"[{self.symbol}] Could not fetch production position info."
-                    )
-                    # Fetch ticker as fallback for mark price
-                    ticker = self._get_ticker()
-                    if ticker and "lastPrice" in ticker:
-                        self.position["markPrice"] = Decimal(ticker["lastPrice"])
+                        if symbol_pos:
+                            self.position["positionAmt"] = Decimal(symbol_pos.get("positionAmt", "0"))
+                            self.position["entryPrice"] = Decimal(symbol_pos.get("entryPrice", "0"))
+                            self.position["markPrice"] = Decimal(symbol_pos.get("markPrice", "0"))
+                            self.position["unRealizedProfit"] = Decimal(symbol_pos.get("unRealizedProfit", "0"))
+                            self.position["liquidationPrice"] = Decimal(symbol_pos.get("liquidationPrice", "0"))
+                            log.debug(f"[{self.symbol}] Production (futures) position info updated.")
+                        else:
+                            # No specific position for this symbol, could mean flat. Reset relevant fields.
+                            log.debug(f"[{self.symbol}] No specific futures position info for symbol. Assuming flat.")
+                            self.position["positionAmt"] = Decimal("0")
+                            self.position["entryPrice"] = Decimal("0")
+                            # Keep markPrice from ticker if possible, or it remains old.
+                            if hasattr(self, 'current_price') and self.current_price is not None and self.current_price > 0:
+                                self.position["markPrice"] = Decimal(str(self.current_price))
+                            self.position["unRealizedProfit"] = Decimal("0")
+                            self.position["liquidationPrice"] = Decimal("0")
+                    else: # pos_data_list is None or empty
+                        log.warning(f"[{self.symbol}] Could not fetch production (futures) position info (API returned None or empty). Using previous data.")
+                elif self.market_type == "spot":
+                    # TODO: Implement spot position update if necessary (e.g. from account balance)
+                    # For now, spot PnL is mostly realized, unrealized might be harder to track without full balance polling
+                    log.debug(f"[{self.symbol}] Spot position update not fully implemented for production mode beyond balance checks. Mark price from ticker.")
+                    if hasattr(self, 'current_price') and self.current_price is not None and self.current_price > 0:
+                         self.position["markPrice"] = Decimal(str(self.current_price))
+
 
             elif self.operation_mode == "shadow":
-                # Update mark price from ticker
-                ticker = self._get_ticker()
-                if ticker and "lastPrice" in ticker:
-                    mark_price = Decimal(ticker["lastPrice"])
+                # Update mark price from ticker, which should have been updated in _update_market_data
+                if hasattr(self, 'current_price') and self.current_price is not None and self.current_price > 0:
+                    mark_price = Decimal(str(self.current_price))
                     self.position["markPrice"] = mark_price
                     # Update simulated unrealized PnL
-                    pos_amt = self.position["positionAmt"]
-                    entry_price = self.position["entryPrice"]
+                    pos_amt = self.position.get("positionAmt", Decimal("0")) # Use .get for safety
+                    entry_price = self.position.get("entryPrice", Decimal("0"))
                     if pos_amt != 0 and entry_price != 0:
                         if pos_amt > 0:  # Long
-                            self.position["unRealizedProfit"] = (
-                                mark_price - entry_price
-                            ) * pos_amt
+                            self.position["unRealizedProfit"] = (mark_price - entry_price) * pos_amt
                         else:  # Short
-                            self.position["unRealizedProfit"] = (
-                                entry_price - mark_price
-                            ) * abs(pos_amt)
+                            self.position["unRealizedProfit"] = (entry_price - mark_price) * abs(pos_amt)
                     else:
                         self.position["unRealizedProfit"] = Decimal("0")
+                    log.debug(f"[{self.symbol} - SHADOW] Shadow position info updated with mark price: {mark_price}")
                 else:
-                    log.warning(
-                        f"[{self.symbol} - SHADOW] Could not fetch ticker to update mark price."
-                    )
+                    log.warning(f"[{self.symbol} - SHADOW] Current price invalid, cannot update shadow mark price or PnL. Using previous data.")
 
         except Exception as e:
-            log.error(
-                f"[{self.symbol}] Error updating position info: {e}", exc_info=True
-            )
+            log.warning(f"[{self.symbol}] Exceção ao atualizar informações de posição: {e}. Usando dados anteriores se disponíveis.")
 
     def get_market_state(self):
         """Gets the current market state for RL agent.
@@ -1608,17 +1718,22 @@ class GridLogic:
         # 1. Update market data first (prices, klines, volume)
         self._update_market_data()
         
+        # Crucial check: Ensure current_price is valid before proceeding
+        if not hasattr(self, 'current_price') or self.current_price is None or self.current_price <= 0:
+            log.error(f"[{self.symbol}] Preço atual inválido ({getattr(self, 'current_price', 'N/A')}). Não é possível definir/redefinir o grid neste ciclo.")
+            return # Skip this cycle if market price is unavailable
+
         # 2. Update position/balance info
         self._update_position_info()
         
-        # 2. Verificar se há saldo suficiente antes de operar
+        # 3. Verificar se há saldo suficiente antes de operar (moved after market data update)
         balance_ok = self._check_balance_for_trading()
         log.debug(f"[{self.symbol}] Balance check result: {balance_ok}")
         if not balance_ok:
             log.warning(f"[{self.symbol}] Saldo insuficiente para trading. Pulando ciclo.")
             return
 
-        # Apply RL agent actions if provided
+        # 4. Apply RL agent actions if provided
         if rl_action is not None:
             # Process RL action based on the action type
             if isinstance(rl_action, (int, np.integer)):
@@ -1637,17 +1752,11 @@ class GridLogic:
                     f"[{self.symbol}] Unsupported RL action type: {type(rl_action)}"
                 )
 
-        # 1. Check if grid needs (re)definition
+        # 5. Check if grid needs (re)definition
         if not self.grid_levels:
-            ticker = self._get_ticker()
-            if not ticker or "lastPrice" not in ticker:
-                log.error(
-                    f"[{self.symbol}] Não é possível definir grid, falha ao obter preço atual."
-                )
-                return  # Aguarda próximo ciclo
-            current_price = float(ticker["lastPrice"])
-            self.define_grid_levels(current_price)
-            if self.grid_levels:
+            # current_price is already validated above
+            self.define_grid_levels(self.current_price)
+            if self.grid_levels: # Check if define_grid_levels was successful
                 self.place_initial_grid_orders()
             else:
                 log.error(f"[{self.symbol}] Failed to define grid levels.")
@@ -1811,13 +1920,14 @@ class GridLogic:
             # Tentar mercado futures primeiro
             futures_orders = None
             try:
-                futures_orders = self.api_client._make_request(
-                    self.api_client.client.futures_get_open_orders,
-                    symbol=self.symbol
-                )
-                log.info(f"[{self.symbol}] Encontradas {len(futures_orders) if futures_orders else 0} ordens FUTURES")
-                if futures_orders:
+                log.info(f"[{self.symbol}] Tentando buscar ordens FUTURES abertas...")
+                futures_orders = self.api_client.get_futures_open_orders(symbol=self.symbol)
+                if futures_orders: # Check if list is not None and not empty
+                    log.info(f"[{self.symbol}] Encontradas {len(futures_orders)} ordens FUTURES")
                     self.market_type = "futures"
+                else:
+                    log.info(f"[{self.symbol}] Nenhuma ordem FUTURES encontrada ou API retornou None/vazio.")
+                    futures_orders = None # Ensure it's None if empty or actual None
             except Exception as e:
                 log.warning(f"[{self.symbol}] Erro ao verificar mercado FUTURES: {e}")
                 futures_orders = None
@@ -1826,26 +1936,33 @@ class GridLogic:
             spot_orders = None
             if not futures_orders:
                 try:
-                    spot_orders = self.api_client._make_request(
-                        self.api_client.client.get_open_orders,
-                        symbol=self.symbol
-                    )
-                    log.info(f"[{self.symbol}] Encontradas {len(spot_orders) if spot_orders else 0} ordens SPOT")
-                    if spot_orders:
+                    log.info(f"[{self.symbol}] Tentando buscar ordens SPOT abertas...")
+                    spot_orders = self.api_client.get_spot_open_orders(symbol=self.symbol)
+                    if spot_orders: # Check if list is not None and not empty
+                        log.info(f"[{self.symbol}] Encontradas {len(spot_orders)} ordens SPOT")
                         self.market_type = "spot"
+                    else:
+                        log.info(f"[{self.symbol}] Nenhuma ordem SPOT encontrada ou API retornou None/vazio.")
+                        spot_orders = None # Ensure it's None if empty or actual None
                 except Exception as e:
                     log.warning(f"[{self.symbol}] Erro ao verificar mercado SPOT: {e}")
                     spot_orders = None
 
-            # Usar as ordens encontradas
-            active_orders = futures_orders if futures_orders else spot_orders
-
-            if not active_orders:
-                log.info(f"[{self.symbol}] Nenhuma ordem ativa encontrada em nenhum mercado")
+            # Determinar quais ordens usar e qual tipo de mercado foi detectado
+            active_orders = None
+            if futures_orders:
+                active_orders = futures_orders
+                log.info(f"[{self.symbol}] Procedendo com ordens FUTURES. Market type definido para 'futures'.")
+            elif spot_orders:
+                active_orders = spot_orders
+                log.info(f"[{self.symbol}] Procedendo com ordens SPOT. Market type definido para 'spot'.")
+            else:
+                log.info(f"[{self.symbol}] Nenhuma ordem ativa encontrada em nenhum mercado (FUTURES ou SPOT).")
                 self._grid_recovered = False
                 return False
-            
-            log.info(f"[{self.symbol}] Usando ordens do mercado {self.market_type.upper()}")
+
+            # Se chegamos aqui, active_orders não é None e self.market_type está definido
+            log.info(f"[{self.symbol}] Usando ordens do mercado {self.market_type.upper()}. Total de ordens: {len(active_orders)}")
 
             # Filtrar apenas ordens LIMIT
             grid_orders = []
@@ -1989,11 +2106,17 @@ class GridLogic:
                     self._save_grid_state()
                     
                     # Reinicializar symbol_info para o mercado correto
-                    self._initialize_symbol_info()
+                    log.info(f"[{self.symbol}] Re-inicializando symbol_info para o mercado recuperado: {self.market_type.upper()}")
+                    if not self._initialize_symbol_info():
+                        log.error(f"[{self.symbol}] FALHA ao re-inicializar symbol_info para o mercado {self.market_type.upper()} após recuperação. O grid pode não funcionar corretamente.")
+                        # Decide if we should stop recovery here or proceed with potentially incorrect symbol info
+                        # For now, let's flag recovery as failed to be safe
+                        self._grid_recovered = False
+                        return False
                     
                     return True
                 else:
-                    log.info(f"[{self.symbol}] ⚠️ Ordens encontradas mas espaçamento não consistente (variação > 25%)")
+                    log.info(f"[{self.symbol}] ⚠️ Ordens encontradas mas espaçamento não consistente (variação > 30%)")
                     # Mostrar os espaçamentos mais discrepantes
                     for i, var in enumerate(spacing_variation):
                         if var > 0.25:
@@ -2016,19 +2139,25 @@ class GridLogic:
                         self.grid_levels = []
                         for order in grid_orders:
                             level = {
-                                'price': order['price'],
+                                'price': float(order['price']), # Ensure float for consistency
                                 'type': 'buy' if order['side'] == 'BUY' else 'sell',
-                                'quantity': order.get('origQty', 0),
+                                'quantity': float(order.get('origQty', 0)), # Ensure float
                                 'order_id': order['orderId'],
                                 'status': 'active',
                                 'recovered': True
                             }
                             self.grid_levels.append(level)
-                            self.active_grid_orders[order['price']] = order['orderId']
+                            self.active_grid_orders[float(order['price'])] = order['orderId']
                             self.open_orders[order['orderId']] = order
                         
-                        log.info(f"[{self.symbol}] ⚠️ Recuperação parcial do grid (alguns espaçamentos inconsistentes)")
+                        log.info(f"[{self.symbol}] ⚠️ Recuperação parcial do grid (alguns espaçamentos inconsistentes), {len(self.grid_levels)} níveis reconstruídos.")
                         self._grid_recovered = True
+                        # Reinicializar symbol_info para o mercado correto
+                        log.info(f"[{self.symbol}] Re-inicializando symbol_info para o mercado recuperado: {self.market_type.upper()} (recuperação parcial)")
+                        if not self._initialize_symbol_info():
+                            log.error(f"[{self.symbol}] FALHA ao re-inicializar symbol_info para o mercado {self.market_type.upper()} após recuperação parcial.")
+                            self._grid_recovered = False # Mark as not fully recovered
+                            return False
                         return True
                         
                     self._grid_recovered = False
@@ -2046,22 +2175,28 @@ class GridLogic:
                     self.grid_levels = []
                     for order in grid_orders:
                         level = {
-                            'price': order['price'],
+                            'price': float(order['price']), # Ensure float
                             'type': 'buy' if order['side'] == 'BUY' else 'sell',
-                            'quantity': order.get('origQty', 0),
+                            'quantity': float(order.get('origQty', 0)), # Ensure float
                             'order_id': order['orderId'],
                             'status': 'active',
                             'recovered': True
                         }
                         self.grid_levels.append(level)
-                        self.active_grid_orders[order['price']] = order['orderId']
+                        self.active_grid_orders[float(order['price'])] = order['orderId']
                         self.open_orders[order['orderId']] = order
                     
-                    log.info(f"[{self.symbol}] ✅ Grid recuperado com ordens insuficientes para calcular espaçamento")
+                    log.info(f"[{self.symbol}] ✅ Grid recuperado com ordens insuficientes para calcular espaçamento ({len(self.grid_levels)} níveis).")
                     self._grid_recovered = True
+                    # Reinicializar symbol_info para o mercado correto
+                    log.info(f"[{self.symbol}] Re-inicializando symbol_info para o mercado recuperado: {self.market_type.upper()} (recuperação com ordens insuficientes para espaçamento)")
+                    if not self._initialize_symbol_info():
+                        log.error(f"[{self.symbol}] FALHA ao re-inicializar symbol_info para o mercado {self.market_type.upper()} após recuperação com ordens insuficientes.")
+                        self._grid_recovered = False # Mark as not fully recovered
+                        return False
                     return True
                 else:
-                    log.info(f"[{self.symbol}] ⚠️ Impossível calcular espaçamento (ordens insuficientes)")
+                    log.info(f"[{self.symbol}] ⚠️ Impossível calcular espaçamento (menos de 3 ordens LIMIT encontradas).")
                     self._grid_recovered = False
                     return False
                 

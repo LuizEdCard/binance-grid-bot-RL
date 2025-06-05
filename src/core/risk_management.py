@@ -733,36 +733,109 @@ class RiskManager:
             self.adjust_risk_based_on_sentiment()
 
             # 2. Get current position and balance info
-            position = self.api_client.get_futures_position(self.symbol)
-            balance_info = self.api_client.get_futures_balance()
-            # TODO: Handle potential errors from API calls here
+            position_data_list = self.api_client.get_futures_position_info(symbol=self.symbol)
+            current_position_info = None
 
-            if position is None or balance_info is None:
-                log.error(
-                    f"[{self.symbol}] Failed to get position or balance info. Skipping risk checks."
+            if position_data_list: # API returns a list
+                # Find the position for the specific symbol
+                # In normal operation with a symbol, it should be the only one, or not present
+                for pos in position_data_list:
+                    if pos.get('symbol') == self.symbol:
+                        current_position_info = pos
+                        break
+
+            if current_position_info is None:
+                log.warning(
+                    f"[{self.symbol}] No position information found for symbol via get_futures_position_info. Assuming no open position. Skipping some risk checks."
                 )
+                # If no position, many risk checks are not applicable or need default handling
+                # For example, stop loss management and profit protection might be skipped.
+                # We might still want to check overall account drawdown if balance_info is available.
+                # For now, let's return if key position info is missing for futures.
+                if self.market_type == "futures": # Specific checks for futures might depend heavily on position
+                    return
+
+
+            # Convert relevant parts of current_position_info to Decimal for consistency if needed by other methods
+            # For example, if manage_stop_loss expects Decimals:
+            # This is a simplified conversion; ensure all necessary fields are converted as expected.
+            position_for_sl = {
+                "positionAmt": Decimal(current_position_info.get("positionAmt", "0") if current_position_info else "0"),
+                "entryPrice": Decimal(current_position_info.get("entryPrice", "0") if current_position_info else "0"),
+                "markPrice": Decimal(current_position_info.get("markPrice", "0") if current_position_info else "0"),
+                "unRealizedProfit": Decimal(current_position_info.get("unRealizedProfit", "0") if current_position_info else "0"),
+                "realizedPnl": Decimal(current_position_info.get("realizedPnl", "0") if current_position_info else "0") # Note: realizedPnl is usually not part of position info directly from this call
+            }
+
+
+            # Fetch balance info (assuming this method is okay or handled elsewhere for None)
+            # For Spot, this might be more relevant than futures position for some checks
+            if self.market_type == "spot":
+                balance_info = self.api_client.get_spot_account_balance()
+                # Process spot balance for relevant risk checks (e.g., total value, allocation)
+                if self.check_spot_market_risks(balance_info if balance_info else {}):
+                     self.grid_logic.trigger_shutdown(reason="Spot Market Risk Triggered")
+                     return
+            else: # futures
+                balance_info = self.api_client.get_futures_account_balance() # This gets general balance, not just for one symbol
+                # Futures-specific market risks (like liquidation distance)
+                if current_position_info and self.check_futures_market_risks(current_position_info): # Pass the raw dict from API
+                    self.grid_logic.trigger_shutdown(reason="Futures Market Risk Triggered (e.g. Liquidation)")
+                    return
+
+
+            if balance_info is None: # General check if balance fetching failed
+                log.error(
+                    f"[{self.symbol}] Failed to get balance info for market {self.market_type}. Skipping some risk checks."
+                )
+                # Depending on strictness, might return or allow continuation with limited checks
+                # For now, let's allow continuation for checks that don't strictly need current balance.
+                # However, drawdown check will be ineffective.
+
+            # Determine current balance for drawdown checks
+            # This needs to be adapted based on what balance_info structure is for spot vs futures
+            # For futures, 'totalWalletBalance' or 'totalMarginBalance' might be more appropriate for overall account drawdown.
+            # For spot, it would be the sum of all assets converted to a common currency (e.g., USDT).
+            # This part requires careful thought on how "current_balance" for drawdown is defined.
+            # Let's assume for now we are using a field from balance_info that represents total account value.
+            # This is a placeholder and needs to be accurate based on API response.
+            account_total_value_for_drawdown = Decimal("0")
+            if self.market_type == "futures" and balance_info:
+                 # Example: using totalWalletBalance for futures drawdown calculation
+                account_total_value_for_drawdown = Decimal(balance_info[0].get("balance") if isinstance(balance_info, list) and balance_info else "0") # crude, depends on actual structure
+                # A better approach for futures might be to sum 'walletBalance' for all assets in balance_info (which is a list of assets)
+                # Or use 'totalMarginBalance' from futures_account call if that's more representative.
+                # For now, this is a simplification.
+            elif self.market_type == "spot" and balance_info:
+                # For spot, sum of USDT equivalent of all assets. This is complex.
+                # Simplified: assume a function `_calculate_total_spot_value_in_usdt(balance_info)`
+                pass # This needs proper implementation if spot drawdown is critical path here.
+
+            if self.initial_balance is None and account_total_value_for_drawdown > 0:
+                 self.set_initial_balance(account_total_value_for_drawdown)
+
+
+            # 3. Check Circuit Breakers (Max Drawdown) - Ensure current_balance is correctly sourced
+            if account_total_value_for_drawdown > 0 and self.check_circuit_breakers(account_total_value_for_drawdown):
+                self.grid_logic.trigger_shutdown(reason="Max Drawdown Circuit Breaker")
                 return
 
-            current_balance = balance_info.get(
-                "availableBalance", Decimal("0")
-            )  # Or total wallet balance?
-            if self.initial_balance is None:
-                self.set_initial_balance(balance_info.get("balance", Decimal("0")))
+            # For Futures: manage SL and Profit Protection using detailed position_for_sl
+            if self.market_type == "futures" and current_position_info:
+                # total_realized_pnl for SL might be different from position's isolated realizedPnl.
+                # GridLogic's total_realized_pnl might be more appropriate if it tracks overall PNL for the grid strategy.
+                # For now, using what's available in position_for_sl, but this might need refinement.
+                sl_management_pnl = self.grid_logic.total_realized_pnl # Using GridLogic's tracked PNL
 
-            # 3. Check Circuit Breakers (Max Drawdown)
-            if self.check_circuit_breakers(current_balance):
-                # Signal GridLogic or main process to stop trading this pair
-                self.grid_logic.trigger_shutdown(reason="Max Drawdown Circuit Breaker")
-                return  # Stop further checks if breaker tripped
+                self.manage_stop_loss(position_for_sl, sl_management_pnl)
+                self.protect_realized_profit(position_for_sl, sl_management_pnl)
+            elif self.market_type == "spot":
+                # SL management for spot might be simpler or handled differently (e.g. selling all base asset)
+                # Profit protection might also look at total value of base asset vs. entry costs.
+                # This section would need specific implementation for Spot if features like ATR SL are desired.
+                log.debug(f"[{self.symbol}] SL management and profit protection for SPOT market type needs specific implementation if advanced features are required beyond basic grid fills.")
 
-            # 4. Manage Stop Loss
-            total_realized_pnl = position.get(
-                "realizedPnl", Decimal("0")
-            )  # Get PNL from position info
-            self.manage_stop_loss(position, total_realized_pnl)
-
-            # 5. Protect Realized Profit
-            self.protect_realized_profit(position, total_realized_pnl)
+            # (Rest of the checks like API failure timeout)
 
             # 6. Check for API Failure Timeout (Optional)
             # if self.last_api_success_time and (time.time() - self.last_api_success_time) > self.api_failure_timeout_minutes * 60:

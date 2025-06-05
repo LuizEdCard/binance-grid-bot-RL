@@ -39,6 +39,7 @@ class HybridSentimentAnalyzer:
         # Initialize analyzers
         self.gemma3_analyzer = None
         self.onnx_analyzer = None
+        self.sentiment_analysis_fully_disabled = False # New flag
         
         # Performance tracking
         self.stats = {
@@ -100,9 +101,19 @@ class HybridSentimentAnalyzer:
                 self.onnx_analyzer = None
         
         # Log final status
-        gemma3_status = "✅" if self.gemma3_analyzer else "❌"
-        onnx_status = "✅" if self.onnx_analyzer else "❌"
+        gemma3_loaded_successfully = self.gemma3_analyzer and getattr(self.gemma3_analyzer, 'available', False)
+        onnx_loaded_successfully = self.onnx_analyzer and self.onnx_analyzer.is_available()
+
+        gemma3_status = "✅" if gemma3_loaded_successfully else "❌"
+        onnx_status = "✅" if onnx_loaded_successfully else "❌"
         log.info(f"Hybrid Sentiment Analyzer Status: Gemma-3 {gemma3_status} | ONNX {onnx_status}")
+
+        if not gemma3_loaded_successfully and not onnx_loaded_successfully:
+            log.critical(
+                "CRITICAL WARNING: All sentiment analysis models (Gemma-3 and ONNX) failed to load or are unavailable. "
+                "Sentiment-based features will be disabled. Please check model paths, dependencies, and Ollama service (for Gemma-3)."
+            )
+            self.sentiment_analysis_fully_disabled = True
     
     def _calculate_crypto_relevance(self, text: str) -> float:
         """Calculate how crypto-relevant a text is (0.0 to 1.0)."""
@@ -178,58 +189,97 @@ class HybridSentimentAnalyzer:
         """
         if not text or not text.strip():
             return None
+
+        if self.sentiment_analysis_fully_disabled:
+            log.debug(f"Sentiment analysis fully disabled. Returning neutral for: '{text[:50]}...'")
+            return {
+                "sentiment": "neutral",
+                "confidence": 0.0,
+                "score": 0.0, # Assuming score 0.0 for neutral
+                "analyzer_used": "disabled",
+                "text": text, # Include original text for context
+                "reasoning": "All sentiment models unavailable."
+            }
         
         start_time = time.time()
         result = None
         analyzer_used = None
+        final_response = None
         
         try:
             # Decide which analyzer to use
             use_gemma3 = self._should_use_gemma3(text)
             
-            if use_gemma3 and self.gemma3_analyzer:
+            gemma_is_ready = self.gemma3_analyzer and getattr(self.gemma3_analyzer, 'available', False)
+            onnx_is_ready = self.onnx_analyzer and self.onnx_analyzer.is_available()
+
+            if use_gemma3 and gemma_is_ready:
                 # Use Gemma-3 for crypto content
                 try:
                     result = self.gemma3_analyzer.analyze(text)
                     analyzer_used = "gemma3"
                     self.stats["gemma3_used"] += 1
-                    
+                    log.debug(f"Gemma-3 analysis for '{text[:50]}...': {result}")
                 except Exception as e:
-                    log.warning(f"Gemma-3 analysis failed: {e}")
-                    result = None
+                    log.warning(f"Gemma-3 analysis failed for '{text[:50]}...': {e}", exc_info=True)
+                    result = None # Ensure result is None if gemma fails
             
-            # Fallback to ONNX if needed
-            if not result and self.onnx_analyzer:
+            # Fallback to ONNX if Gemma-3 was not preferred, not ready, or failed
+            if not result and onnx_is_ready:
+                if analyzer_used == "gemma3": # Means Gemma-3 was tried but failed
+                    log.info(f"Falling back to ONNX for '{text[:50]}...' after Gemma-3 failure.")
+                    self.stats["fallbacks"] += 1
+                elif use_gemma3 and not gemma_is_ready: # Gemma was preferred but not ready
+                    log.info(f"Gemma-3 preferred but unavailable, using ONNX for '{text[:50]}...'.")
+                    # Not a "fallback" in the sense of failure, but alternative selection
+
                 try:
                     result = self.onnx_analyzer.analyze(text)
-                    analyzer_used = "onnx"
+                    analyzer_used = "onnx" # This is now the primary or fallback analyzer
                     self.stats["onnx_used"] += 1
-                    
-                    if use_gemma3:  # This was a fallback
-                        self.stats["fallbacks"] += 1
-                        
+                    log.debug(f"ONNX analysis for '{text[:50]}...': {result}")
                 except Exception as e:
-                    log.warning(f"ONNX analysis failed: {e}")
-                    result = None
+                    log.warning(f"ONNX analysis failed for '{text[:50]}...': {e}", exc_info=True)
+                    result = None # Ensure result is None if ONNX also fails
             
-            # Normalize response
-            if result:
-                result = self._normalize_response(result, analyzer_used)
-            
+            # Normalize response if any analysis succeeded
+            if result and analyzer_used:
+                final_response = self._normalize_response(result, analyzer_used)
+            else: # Both failed or no analyzers available (though covered by sentiment_analysis_fully_disabled)
+                log.warning(f"All available sentiment analyzers failed for text: '{text[:50]}...'. Returning neutral.")
+                final_response = {
+                    "sentiment": "neutral",
+                    "confidence": 0.0,
+                    "score": 0.0,
+                    "analyzer_used": "failure_fallback",
+                    "reasoning": "All active analyzers failed for this text."
+                }
+                if analyzer_used == "gemma3" and onnx_is_ready: # If gemma3 was tried and failed, and onnx was available
+                     self.stats["fallbacks"] += 1 # Count this as a fallback scenario ending in failure
+
+            final_response["text"] = text # Add original text for context
+
             # Update performance stats
             latency = time.time() - start_time
             self.stats["avg_latency"] = (
                 (self.stats["avg_latency"] * self.stats["total_analyses"] + latency) /
-                (self.stats["total_analyses"] + 1)
+                max(1, (self.stats["total_analyses"] + 1)) # Avoid division by zero
             )
             self.stats["total_analyses"] += 1
             
-            log.debug(f"Sentiment analysis ({analyzer_used}): '{text[:50]}...' -> {result}")
-            return result
+            log.debug(f"Hybrid sentiment ({analyzer_used or 'none_available'}): '{text[:50]}...' -> {final_response}")
+            return final_response
             
         except Exception as e:
-            log.error(f"Hybrid sentiment analysis failed: {e}", exc_info=True)
-            return None
+            log.error(f"Critical error in hybrid sentiment analysis for '{text[:50]}...': {e}", exc_info=True)
+            return { # Ensure a consistent dictionary structure even on unexpected errors
+                "sentiment": "neutral",
+                "confidence": 0.0,
+                "score": 0.0,
+                "analyzer_used": "error",
+                "text": text,
+                "reasoning": "Unexpected error during analysis pipeline."
+            }
     
     def analyze_batch(self, texts: List[str]) -> List[Optional[Dict]]:
         """Analyze multiple texts efficiently."""
@@ -297,8 +347,8 @@ class HybridSentimentAnalyzer:
             "onnx_usage": f"{(self.stats['onnx_used'] / max(total_analyses, 1)) * 100:.1f}%",
             "fallback_rate": f"{(self.stats['fallbacks'] / max(total_analyses, 1)) * 100:.1f}%",
             "avg_latency_ms": f"{self.stats['avg_latency'] * 1000:.1f}ms",
-            "gemma3_available": self.gemma3_analyzer is not None,
-            "onnx_available": self.onnx_analyzer is not None
+            "gemma3_available": self.gemma3_analyzer and getattr(self.gemma3_analyzer, 'available', False),
+            "onnx_available": self.onnx_analyzer and self.onnx_analyzer.is_available()
         }
     
     def get_model_status(self) -> Dict:
@@ -316,12 +366,15 @@ class HybridSentimentAnalyzer:
             }
         }
         
-        if self.gemma3_analyzer:
-            status["gemma3"]["loaded"] = self.gemma3_analyzer.pipeline is not None
-            status["gemma3"]["stats"] = self.gemma3_analyzer.get_stats()
+        if self.gemma3_analyzer and hasattr(self.gemma3_analyzer, 'available'):
+            status["gemma3"]["available"] = self.gemma3_analyzer.available # Check actual availability
+            status["gemma3"]["loaded"] = self.gemma3_analyzer.available # Assuming 'available' means loaded for Gemma
+            if hasattr(self.gemma3_analyzer, 'get_stats'):
+                 status["gemma3"]["stats"] = self.gemma3_analyzer.get_stats()
         
-        if self.onnx_analyzer:
-            status["onnx"]["loaded"] = self.onnx_analyzer.session is not None
+        if self.onnx_analyzer and hasattr(self.onnx_analyzer, 'is_available'):
+            status["onnx"]["available"] = self.onnx_analyzer.is_available()
+            status["onnx"]["loaded"] = self.onnx_analyzer.is_available() # is_available checks session
         
         return status
 

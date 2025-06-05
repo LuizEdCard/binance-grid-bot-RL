@@ -233,6 +233,8 @@ class APIClient:
 
         # --- Modo de Produção ou Operação de Leitura --- #
         retries = 0
+        order_placement_methods = ["futures_create_order", "create_order"]
+
         while retries < MAX_RETRIES:
             try:
                 response = method(*args, **kwargs)
@@ -241,13 +243,27 @@ class APIClient:
                 )
                 return response
             except (BinanceAPIException, BinanceRequestException) as e:
-                log.warning(
-                    f"API Error on attempt {retries + 1}: {e} (Code: {e.code}, Message: {e.message})"
-                )
+                if method_name in order_placement_methods:
+                    order_details = {
+                        "symbol": kwargs.get("symbol"),
+                        "side": kwargs.get("side"),
+                        "type": kwargs.get("type"),
+                        "quantity": kwargs.get("quantity"),
+                        "price": kwargs.get("price", "N/A"), # Price might not be present for market orders
+                    }
+                    log.error(
+                        f"API Error during ORDER PLACEMENT on attempt {retries + 1} for {method_name}: "
+                        f"Details: {order_details}, Code: {e.code}, Message: {e.message}. Exception: {e}"
+                    )
+                else:
+                    log.warning(
+                        f"API Error on attempt {retries + 1} for {method_name}: {e} (Code: {e.code}, Message: {e.message})"
+                    )
+
                 retries += 1
                 if retries < MAX_RETRIES:
                     delay = RETRY_DELAY_SECONDS[retries - 1]
-                    log.info(f"Retrying API call in {delay} seconds...")
+                    log.info(f"Retrying API call {method_name} in {delay} seconds...")
                     time.sleep(delay)
                 else:
                     log.error(
@@ -256,7 +272,7 @@ class APIClient:
                     return None
             except ConnectionError as e:
                 log.warning(
-                    f"Connection Error on attempt {retries + 1}: {e}. Attempting reconnect..."
+                    f"Connection Error on attempt {retries + 1} for {method_name}: {e}. Attempting reconnect..."
                 )
                 self._connect()
                 if not self.client:
@@ -271,9 +287,24 @@ class APIClient:
                     )
                     return None
             except Exception as e:
-                log.error(
-                    f"An unexpected error occurred during API call {method_name}: {e}"
-                )
+                if method_name in order_placement_methods:
+                    order_details = {
+                        "symbol": kwargs.get("symbol"),
+                        "side": kwargs.get("side"),
+                        "type": kwargs.get("type"),
+                        "quantity": kwargs.get("quantity"),
+                        "price": kwargs.get("price", "N/A"),
+                    }
+                    log.error(
+                        f"Unexpected Exception during ORDER PLACEMENT for {method_name}: "
+                        f"Details: {order_details}. Exception: {e}",
+                        exc_info=True
+                    )
+                else:
+                    log.error(
+                        f"An unexpected error occurred during API call {method_name}: {e}",
+                        exc_info=True
+                    )
                 return None
 
     # --- API Methods (no change needed here, _make_request handles mode) --- #
