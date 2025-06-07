@@ -20,6 +20,9 @@ huggingface_hub
 onnxruntime
 transformers
 
+ta-lib
+praw
+python-dotenv
 # Existing dependencies
 # Adicione outras dependências do seu projeto aqui
 

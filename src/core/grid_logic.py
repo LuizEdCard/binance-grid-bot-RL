@@ -20,7 +20,6 @@ from binance.enums import (
 
 from utils.api_client import APIClient
 from utils.logger import setup_logger
-from utils.data_storage import shadow_storage
 log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
@@ -52,7 +51,7 @@ class GridLogic:
         symbol: str,
         config: dict,
         api_client: APIClient,
-        operation_mode: str = "shadow",
+        operation_mode: str = "production",
         market_type: str = "futures",  # "futures" ou "spot"
     ):
         self.symbol = symbol
@@ -73,40 +72,14 @@ class GridLogic:
         # Parâmetros do grid - sempre priorizar valores do frontend
         self.num_levels = int(config.get("initial_levels") or self.grid_config.get("initial_levels", 10))
         self.base_spacing_percentage = Decimal(str(config.get("initial_spacing_perc") or self.grid_config.get("initial_spacing_perc", "0.005")))
-        
-        # --- Estado do Modo Shadow --- #
-        # {order_id: {symbol, side, type, price, quantity, status, ...}}
-        self.simulated_open_orders = {}
-        # Posição simulada - formato unificado para Spot e Futuros
+        # Usa estado real (production mode)
         if self.market_type == "spot":
-            self.simulated_position = {
-                "base_balance": Decimal("0"),  # Saldo da moeda base (ex: BTC)
-                "quote_balance": Decimal("0"),  # Saldo da moeda cotada (ex: USDT)
-                "avg_buy_price": Decimal("0"),  # Preço médio de compra
-                "total_bought": Decimal("0"),  # Quantidade total comprada
-                "unrealized_pnl": Decimal("0"),  # PnL não realizado
-            }
-        else:  # futures
-            self.simulated_position = {
-                "positionAmt": Decimal("0"),
-                "entryPrice": Decimal("0"),
-                "markPrice": Decimal("0"),  # Atualizado pelo ticker real
-                "unRealizedProfit": Decimal("0"),
-                "liquidationPrice": Decimal("0"),  # Difícil de simular com precisão
-            }
-        # ------------------------- #
-
-        # Usa estado simulado no modo shadow, estado real caso contrário
-        if self.operation_mode == "shadow":
-            self.position = self.simulated_position
-        else:
-            if self.market_type == "spot":
-                self.position = {
-                    "base_balance": Decimal("0"),
-                    "quote_balance": Decimal("0"),
-                    "avg_buy_price": Decimal("0"),
-                    "total_bought": Decimal("0"),
-                    "unrealized_pnl": Decimal("0"),
+            self.position = {
+                "base_balance": Decimal("0"),
+                "quote_balance": Decimal("0"),
+                "avg_buy_price": Decimal("0"),
+                "total_bought": Decimal("0"),
+                "unrealized_pnl": Decimal("0"),
                 }
             else:  # futures
                 self.position = {
@@ -353,37 +326,8 @@ class GridLogic:
                 log.info(
                     f"[{self.symbol}] Ordem {side} colocada com sucesso {order_id} em {price_str} no mercado {self.market_type.upper()}"
                 )
-                # Armazena detalhes da ordem (real ou simulada)
+                # Armazena detalhes da ordem
                 self.open_orders[order_id] = order
-                if self.operation_mode == "shadow":
-                    # Armazena estado da ordem simulada
-                    self.simulated_open_orders[order_id] = {
-                        "orderId": order_id,
-                        "symbol": self.symbol,
-                        "side": side,
-                        "type": ORDER_TYPE_LIMIT,
-                        "price": Decimal(price_str),
-                        "origQty": Decimal(qty_str),
-                        "executedQty": Decimal("0"),
-                        "status": ORDER_STATUS_NEW,
-                        "time": order.get("time", int(time.time() * 1000)),
-                        "market_type": self.market_type,  # Novo campo para identificar mercado
-                    }
-                    
-                    # NOVO: Salvar dados do trade simulado para RL
-                    shadow_storage.log_trade({
-                        "order_id": order_id,
-                        "symbol": self.symbol,
-                        "side": side,
-                        "price": float(price_str),
-                        "quantity": float(qty_str),
-                        "market_type": self.market_type,
-                        "operation_mode": self.operation_mode,
-                        "order_type": "LIMIT",
-                        "status": "NEW",
-                        "current_price": float(self.current_price) if hasattr(self, 'current_price') else None
-                    })
-                    
                 return order_id
             else:
                 log.error(
@@ -692,13 +636,10 @@ class GridLogic:
         if placed_count > 0:
             self._save_grid_state()
 
-    def check_and_handle_fills(self, current_kline=None):
+    def check_and_handle_fills(self):
         # ... (rest of the file remains unchanged for now) ...
         # Add TA-Lib pattern checks here later if needed
-        if self.operation_mode == "production":
-            self._check_fills_production()
-        elif self.operation_mode == "shadow":
-            self._check_fills_shadow(current_kline)
+        self._check_fills_production()
 
     def _check_fills_production(self):
         if not self.open_orders:
@@ -792,77 +733,6 @@ class GridLogic:
         if filled_orders_data:
             self._save_grid_state()
 
-    def _check_fills_shadow(self, current_kline):
-        if not self.simulated_open_orders or current_kline is None:
-            return
-
-        kline_open = Decimal(current_kline["Open"])
-        kline_high = Decimal(current_kline["High"])
-        kline_low = Decimal(current_kline["Low"])
-        kline_close = Decimal(current_kline["Close"])
-        log.debug(
-            f"[{self.symbol} - SHADOW] Checking fills against Kline O:{kline_open} H:{kline_high} L:{kline_low} C:{kline_close}"
-        )
-
-        filled_orders_simulated = []
-        remaining_sim_orders = {}
-
-        for order_id, order in list(self.simulated_open_orders.items()):
-            order_price = order["price"]
-            order_side = order["side"]
-            filled = False
-
-            # Check if kline range crossed the order price
-            if order_side == SIDE_BUY and kline_low <= order_price <= kline_high:
-                filled = True
-                # Simulate fill at order price or open if gapped down
-                fill_price = min(kline_open, order_price)
-            elif order_side == SIDE_SELL and kline_low <= order_price <= kline_high:
-                filled = True
-                # Simulate fill at order price or open if gapped up
-                fill_price = max(kline_open, order_price)
-
-            if filled:
-                log.info(
-                    f"[{self.symbol} - SHADOW] Simulating FILL for {order_side} order {order_id} at price {order_price} (Kline range [{kline_low}-{kline_high}])"
-                )
-                simulated_fill_data = order.copy()
-                simulated_fill_data["status"] = ORDER_STATUS_FILLED
-                simulated_fill_data["executedQty"] = order["origQty"]
-                simulated_fill_data["cummulativeQuoteQty"] = str(
-                    order["origQty"] * fill_price
-                )  # Approximate
-                simulated_fill_data["avgPrice"] = str(fill_price)
-                simulated_fill_data["updateTime"] = int(time.time() * 1000)
-
-                filled_orders_simulated.append(simulated_fill_data)
-
-                # Find corresponding grid level price
-                filled_level_price = None
-                for price, oid in list(self.active_grid_orders.items()):
-                    if oid == order_id:
-                        filled_level_price = price
-                        del self.active_grid_orders[price]
-                        break
-
-                if filled_level_price:
-                    self._handle_filled_order(simulated_fill_data, filled_level_price)
-                else:
-                    log.warning(
-                        f"[{self.symbol} - SHADOW] Filled simulated order {order_id} not found in active grid levels."
-                    )
-
-                # Remove from open orders (both real placeholder and simulated)
-                if order_id in self.open_orders:
-                    del self.open_orders[order_id]
-                # Do not add to remaining_sim_orders
-            else:
-                remaining_sim_orders[order_id] = order  # Keep if not filled
-
-        self.simulated_open_orders = remaining_sim_orders
-        log.debug(
-            f"[{self.symbol} - SHADOW] Finished checking simulated fills. {len(filled_orders_simulated)} filled, {len(self.simulated_open_orders)} still open."
-        )
 
     def _handle_filled_order(self, fill_data, filled_level_price):
         """Handles logic after an order is filled: update position, place TP order, record trade."""
@@ -1051,11 +921,6 @@ class GridLogic:
                     # Remove from tracking
                     if order_id in self.open_orders:
                         del self.open_orders[order_id]
-                    if (
-                        self.operation_mode == "shadow"
-                        and order_id in self.simulated_open_orders
-                    ):
-                        del self.simulated_open_orders[order_id]
                     # Remove from active_grid_orders by value
                     for price, oid in list(self.active_grid_orders.items()):
                         if oid == order_id:
@@ -1074,8 +939,6 @@ class GridLogic:
         # above
         self.active_grid_orders.clear()
         self.open_orders.clear()
-        if self.operation_mode == "shadow":
-            self.simulated_open_orders.clear()
 
     def get_state(self):
         """Returns the current state of the grid for the RL agent or monitoring."""
@@ -1245,30 +1108,6 @@ class GridLogic:
                     if ticker and "lastPrice" in ticker:
                         self.position["markPrice"] = Decimal(ticker["lastPrice"])
 
-            elif self.operation_mode == "shadow":
-                # Update mark price from ticker
-                ticker = self._get_ticker()
-                if ticker and "lastPrice" in ticker:
-                    mark_price = Decimal(ticker["lastPrice"])
-                    self.position["markPrice"] = mark_price
-                    # Update simulated unrealized PnL
-                    pos_amt = self.position["positionAmt"]
-                    entry_price = self.position["entryPrice"]
-                    if pos_amt != 0 and entry_price != 0:
-                        if pos_amt > 0:  # Long
-                            self.position["unRealizedProfit"] = (
-                                mark_price - entry_price
-                            ) * pos_amt
-                        else:  # Short
-                            self.position["unRealizedProfit"] = (
-                                entry_price - mark_price
-                            ) * abs(pos_amt)
-                    else:
-                        self.position["unRealizedProfit"] = Decimal("0")
-                else:
-                    log.warning(
-                        f"[{self.symbol} - SHADOW] Could not fetch ticker to update mark price."
-                    )
 
         except Exception as e:
             log.error(
@@ -1401,14 +1240,6 @@ class GridLogic:
         # Replace NaN with neutral value
         state_array = np.nan_to_num(state_array, nan=0.5)
 
-        # NOVO: Salvar estado de mercado para treinamento RL
-        if self.operation_mode == "shadow":
-            current_price = float(self.current_price) if hasattr(self, 'current_price') else 0.0
-            shadow_storage.log_market_state(
-                symbol=self.symbol,
-                state=state_array.tolist(),
-                price=current_price
-            )
 
         return state_array
 
@@ -1528,24 +1359,6 @@ class GridLogic:
         else:
             log.warning(f"[{self.symbol}] Unknown RL action: {action}")
             
-        # NOVO: Salvar ação RL aplicada para treinamento
-        if self.operation_mode == "shadow" and previous_state is not None:
-            # Capturar estado após a ação
-            next_state = self.get_market_state()
-            
-            # Calcular reward simples baseado na mudança de performance
-            reward = self._calculate_rl_reward(previous_state, next_state)
-            
-            # Salvar dados da ação para treinamento
-            shadow_storage.log_rl_action(
-                symbol=self.symbol,
-                state=previous_state.tolist() if hasattr(previous_state, 'tolist') else previous_state,
-                action=action,
-                reward=reward,
-                next_state=next_state.tolist() if hasattr(next_state, 'tolist') else next_state
-            )
-            
-            log.debug(f"[{self.symbol}] RL action logged: action={action}, reward={reward:.4f}")
     
     def _calculate_rl_reward(self, previous_state, next_state):
         """Calcula reward simples para ação RL baseado na mudança de estado."""
@@ -1654,28 +1467,7 @@ class GridLogic:
                 return
 
         # 2. Check for filled orders
-        # In shadow mode, need kline data for simulation
-        current_kline = None
-        if self.operation_mode == "shadow":
-            # Fetch the last completed kline (e.g., 1 minute)
-            klines = self.api_client.get_futures_klines(
-                symbol=self.symbol, interval="1m", limit=2
-            )
-            if klines and len(klines) >= 2:
-                # Use the second to last kline (the last fully closed one)
-                last_closed_kline_data = klines[-2]
-                current_kline = {
-                    "Open": last_closed_kline_data[1],
-                    "High": last_closed_kline_data[2],
-                    "Low": last_closed_kline_data[3],
-                    "Close": last_closed_kline_data[4],
-                }
-            else:
-                log.warning(
-                    f"[{self.symbol} - SHADOW] Could not fetch sufficient kline data for fill simulation."
-                )
-
-        self.check_and_handle_fills(current_kline=current_kline)
+        self.check_and_handle_fills()
 
         # 3. (Optional) Add other checks like risk management triggers (handled
         # externally for now)
@@ -1724,12 +1516,7 @@ class GridLogic:
                     recovered_count = sum(1 for level in self.grid_levels if level.get('recovered', False))
                     status["recovered_orders"] = recovered_count
             
-            # Adicionar informações específicas do modo shadow
-            if self.operation_mode == "shadow":
-                status["simulated_orders"] = len(self.simulated_open_orders)
-                base_message = "Running in shadow mode (simulation)"
-            else:
-                base_message = "Running in production mode (real trading)"
+            base_message = "Running in production mode (real trading)"
             
             # Adicionar status de recuperação à mensagem
             if hasattr(self, '_grid_recovered') and self._grid_recovered:
@@ -1764,10 +1551,6 @@ class GridLogic:
                         log.info(f"[{self.symbol}] Ordem {order_id} cancelada")
                     except Exception as e:
                         log.warning(f"[{self.symbol}] Erro ao cancelar ordem {order_id}: {e}")
-            else:
-                # Limpar ordens simuladas
-                self.simulated_open_orders.clear()
-                log.info(f"[{self.symbol}] Ordens simuladas limpas")
 
             # Limpar estruturas de dados
             self.active_grid_orders.clear()
@@ -1801,9 +1584,7 @@ class GridLogic:
         """
         self._recovery_attempted = True
         
-        if self.operation_mode != "production":
-            log.info(f"[{self.symbol}] Modo shadow - não há ordens reais para recuperar")
-            return False
+        # Only production mode supported
 
         try:
             log.info(f"[{self.symbol}] 🔍 Verificando ordens ativas em ambos os mercados...")

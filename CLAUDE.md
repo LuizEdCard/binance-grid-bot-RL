@@ -41,7 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Pair Selection** (`src/core/pair_selector.py`) - Intelligent pair filtering using volume, volatility, sentiment
 - **Alerting** (`src/utils/alerter.py`) - Telegram notifications
 - **Multi-pair Execution** - Concurrent trading across multiple cryptocurrency pairs
-- **Operation Modes** - Production (real trading) vs Shadow (simulation)
+- **Operation Mode** - Production (real trading)
 
 **Data Flow:**
 1. Sentiment analysis fetches Reddit data → ONNX model analysis → sentiment score
