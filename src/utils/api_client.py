@@ -58,14 +58,13 @@ RETRY_DELAY_SECONDS = [1, 2, 4, 8, 16]  # Exponential backoff
 
 class APIClient:
     """Lida com comunicação com as APIs da Binance (Spot e Futuros).
-    Suporta modo Production (trading real) e modo Shadow (dados reais, ordens simuladas).
+    Opera em modo Production para trading real.
     """
 
-    def __init__(self, config: dict, operation_mode: str = "shadow"):
+    def __init__(self, config: dict, operation_mode: str = "production"):
         self.client = None
         self.config = config
         self.operation_mode = operation_mode.lower()
-        # Modo shadow agora usa API de Produção para dados, simula ordens
         log.info(f"APIClient inicializado no modo {self.operation_mode.upper()}.")
         self._connect()
 
@@ -121,117 +120,7 @@ class APIClient:
                 log.error("Reconexão falhou. Não é possível fazer requisição à API.")
                 return None
 
-        # --- Simulação do Modo Shadow (para operações de escrita) --- #
-        method_name = method.__name__
-        is_write_operation = method_name in [
-            "futures_create_order",
-            "futures_cancel_order",
-            "futures_cancel_all_open_orders",
-            "create_order",  # Para Spot
-            "cancel_order",  # Para Spot
-            # Adicione outros métodos de escrita se
-            # necessário (ex: ajustar alavancagem, tipo de margem)
-        ]
-
-        if self.operation_mode == "shadow" and is_write_operation:
-            log.info(
-                f"[MODO SHADOW] Simulando chamada da API: {method_name} args={args} kwargs={kwargs}"
-            )
-            # Simula respostas para operações de escrita
-            if method_name in ["futures_create_order", "create_order"]:
-                # Retorna uma resposta de ordem simulada realística
-                # Usa timestamp e elemento aleatório para ID único
-                simulated_order_id = int(time.time() * 1000) + random.randint(0, 999)
-                # Resposta comum para Spot e Futuros
-                base_response = {
-                    "orderId": simulated_order_id,
-                    "symbol": kwargs.get("symbol"),
-                    "status": "NEW",  # Assume que é aceita imediatamente
-                    "clientOrderId": f"shadow_{simulated_order_id}",
-                    "price": kwargs.get("price"),
-                    "origQty": kwargs.get("quantity"),
-                    "executedQty": "0.000",
-                    "timeInForce": kwargs.get("timeInForce"),
-                    "type": kwargs.get("type"),
-                    "side": kwargs.get("side"),
-                    "time": int(time.time() * 1000),
-                    "updateTime": int(time.time() * 1000),
-                }
-                
-                if method_name == "futures_create_order":
-                    # Campos específicos de Futuros
-                    base_response.update({
-                        "avgPrice": "0.00000",
-                        "cumQuote": "0",
-                        "stopPrice": "0",
-                        "workingType": "CONTRACT_PRICE",
-                        "activatePrice": "0",
-                        "priceRate": "0",
-                        "origType": kwargs.get("type"),
-                        "positionSide": kwargs.get("positionSide", "BOTH"),
-                        "closePosition": False,
-                        "priceProtect": False,
-                        "reduceOnly": kwargs.get("reduceOnly", False),
-                    })
-                else:  # create_order (Spot)
-                    # Campos específicos de Spot
-                    base_response.update({
-                        "cummulativeQuoteQty": "0.00000000",
-                        "fills": [],
-                    })
-                
-                return base_response
-            elif method_name in ["futures_cancel_order", "cancel_order"]:
-                # Retorna uma resposta de cancelamento simulada
-                # Nota: Não temos o estado aqui para saber se *era* NEW
-                # Assume que o cancelamento é bem-sucedido se solicitado
-                base_cancel_response = {
-                    "orderId": kwargs.get("orderId"),
-                    "symbol": kwargs.get("symbol"),
-                    "status": "CANCELED",
-                    "clientOrderId": f"shadow_{kwargs.get('orderId')}",
-                    "price": "0",  # Valores podem não ser precisos para ordem cancelada
-                    "origQty": "0",
-                    "executedQty": "0",
-                    "timeInForce": "GTC",
-                    "type": "LIMIT",
-                    "side": "BUY",  # Lado pode não ser conhecido aqui
-                    "time": int(time.time() * 1000),
-                    "updateTime": int(time.time() * 1000),
-                }
-                
-                if method_name == "futures_cancel_order":
-                    # Campos específicos de Futuros
-                    base_cancel_response.update({
-                        "avgPrice": "0.00000",
-                        "cumQuote": "0",
-                        "stopPrice": "0",
-                        "workingType": "CONTRACT_PRICE",
-                        "origType": "LIMIT",
-                        "positionSide": "BOTH",
-                        "closePosition": False,
-                        "priceProtect": False,
-                        "reduceOnly": False,
-                    })
-                else:  # cancel_order (Spot)
-                    # Campos específicos de Spot
-                    base_cancel_response.update({
-                        "cummulativeQuoteQty": "0.00000000",
-                    })
-                
-                return base_cancel_response
-            elif method_name == "futures_cancel_all_open_orders":
-                # Simula sucesso, embora nenhuma ordem tenha sido realmente cancelada
-                return {
-                    "code": "200",
-                    "msg": "[MODO SHADOW] Cancelamento simulado de todas as ordens para o símbolo.",
-                }
-
-            # Simulação genérica para outras operações de escrita
-            return {"status": "simulated_success"}
-        # --- Fim da Simulação do Modo Shadow --- #
-
-        # --- Modo de Produção ou Operação de Leitura --- #
+        # --- Modo de Produção --- #
         retries = 0
         while retries < MAX_RETRIES:
             try:

@@ -219,7 +219,7 @@ def initialize_components():
             "key": api_key,
             "secret": api_secret
         }
-        operation_mode = config.get("operation_mode", "shadow").lower()
+        operation_mode = config.get("operation_mode", "production").lower()
         binance_spot_client = APIClient(api_config, operation_mode=operation_mode)
         logger.info("Cliente Binance Spot inicializado.")
         
@@ -231,7 +231,7 @@ def initialize_components():
             "key": api_key,
             "secret": api_secret
         }
-        operation_mode = config.get("operation_mode", "shadow").lower()
+        operation_mode = config.get("operation_mode", "production").lower()
         binance_futures_client = APIClient(api_config, operation_mode=operation_mode)
         logger.info("Cliente Binance Futuros inicializado.")
 
@@ -262,7 +262,7 @@ def run_bot_thread(symbol, grid_config):
             symbol=symbol,
             config=grid_config,
             api_client=client,
-            operation_mode=config.get("operation_mode", "shadow"),
+            operation_mode=config.get("operation_mode", "production"),
             market_type=grid_config.get("market_type", "spot")
         )
 
@@ -961,6 +961,11 @@ def get_indicators_for_symbol(symbol):
             indicator_values = cumulative_pv / cumulative_vol
         elif indicator_type == "OBV":
             indicator_values = talib.OBV(closes, volumes)
+        elif indicator_type == "FIBONACCI":
+            from utils.fibonacci_calculator import format_fibonacci_for_api
+            window = int(request.args.get("window", 5))
+            fibonacci_result = format_fibonacci_for_api(highs, lows, timestamps, window)
+            return jsonify(fibonacci_result)
         else:
             return jsonify({"error": f"Indicador '{indicator_type}' não suportado"}), 400
         # Formatar resposta (remover valores NaN)
@@ -1170,10 +1175,9 @@ def get_operation_mode():
     current_mode = config.get("operation_mode", "Production")
     return jsonify({
         "current_mode": current_mode,
-        "available_modes": ["Production", "Shadow"],
+        "available_modes": ["Production"],
         "description": {
-            "Production": "Modo real - executa trades reais na Binance",
-            "Shadow": "Modo simulação - simula trades sem executar ordens reais"
+            "Production": "Modo real - executa trades reais na Binance"
         }
     })
 
@@ -1186,8 +1190,8 @@ def set_operation_mode():
         return jsonify({"error": "Campo 'mode' é obrigatório"}), 400
     
     new_mode = data["mode"]
-    if new_mode not in ["Production", "Shadow"]:
-        return jsonify({"error": "Modo deve ser 'Production' ou 'Shadow'"}), 400
+    if new_mode not in ["Production"]:
+        return jsonify({"error": "Modo deve ser 'Production'"}), 400
     
     old_mode = config.get("operation_mode", "Production")
     
@@ -1213,7 +1217,7 @@ def set_operation_mode():
             "success": True,
             "old_mode": old_mode,
             "new_mode": new_mode,
-            "message": f"Modo alterado para {new_mode} com sucesso",
+            "message": f"Modo confirmado como {new_mode}",
             "warning": warning,
             "active_bots": active_bots_list
         })
