@@ -119,3 +119,22 @@ trading:
     spot_percentage: 40
   market_switch_cooldown_minutes: 30
   max_concurrent_pairs: 3
+ai_agent:
+  enabled: true
+  base_url: "http://127.0.0.1:1234"
+  features:
+    market_analysis: true
+    grid_optimization: true
+    sentiment_analysis: true
+    decision_explanation: true
+    report_generation: true
+  analysis_interval_minutes: 15
+  optimization_interval_hours: 4
+  report_generation:
+    daily_report: true
+    pair_analysis: true
+    performance_summary: true
+  model_settings:
+    temperature: 0.3
+    max_tokens: 1000
+    timeout_seconds: 30

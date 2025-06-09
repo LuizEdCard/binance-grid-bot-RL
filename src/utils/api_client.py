@@ -47,9 +47,13 @@ def load_config():
 config = load_config()
 exchange_config = config.get("exchange", {})
 
-# API Credentials (Only Production keys needed now)
+# API Credentials
 API_KEY = os.getenv("BINANCE_API_KEY")
 API_SECRET = os.getenv("BINANCE_API_SECRET")
+
+# Testnet credentials (optional)
+TESTNET_API_KEY = os.getenv("BINANCE_TESTNET_API_KEY", API_KEY)
+TESTNET_API_SECRET = os.getenv("BINANCE_TESTNET_API_SECRET", API_SECRET)
 
 # Constants
 MAX_RETRIES = 5
@@ -58,24 +62,32 @@ RETRY_DELAY_SECONDS = [1, 2, 4, 8, 16]  # Exponential backoff
 
 class APIClient:
     """Lida com comunicação com as APIs da Binance (Spot e Futuros).
-    Opera em modo Production para trading real.
+    Opera em modo Production para trading real ou Shadow para testnet.
     """
 
     def __init__(self, config: dict, operation_mode: str = "production"):
         self.client = None
         self.config = config
         self.operation_mode = operation_mode.lower()
-        log.info(f"APIClient inicializado no modo {self.operation_mode.upper()}.")
+        self.use_testnet = self.operation_mode == "shadow"
+        log.info(f"APIClient inicializado no modo {self.operation_mode.upper()}" + 
+                 (" (TESTNET)" if self.use_testnet else " (PRODUCTION)"))
         self._connect()
 
     def _connect(self):
-        """Estabelece conexão com a API de Produção da Binance."""
-        key = API_KEY
-        secret = API_SECRET
+        """Estabelece conexão com a API da Binance (Produção ou Testnet)."""
+        if self.use_testnet:
+            key = TESTNET_API_KEY
+            secret = TESTNET_API_SECRET
+            environment = "Testnet"
+        else:
+            key = API_KEY
+            secret = API_SECRET
+            environment = "Produção"
 
         if not key or not secret:
             log.error(
-                "API_KEY/SECRET não encontrada no arquivo .env. Não é possível conectar à Produção da Binance."
+                f"API_KEY/SECRET não encontrada no arquivo .env. Não é possível conectar à {environment} da Binance."
             )
             self.client = None
             return
@@ -84,15 +96,16 @@ class APIClient:
         while retries < MAX_RETRIES:
             try:
                 log.info(
-                    f"Tentando conectar à Produção da Binance (Tentativa {retries + 1}/{MAX_RETRIES})..."
+                    f"Tentando conectar à {environment} da Binance (Tentativa {retries + 1}/{MAX_RETRIES})..."
                 )
-                # Sempre conecta à produção, testnet=False
-                self.client = Client(key, secret, testnet=False)
+                # Conecta baseado no modo
+                self.client = Client(key, secret, testnet=self.use_testnet)
+                
                 # Testa conexão com Futures
                 self.client.futures_ping()
                 server_time = self.client.futures_time()["serverTime"]
                 log.info(
-                    f"Conectado com sucesso à Produção da Binance. Hora do servidor: {server_time}"
+                    f"Conectado com sucesso à {environment} da Binance. Hora do servidor: {server_time}"
                 )
                 return
             except (BinanceAPIException, BinanceRequestException, ConnectionError) as e:

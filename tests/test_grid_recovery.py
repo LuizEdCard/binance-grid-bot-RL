@@ -1,13 +1,14 @@
 # test_grid_recovery.py
 import os
 import sys
-from src.utils.api_client import APIClient
-from src.core.grid_logic import GridLogic
+sys.path.append('../src')
+from utils.api_client import APIClient
+from core.grid_logic import GridLogic
 import yaml
 
 def test_grid_recovery():
     # Carregar configuração
-    with open("src/config/config.yaml", "r") as f:
+    with open("../src/config/config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
     # Inicializar cliente API
