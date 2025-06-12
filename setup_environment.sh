@@ -1,8 +1,17 @@
 #!/bin/bash
 
-# Script para configurar o ambiente Conda correto para o projeto
+# DEPRECATED: Este script usava Conda - agora usando venv
+# Use: source venv/bin/activate
 
-echo "🔧 Configurando ambiente Conda para o projeto..."
+echo "⚠️  SCRIPT DESCONTINUADO - USO DE VENV RECOMENDADO"
+echo "=================================================="
+echo ""
+echo "Este script foi descontinuado. O projeto agora usa venv."
+echo ""
+echo "🔧 CONFIGURAÇÃO RECOMENDADA:"
+echo "   source venv/bin/activate"
+echo ""
+exit 1
 
 # 1. Desativar ambiente atual se ativo
 conda deactivate 2>/dev/null

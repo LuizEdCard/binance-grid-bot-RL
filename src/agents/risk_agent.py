@@ -596,10 +596,26 @@ class RiskAgent:
             current_time = time.time()
             
             # Check account balance
-            balance = self.api_client.get_futures_balance()
+            balance = self.api_client.get_futures_account_balance()
             if balance:
-                total_balance = Decimal(balance.get("totalWalletBalance", "0"))
-                available_balance = Decimal(balance.get("availableBalance", "0"))
+                # Handle both list and dict response formats
+                if isinstance(balance, list):
+                    # Find USDT balance in list format
+                    usdt_balance = None
+                    for asset in balance:
+                        if asset.get("asset") == "USDT":
+                            usdt_balance = asset
+                            break
+                    if usdt_balance:
+                        total_balance = Decimal(usdt_balance.get("walletBalance", "0"))
+                        available_balance = Decimal(usdt_balance.get("availableBalance", "0"))
+                    else:
+                        log.warning("USDT balance not found in futures account")
+                        return
+                else:
+                    # Handle dict format
+                    total_balance = Decimal(balance.get("totalWalletBalance", "0"))
+                    available_balance = Decimal(balance.get("availableBalance", "0"))
                 
                 # Check if running low on margin
                 if total_balance > 0:

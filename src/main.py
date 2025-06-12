@@ -4,6 +4,7 @@ from utils.logger import setup_logger
 from utils.api_client import APIClient
 from utils.alerter import Alerter
 from routes.model_api import model_api
+from core.capital_management import CapitalManager
 from core.risk_management import RiskManager
 from core.grid_logic import GridLogic
 from flask_cors import CORS
@@ -20,8 +21,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # Carrega as variáveis de ambiente do arquivo .env
 
-# Determinar o caminho para o arquivo .env na raiz do projeto
-dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+# Determinar o caminho para o arquivo .env na pasta secrets
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'secrets', '.env')
 
 # Carregar variáveis do arquivo .env
 load_dotenv(dotenv_path)
@@ -257,13 +258,41 @@ def run_bot_thread(symbol, grid_config):
         else:
             client = binance_spot_client
 
+        # Initialize capital manager and validate symbol before grid initialization
+        capital_manager = CapitalManager(client, config)
+        
+        # Check if we have sufficient capital for this symbol
+        min_capital = capital_manager.min_capital_per_pair_usd
+        if not capital_manager.can_trade_symbol(symbol, min_capital):
+            logger.error(f"[{symbol}] Insufficient capital to trade. Minimum required: ${min_capital:.2f}")
+            capital_manager.log_capital_status()
+            return
+        
+        # Get capital allocation for this symbol
+        allocation = capital_manager.get_allocation_for_symbol(symbol)
+        if not allocation:
+            # Calculate allocation for single symbol
+            allocations = capital_manager.calculate_optimal_allocations([symbol])
+            if not allocations:
+                logger.error(f"[{symbol}] No capital can be allocated for trading")
+                return
+            allocation = allocations[0]
+        
+        logger.info(f"[{symbol}] Capital allocated: ${allocation.allocated_amount:.2f} ({allocation.market_type}, {allocation.grid_levels} levels)")
+        
+        # Initialize grid logic with capital-adapted configuration
+        adapted_config = grid_config.copy()
+        adapted_config['initial_levels'] = allocation.grid_levels
+        adapted_config['initial_spacing_perc'] = str(allocation.spacing_percentage)
+        adapted_config['max_position_size_usd'] = allocation.max_position_size
+
         # Create bot first without risk manager
         bot = GridLogic(
             symbol=symbol,
-            config=grid_config,
+            config=adapted_config,
             api_client=client,
             operation_mode=config.get("operation_mode", "production"),
-            market_type=grid_config.get("market_type", "spot")
+            market_type=allocation.market_type
         )
 
         # Recuperar grid ativo ao iniciar

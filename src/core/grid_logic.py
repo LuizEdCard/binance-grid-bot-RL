@@ -81,8 +81,8 @@ class GridLogic:
                 "total_bought": Decimal("0"),
                 "unrealized_pnl": Decimal("0"),
                 }
-            else:  # futures
-                self.position = {
+        else:  # futures
+            self.position = {
                     "positionAmt": Decimal("0"),
                     "entryPrice": Decimal("0"),
                     "markPrice": Decimal("0"),
@@ -286,6 +286,27 @@ class GridLogic:
             return self.api_client.get_spot_ticker(symbol=self.symbol)
         else:  # futures
             return self.api_client.get_futures_ticker(symbol=self.symbol)
+    
+    def _get_current_price_from_ticker(self, ticker):
+        """Extrai preço atual do ticker, lidando com diferentes formatos (spot vs futures)."""
+        if not ticker:
+            return None
+        
+        # Para futures: usa 'price'
+        if self.market_type == "futures" and "price" in ticker:
+            return float(ticker["price"])
+        
+        # Para spot: usa 'lastPrice'
+        if self.market_type == "spot" and "lastPrice" in ticker:
+            return float(ticker["lastPrice"])
+        
+        # Fallback: tenta ambos os campos
+        if "lastPrice" in ticker:
+            return float(ticker["lastPrice"])
+        elif "price" in ticker:
+            return float(ticker["price"])
+        
+        return None
 
     def _get_klines(self, interval="1h", limit=50):
         """Obtém klines baseado no tipo de mercado."""
@@ -601,10 +622,11 @@ class GridLogic:
             return
 
         ticker = self._get_ticker()
-        if not ticker or "lastPrice" not in ticker:
+        current_price_float = self._get_current_price_from_ticker(ticker)
+        if current_price_float is None:
             log.error(f"[{self.symbol}] Não foi possível obter preço atual.")
             return
-        current_price = Decimal(ticker["lastPrice"])
+        current_price = Decimal(str(current_price_float))
         quantity_per_order = self._calculate_quantity_per_order(current_price)
         if quantity_per_order <= Decimal("0"):
             log.error(f"[{self.symbol}] Quantity is zero.")
@@ -1105,8 +1127,9 @@ class GridLogic:
                     )
                     # Fetch ticker as fallback for mark price
                     ticker = self._get_ticker()
-                    if ticker and "lastPrice" in ticker:
-                        self.position["markPrice"] = Decimal(ticker["lastPrice"])
+                    current_price_float = self._get_current_price_from_ticker(ticker)
+                    if current_price_float is not None:
+                        self.position["markPrice"] = Decimal(str(current_price_float))
 
 
         except Exception as e:
@@ -1453,12 +1476,12 @@ class GridLogic:
         # 1. Check if grid needs (re)definition
         if not self.grid_levels:
             ticker = self._get_ticker()
-            if not ticker or "lastPrice" not in ticker:
+            current_price = self._get_current_price_from_ticker(ticker)
+            if current_price is None:
                 log.error(
                     f"[{self.symbol}] Não é possível definir grid, falha ao obter preço atual."
                 )
                 return  # Aguarda próximo ciclo
-            current_price = float(ticker["lastPrice"])
             self.define_grid_levels(current_price)
             if self.grid_levels:
                 self.place_initial_grid_orders()
@@ -1479,9 +1502,9 @@ class GridLogic:
         try:
             # Obter preço atual
             ticker = self._get_ticker()
-            current_price = 0.0
-            if ticker and "lastPrice" in ticker:
-                current_price = float(ticker["lastPrice"])
+            current_price = self._get_current_price_from_ticker(ticker)
+            if current_price is None:
+                current_price = 0.0
 
             # Calcular PnL baseado no tipo de mercado
             if self.market_type == "spot":
@@ -1753,8 +1776,9 @@ class GridLogic:
                     # Obter ticker para verificar preço atual
                     try:
                         ticker = self._get_ticker()
-                        if ticker and 'lastPrice' in ticker:
-                            self.current_price = float(ticker['lastPrice'])
+                        current_price = self._get_current_price_from_ticker(ticker)
+                        if current_price is not None:
+                            self.current_price = current_price
                             log.info(f"[{self.symbol}] 📊 Preço atual: {self.current_price}")
                             
                             # Contar quantos níveis estão acima e abaixo do preço atual
@@ -2004,8 +2028,9 @@ class GridLogic:
             # Buscar o preço do mercado atual
             try:
                 ticker = self._get_ticker()
-                if ticker and 'lastPrice' in ticker:
-                    self.current_price = float(ticker['lastPrice'])
+                current_price = self._get_current_price_from_ticker(ticker)
+                if current_price is not None:
+                    self.current_price = current_price
                     log.info(f"[{self.symbol}] 📊 Preço atual do mercado: {self.current_price}")
             except Exception as price_error:
                 log.warning(f"[{self.symbol}] ⚠️ Não foi possível obter preço atual: {price_error}")
@@ -2370,6 +2395,42 @@ class GridLogic:
 
         except Exception as e:
             log.error(f"[{self.symbol}] ❌ Erro durante diagnóstico: {e}")
+
+    def cancel_all_orders(self):
+        """Cancel all active orders for the current symbol in both markets."""
+        try:
+            log.info(f"[{self.symbol}] Cancelling all orders during cleanup...")
+            
+            # Cancel spot orders
+            try:
+                spot_orders = self.api_client.get_spot_open_orders(symbol=self.symbol)
+                for order in spot_orders:
+                    try:
+                        self.api_client.cancel_spot_order(symbol=self.symbol, orderId=order['orderId'])
+                        log.info(f"[{self.symbol}] Cancelled SPOT order {order['orderId']}")
+                    except Exception as e:
+                        log.warning(f"[{self.symbol}] Failed to cancel SPOT order {order['orderId']}: {e}")
+            except Exception as e:
+                log.warning(f"[{self.symbol}] Error cancelling SPOT orders: {e}")
+            
+            # Cancel futures orders
+            try:
+                futures_orders = self.api_client.get_futures_open_orders(symbol=self.symbol)
+                for order in futures_orders:
+                    try:
+                        self.api_client.cancel_futures_order(symbol=self.symbol, orderId=order['orderId'])
+                        log.info(f"[{self.symbol}] Cancelled FUTURES order {order['orderId']}")
+                    except Exception as e:
+                        log.warning(f"[{self.symbol}] Failed to cancel FUTURES order {order['orderId']}: {e}")
+            except Exception as e:
+                log.warning(f"[{self.symbol}] Error cancelling FUTURES orders: {e}")
+                
+            # Clear internal tracking
+            self.active_grid_orders.clear()
+            log.info(f"[{self.symbol}] Order cleanup completed")
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error during cancel_all_orders: {e}")
 
 
 # Example usage (for testing structure)

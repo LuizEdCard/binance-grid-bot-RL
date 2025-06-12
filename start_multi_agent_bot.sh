@@ -104,7 +104,7 @@ check_config() {
     print_status "Checking configuration..."
     
     CONFIG_FILE="$SRC_DIR/config/config.yaml"
-    ENV_FILE="$SCRIPT_DIR/config/.env"
+    ENV_FILE="$SCRIPT_DIR/secrets/.env"
     
     if [ ! -f "$CONFIG_FILE" ]; then
         print_error "Configuration file not found: $CONFIG_FILE"
@@ -113,7 +113,7 @@ check_config() {
     
     if [ ! -f "$ENV_FILE" ]; then
         print_warning "Environment file not found: $ENV_FILE"
-        print_warning "Please create .env file with your API credentials"
+        print_warning "Please create secrets/.env file with your API credentials"
         echo ""
         echo "Required environment variables:"
         echo "  BINANCE_API_KEY=your_api_key"

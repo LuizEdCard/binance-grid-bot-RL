@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 UTILS_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.dirname(UTILS_DIR)
 ROOT_DIR = os.path.dirname(SRC_DIR)
-ENV_PATH = os.path.join(SRC_DIR, "config", ".env")
+ENV_PATH = os.path.join(ROOT_DIR, "secrets", ".env")
 CONFIG_PATH = os.path.join(SRC_DIR, "config", "config.yaml")
 
 load_dotenv(dotenv_path=ENV_PATH)
@@ -139,7 +139,7 @@ class APIClient:
             try:
                 response = method(*args, **kwargs)
                 log.debug(
-                    f"API call successful: {method_name} args={args} kwargs={kwargs}"
+                    f"API call successful: {method.__name__} args={args} kwargs={kwargs}"
                 )
                 return response
             except (BinanceAPIException, BinanceRequestException) as e:
@@ -153,7 +153,7 @@ class APIClient:
                     time.sleep(delay)
                 else:
                     log.error(
-                        f"Max retries reached for API call {method_name}. Error: {e}"
+                        f"Max retries reached for API call {method.__name__}. Error: {e}"
                     )
                     return None
             except ConnectionError as e:
@@ -169,12 +169,12 @@ class APIClient:
                 retries += 1
                 if retries >= MAX_RETRIES:
                     log.error(
-                        f"Max retries reached after ConnectionError for API call {method_name}."
+                        f"Max retries reached after ConnectionError for API call {method.__name__}."
                     )
                     return None
             except Exception as e:
                 log.error(
-                    f"An unexpected error occurred during API call {method_name}: {e}"
+                    f"An unexpected error occurred during API call {method.__name__}: {e}"
                 )
                 return None
 
@@ -360,6 +360,11 @@ class APIClient:
         else:
             return self._make_request(self.client.get_all_tickers)
 
+    def get_account_balance(self):
+        """Obtém saldo da conta Spot."""
+        log.debug(f"Obtendo saldo da conta Spot ({self.operation_mode.upper()})")
+        return self._make_request(self.client.get_account)
+
     def get_spot_exchange_info(self):
         """Obtém informações de exchange do mercado Spot."""
         log.debug(f"Obtendo informações de exchange Spot ({self.operation_mode.upper()})")
@@ -370,6 +375,53 @@ class APIClient:
         log.debug(f"Obtendo informações de posição Futuros ({self.operation_mode.upper()}): symbol={symbol}")
         params = {"symbol": symbol} if symbol else {}
         return self._make_request(self.client.futures_position_information, **params)
+
+    def get_futures_balance(self):
+        """Alias for get_futures_account_balance for compatibility."""
+        return self.get_futures_account_balance()
+
+    def get_futures_position(self, symbol=None):
+        """Alias for get_futures_positions for compatibility."""
+        return self.get_futures_positions()
+    
+    def transfer_between_markets(self, asset: str, amount: float, transfer_type: str):
+        """
+        Transfere saldo entre mercados Spot e Futures.
+        
+        Args:
+            asset: Ativo a ser transferido (ex: 'USDT')
+            amount: Quantidade a transferir
+            transfer_type: '1' (Spot para Futures) ou '2' (Futures para Spot)
+        """
+        log.info(f"Transferring {amount} {asset} - Type: {'Spot->Futures' if transfer_type == '1' else 'Futures->Spot'} ({self.operation_mode.upper()})")
+        
+        if self.operation_mode == "shadow":
+            # Em modo shadow, simular transferência
+            log.info(f"[SHADOW MODE] Simulated transfer: {amount} {asset} ({'Spot->Futures' if transfer_type == '1' else 'Futures->Spot'})")
+            return {
+                "tranId": f"shadow_{int(time.time())}",
+                "status": "CONFIRMED"
+            }
+        
+        # Modo production - transferência real
+        try:
+            result = self._make_request(
+                self.client.futures_account_transfer,
+                asset=asset,
+                amount=amount,
+                type=transfer_type
+            )
+            
+            if result and result.get("tranId"):
+                log.info(f"Transfer successful. Transaction ID: {result['tranId']}")
+                return result
+            else:
+                log.error(f"Transfer failed: {result}")
+                return None
+                
+        except Exception as e:
+            log.error(f"Error during transfer: {e}")
+            return None
 
 
 # Example usage

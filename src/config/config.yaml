@@ -1,5 +1,5 @@
 alerts:
-  enabled: false
+  enabled: true
   market_switch_alerts: true
   performance_comparison_alerts: true
 api:
@@ -103,6 +103,15 @@ sentiment_analysis:
     - investing
     - CryptoCurrency
     time_filter: day
+  binance_news:
+    enabled: true
+    fetch_interval_minutes: 30
+    hours_back: 24
+    min_relevance_score: 0.2
+    max_news_per_fetch: 20
+    include_announcements: true
+    include_general_news: true
+    include_trending: true
   risk_adjustment:
     enabled: true
     leverage_reduction_factor: 0.5
@@ -112,16 +121,17 @@ sentiment_analysis:
   smoothing_window: 10
 trading:
   allow_market_switching: true
-  capital_per_pair_usd: '10'
+  capital_per_pair_usd: '8'  # Reduzido de 10 para 8 USD
   cycle_interval_seconds: 60
   market_allocation:
     futures_percentage: 60
     spot_percentage: 40
   market_switch_cooldown_minutes: 30
-  max_concurrent_pairs: 3
+  max_concurrent_pairs: 2  # Reduzido de 3 para 2 pares simultâneos
 ai_agent:
   enabled: true
-  base_url: "http://127.0.0.1:1234"
+  base_url: "http://127.0.0.1:11434"
+  # model_name: auto-detect from currently running model
   features:
     market_analysis: true
     grid_optimization: true
@@ -138,3 +148,29 @@ ai_agent:
     temperature: 0.3
     max_tokens: 1000
     timeout_seconds: 30
+  # Model Testing Configuration
+  model_presets:
+    qwen3_fast: 
+      model_name: "qwen3:0.6b"
+      temperature: 0.2
+      max_tokens: 500
+    qwen3_balanced:
+      model_name: "qwen3:1.7b"
+      temperature: 0.3
+      max_tokens: 800
+    qwen3_detailed:
+      model_name: "qwen3:4b"
+      temperature: 0.4
+      max_tokens: 1200
+    deepseek_reasoning:
+      model_name: "deepseek-r1:1.5b"
+      temperature: 0.2
+      max_tokens: 1000
+    gemma3_fast:
+      model_name: "gemma3:1b"
+      temperature: 0.3
+      max_tokens: 600
+    gemma3_balanced:
+      model_name: "gemma3:4b"
+      temperature: 0.3
+      max_tokens: 1000
