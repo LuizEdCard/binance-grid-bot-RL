@@ -20836,3 +20836,1770 @@ onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError]
 2025-06-11 21:33:05 - capital_management - INFO - Market decision for ETHUSDT: futures (Higher volume/liquidity in futures market)
 2025-06-11 21:33:06 - capital_management - INFO - Market decision for ADAUSDT: futures (Higher volume/liquidity in futures market)
 2025-06-11 21:33:06 - capital_management - INFO - Market decision for BNBUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-12 00:26:48 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 00:26:48 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 00:26:52 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 00:26:52 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 00:26:52 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 00:26:55 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 00:26:55 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 00:26:55 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 00:27:31 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:27:31 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 00:27:33 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 00:27:33 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 00:27:33 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:27:33 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:27:33 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:27:33 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:27:33 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:27:33 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:27:33 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-12 00:27:33 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-12 00:27:33 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-12 00:27:33 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:27:33 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:27:33 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:27:33 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:27:34 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 00:27:34 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 00:27:34 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 00:27:34 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:27:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:29:29 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:29:29 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:29:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:29:37 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:29:37 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:29:37 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:29:37 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:29:37 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:29:37 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:29:37 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:29:37 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:29:37 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:29:37 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:29:51 - flask_api - INFO - Recebida requisição para klines de BTCUSDT
+2025-06-12 00:29:51 - flask_api - INFO - Klines recebidos para BTCUSDT: [[1749340800000, '105552.15000000', '105654.95000000', '105441.86000000', '105473.21000000', '278.41728000', 1749344399999, '29377918.41526000', 39961, '116.12246000', '12253663.10903370', '0'], [1749344400000, '105473.22000000', '105786.33000000', '105400.57000000', '105690.33000000', '312.19485000', 1749347999999, '32950160.12819970', 42595, '194.82691000', '20558731.87218500', '0'], [1749348000000, '105690.32000000', '105690.33000000', '105441.86000000', '105441.87000000', '301.18228000', 1749351599999, '31778738.80253700', 44639, '173.75367000', '18331989.08849230', '0']]
+2025-06-12 00:32:23 - flask_api - ERROR - Erro na análise de sentimento: 400 Bad Request: Failed to decode JSON object: Invalid \escape: line 1 column 39 (char 38)
+2025-06-12 00:32:34 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:32:34 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:32:34 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:32:34 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:32:34 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:32:34 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:32:34 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:32:34 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:32:34 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:32:34 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:33:09 - flask_api - INFO - Configuração válida recebida para BTCUSDT: {'initial_levels': 5, 'initial_spacing_perc': '0.005', 'max_position_size_usd': 50}
+2025-06-12 00:35:31 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:35:31 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:35:31 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:35:31 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:35:31 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:35:31 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:35:31 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:35:31 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:35:31 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:35:31 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:35:31 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:35:31 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:35:31 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:37:41 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:37:41 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:37:41 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:37:41 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:37:41 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:37:41 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:37:41 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:37:41 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:37:41 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:37:41 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:37:41 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:37:41 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:37:42 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:38:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:38:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:38:06 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:38:06 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:38:06 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:38:06 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:38:06 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:38:06 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:38:06 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:38:06 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:38:06 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:38:06 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:38:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:38:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:38:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:38:51 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:38:51 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:38:52 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:38:52 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:38:52 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:38:52 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:38:52 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:38:52 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:38:52 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:38:52 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:38:52 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:38:59 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:38:59 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:38:59 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:38:59 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:38:59 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:38:59 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:38:59 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:38:59 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:38:59 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:38:59 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:38:59 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:38:59 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:38:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:39:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:39:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:39:08 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:39:08 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:39:08 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:39:08 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:39:08 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:39:08 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:39:08 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:39:08 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:39:08 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:39:08 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:39:08 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:39:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:39:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:39:19 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:39:19 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:39:19 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:39:19 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:39:19 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:39:19 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:39:19 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:39:19 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:39:19 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:39:19 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:39:20 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:39:28 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:39:28 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:39:28 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:39:28 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:39:28 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:39:28 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:39:28 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:39:28 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:39:29 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:39:29 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:39:29 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:39:29 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:39:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:40:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:40:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:40:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:09 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:09 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:09 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:15 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:15 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:15 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:15 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:15 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:15 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:16 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:16 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:16 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:16 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:16 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:26 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:26 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:26 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:26 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:26 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:26 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:26 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:26 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:26 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:26 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:44 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:44 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:45 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:45 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:45 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:45 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:45 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:45 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:45 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:45 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:45 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:45 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:51 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:51 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:51 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:51 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:51 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:51 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:51 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:51 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:51 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:51 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:51 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:41:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:41:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:41:56 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:41:56 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:41:56 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:41:56 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:41:56 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:41:56 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:41:56 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:41:56 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:41:56 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:41:56 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:41:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:44:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:44:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:44:20 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:44:20 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:44:20 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:44:20 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:44:20 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:44:20 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:44:20 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:44:20 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:44:20 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:44:20 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:44:20 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:45:02 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:45:02 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:45:02 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:45:39 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:45:39 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:45:39 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:45:39 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:45:39 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:45:39 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:45:39 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:45:39 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:45:39 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:45:39 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:45:39 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:45:39 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:45:40 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:47:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:47:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:47:08 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:47:08 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:47:08 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:47:08 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:47:08 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:47:08 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:47:08 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:47:08 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:47:08 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:47:08 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:47:08 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:47:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:47:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:47:10 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:47:10 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:47:10 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:47:10 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:47:10 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:47:10 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:47:10 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:47:10 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:47:10 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:47:10 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:47:10 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:49:26 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:49:26 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:49:26 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:49:26 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:49:26 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:49:26 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:49:26 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:49:26 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:49:26 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:49:26 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:49:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:49:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:49:38 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:49:38 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:49:38 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:49:38 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:49:38 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:49:38 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:49:38 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:49:38 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:49:38 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:49:38 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:49:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:49:48 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:49:48 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:49:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:49:57 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:49:57 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:49:57 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:49:57 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:49:57 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:49:57 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:49:57 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:49:57 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:49:57 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:49:57 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:49:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:49:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:49:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:11 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:50:11 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:50:11 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:50:11 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:50:11 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:50:11 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:50:11 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:50:11 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:50:11 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:50:11 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:50:18 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:18 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:26 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:50:26 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:50:26 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:50:26 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:50:26 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:50:26 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:50:26 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:50:26 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:50:26 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:50:26 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:50:28 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:28 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:40 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:50:40 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:50:40 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:50:40 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:50:40 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:50:40 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:50:40 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:50:40 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:50:40 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:50:40 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:50:48 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:48 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:50:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:50:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:50:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:18 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:18 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:28 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:28 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:40 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:51:40 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:51:40 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:51:40 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:51:40 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:51:40 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:51:40 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:51:40 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:51:40 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:51:40 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:51:48 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:48 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:51:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:51:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:51:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:18 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:18 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:28 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:28 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:40 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:52:40 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:52:40 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:52:40 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:52:40 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:52:40 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:52:40 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:52:40 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:52:40 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:52:40 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:52:48 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:48 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:52:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:52:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:52:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:18 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:18 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:28 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:28 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:40 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:53:40 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:53:40 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:53:40 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:53:40 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:53:40 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:53:40 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:53:40 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:53:40 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:53:40 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:53:48 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:48 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:53:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:53:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:53:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:54:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:54:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:54:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:54:18 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:54:18 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:54:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:54:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:54:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:54:35 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:54:35 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:54:35 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:54:35 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:54:35 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:54:35 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:54:35 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:54:35 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:54:35 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:54:35 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:54:36 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:54:43 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:54:43 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:54:43 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:54:43 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:54:43 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:54:43 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:54:43 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:54:43 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:54:43 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:54:43 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:54:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:54:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:54:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:54:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:54:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:54:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:06 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:15 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:43 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:55:43 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:55:43 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:55:43 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:55:43 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:55:43 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:55:43 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:55:43 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:55:43 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:55:43 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:55:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:55:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:55:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:55:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:05 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:15 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:43 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:56:43 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:56:43 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:56:43 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:56:43 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:56:43 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:56:43 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:56:43 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:56:43 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:56:43 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:56:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:56:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:56:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:56:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:05 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:15 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:43 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:57:43 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:57:43 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:57:43 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:57:43 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:57:43 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:57:43 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:57:43 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:57:43 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:57:43 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:57:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:57:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:57:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:57:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:05 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:15 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:45 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:58:45 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:58:45 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:58:45 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:58:45 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:58:45 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:58:45 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:58:45 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:58:45 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:58:45 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:58:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:58:50 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 00:58:50 - grid_bot - INFO - Ollama service is available
+2025-06-12 00:58:50 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 00:58:50 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 00:58:50 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 00:58:50 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 00:58:50 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 00:58:50 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 00:58:50 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 00:58:50 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 00:58:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:58:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:58:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:05 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:15 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:25 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:45 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:45 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 00:59:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 00:59:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 00:59:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:00:05 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:00:05 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:00:05 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:00:24 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:00:24 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:00:24 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:00:25 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:00:25 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:00:25 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:00:25 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:00:25 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:00:25 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:00:25 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:00:25 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:00:25 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 01:00:25 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:00:34 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:00:34 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:00:35 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:00:44 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:00:44 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:00:45 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:00:54 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:00:54 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:00:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:09 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:09 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:01:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:01:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:01:09 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:01:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:01:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:01:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:01:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:01:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:01:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 01:01:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:29 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:29 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:32 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:01:32 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:01:32 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:01:32 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:01:32 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:01:32 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:01:32 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:01:32 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:01:32 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:01:32 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 01:01:39 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:39 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:49 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:49 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:49 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:01:59 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:01:59 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:01:59 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:02:09 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:02:09 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:02:09 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:02:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:02:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:02:19 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:02:29 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:02:29 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:02:29 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:02:32 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:02:32 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:02:32 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:02:32 - grid_bot - ERROR - Failed to initialize Gemma-3 analyzer: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:02:32 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:02:32 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:02:32 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:02:32 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:02:32 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:02:32 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ❌ | ONNX ❌
+2025-06-12 01:02:39 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:02:39 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:02:39 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:04:08 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 01:04:08 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 01:04:08 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 01:04:22 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:04:22 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 01:04:24 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 01:04:24 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 01:04:25 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:04:25 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:04:25 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:04:25 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:04:25 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:04:25 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:04:25 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:04:25 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:04:25 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:04:25 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:04:25 - flask_api - ERROR - Erro ao obter status dos modelos de sentimento: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:04:25 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-12 01:04:25 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-12 01:04:25 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-12 01:04:25 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 01:04:25 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 01:04:25 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 01:04:25 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:04:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:04:32 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:04:32 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:04:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:04:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:04:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:04:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:04:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:04:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:04:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:02 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:02 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:22 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:22 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:05:22 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:05:22 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:05:22 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:05:22 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:05:22 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:05:22 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:05:22 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:05:23 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:05:23 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:05:23 - flask_api - ERROR - Erro ao obter status dos modelos de sentimento: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:05:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:32 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:32 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:05:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:05:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:05:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:02 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:02 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:17 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:06:17 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:06:17 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:06:17 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:06:17 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:06:17 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:06:17 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:06:17 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:06:17 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:06:17 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:06:22 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:22 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:06:22 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:06:22 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:06:22 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:06:22 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:06:22 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:06:23 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:06:23 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:06:23 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:06:23 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:06:23 - flask_api - ERROR - Erro ao obter status dos modelos de sentimento: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:06:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:24 - grid_bot - WARNING - JSON decode error: Expecting ',' delimiter: line 1 column 35 (char 34)
+2025-06-12 01:06:24 - grid_bot - WARNING - Failed to parse Ollama response, using fallback
+2025-06-12 01:06:31 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:06:31 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:06:31 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:06:31 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:06:31 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:06:31 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:06:31 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:06:31 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:06:31 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:06:31 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:06:31 - flask_api - ERROR - Erro ao obter status dos modelos de sentimento: 'Gemma3SentimentAnalyzer' object has no attribute 'pipeline'
+2025-06-12 01:06:32 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:32 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:06:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:06:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:06:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:02 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:02 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:14 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 01:07:14 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 01:07:14 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 01:07:14 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:14 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 01:07:15 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 01:07:15 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 01:07:16 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 01:07:16 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 01:07:16 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 01:07:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:22 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:25 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:07:25 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:07:25 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:07:25 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:07:25 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:07:25 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:07:25 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:07:25 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:07:25 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:07:25 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:07:25 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-12 01:07:25 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-12 01:07:25 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-12 01:07:32 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:32 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:07:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:07:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:07:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:02 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:02 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:22 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:22 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:08:22 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:08:22 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:08:22 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:08:22 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:08:22 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:08:22 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:08:23 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:08:23 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:08:23 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:08:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:32 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:32 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:08:55 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:08:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:08:55 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:08:55 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:08:55 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:08:55 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:08:55 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:08:55 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:08:55 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:08:55 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:08:55 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:08:55 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:08:55 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:03 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:03 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:03 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:09:03 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:09:03 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:09:03 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:09:03 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:09:03 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:09:03 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:09:03 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:09:03 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:09:03 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:09:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:09:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:09:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:09:09 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:09:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:09:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:09:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:09:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:09:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:09:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:09:13 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:13 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:23 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:23 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:33 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:33 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:43 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:43 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:09:53 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:09:53 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:09:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:03 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:03 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:10:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:10:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:10:09 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:10:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:10:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:10:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:10:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:10:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:10:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:10:13 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:13 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:23 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:23 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:33 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:33 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:43 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:43 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:10:53 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:10:53 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:10:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:03 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:03 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:11:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:11:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:11:09 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:11:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:11:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:11:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:11:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:11:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:11:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:11:13 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:13 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:23 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:23 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:33 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:33 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:33 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:43 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:43 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:43 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:11:53 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:11:53 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:11:53 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:12:03 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:12:03 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:12:03 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:12:09 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:12:09 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:12:09 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:12:09 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:12:09 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:12:09 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:12:09 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:12:09 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:12:09 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:12:09 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:12:13 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:12:13 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:12:13 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:12:23 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:12:23 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:12:23 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:20:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:20:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:20:36 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:20:36 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:20:36 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:20:36 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:20:36 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:20:36 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:20:36 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:20:36 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:20:36 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:20:36 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:20:37 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:20:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:20:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:20:46 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:20:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:20:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:20:47 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:20:55 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:20:55 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:20:55 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:20:55 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:20:55 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:20:55 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:20:55 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:20:55 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:20:55 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:20:55 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:20:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:20:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:20:56 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:20:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:20:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:20:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:06 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:17 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:17 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:18 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:24 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:21:24 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:21:24 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:21:24 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:21:24 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:21:24 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:21:24 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:21:24 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:21:24 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:21:24 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:21:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:27 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:27 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:27 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:27 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:36 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:21:36 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:21:36 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:21:36 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:21:36 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:21:36 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:21:36 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:21:36 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:21:36 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:21:36 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:21:37 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:37 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:37 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:38 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:47 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:47 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:47 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:48 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:21:57 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:21:57 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:21:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:07 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:07 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:08 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:16 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:27 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:36 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:22:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:36 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:22:36 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:22:36 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:22:36 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:22:36 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:22:36 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:22:36 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:22:36 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:22:36 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:22:37 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:37 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:37 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:38 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:46 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:47 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:56 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:22:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:22:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:22:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:07 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:07 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:16 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:27 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:36 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:23:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:36 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:23:36 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:23:36 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:23:36 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:23:36 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:23:36 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:23:36 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:23:36 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:23:36 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:23:36 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:37 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:47 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:47 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:47 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:48 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:23:57 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:23:57 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:23:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:06 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:16 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:26 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:26 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:26 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:27 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:36 - grid_bot - INFO - Initializing Gemma-3-1b-it sentiment analyzer...
+2025-06-12 01:24:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:36 - grid_bot - INFO - Ollama service is available
+2025-06-12 01:24:36 - grid_bot - INFO - Model gemma3:1b is available
+2025-06-12 01:24:36 - grid_bot - INFO - Gemma-3 sentiment analyzer ready
+2025-06-12 01:24:36 - grid_bot - INFO - Initializing ONNX sentiment analyzer as fallback...
+2025-06-12 01:24:36 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-12 01:24:36 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-12 01:24:36 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-12 01:24:36 - grid_bot - WARNING - ONNX failed to load properly
+2025-06-12 01:24:36 - grid_bot - INFO - Hybrid Sentiment Analyzer Status: Gemma-3 ✅ | ONNX ❌
+2025-06-12 01:24:36 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:37 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:46 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:47 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:56 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:24:56 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:24:56 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:24:57 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:25:06 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:25:06 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:25:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:25:07 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:25:07 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:25:07 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:25:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:25:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:25:16 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 01:25:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 01:25:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 01:25:17 - flask_api - INFO - Tickers com volume obtidos: 3138
