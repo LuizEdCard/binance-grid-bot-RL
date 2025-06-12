@@ -123,6 +123,116 @@ class CapitalManager:
             log.error(f"Error getting available balances: {e}")
             return {"spot_usdt": 0.0, "futures_usdt": 0.0, "total_usdt": 0.0}
     
+    def detect_and_convert_brl_balance(self) -> bool:
+        """
+        Detecta saldo em BRL e converte para USDT quando disponível.
+        
+        Returns:
+            bool: True se conversão foi realizada ou não necessária, False se houve erro
+        """
+        try:
+            log.info("Checking for BRL balance to convert to USDT...")
+            
+            # Verificar saldo spot completo para encontrar BRL
+            spot_balances = self.api_client.get_account_balance()
+            brl_balance = 0.0
+            
+            if isinstance(spot_balances, list):
+                for asset in spot_balances:
+                    if asset.get("asset") == "BRL":
+                        brl_balance = float(asset.get("free", "0"))
+                        break
+            elif isinstance(spot_balances, dict):
+                brl_data = spot_balances.get("BRL", {})
+                brl_balance = float(brl_data.get("free", "0"))
+            
+            # Mínimo de R$ 50 para converter (evitar conversões muito pequenas)
+            min_brl_to_convert = 50.0
+            
+            if brl_balance < min_brl_to_convert:
+                if brl_balance > 0:
+                    log.info(f"BRL balance too small to convert: R$ {brl_balance:.2f} (minimum: R$ {min_brl_to_convert:.2f})")
+                return True
+            
+            log.info(f"Found BRL balance: R$ {brl_balance:.2f}. Attempting conversion to USDT...")
+            
+            # Obter cotação BRL/USDT
+            try:
+                ticker = self.api_client.get_spot_ticker("BRLUSDT")
+                if not ticker or "price" not in ticker:
+                    log.error("Could not get BRL/USDT price. Cannot convert.")
+                    return False
+                
+                brl_usdt_price = float(ticker["price"])
+                estimated_usdt = brl_balance * brl_usdt_price
+                
+                log.info(f"BRL/USDT price: {brl_usdt_price:.6f} - Estimated USDT: ${estimated_usdt:.2f}")
+                
+                # Verificar se vale a pena converter (mínimo de $10 USDT)
+                if estimated_usdt < 10.0:
+                    log.info(f"Conversion would yield too little USDT: ${estimated_usdt:.2f} < $10.00")
+                    return True
+                
+            except Exception as e:
+                log.error(f"Error getting BRL/USDT price: {e}")
+                return False
+            
+            # Executar conversão via order de mercado
+            success = self._execute_brl_to_usdt_conversion(brl_balance, brl_usdt_price)
+            
+            if success:
+                log.info(f"✅ Successfully converted R$ {brl_balance:.2f} to USDT")
+                return True
+            else:
+                log.error(f"❌ Failed to convert R$ {brl_balance:.2f} to USDT")
+                return False
+                
+        except Exception as e:
+            log.error(f"Error in BRL detection/conversion: {e}")
+            return False
+    
+    def _execute_brl_to_usdt_conversion(self, brl_amount: float, brl_usdt_price: float) -> bool:
+        """
+        Executa a conversão BRL -> USDT via order de mercado.
+        
+        Args:
+            brl_amount: Quantidade de BRL disponível
+            brl_usdt_price: Preço atual BRL/USDT
+            
+        Returns:
+            bool: True se conversão foi bem-sucedida
+        """
+        try:
+            # Calcular quantidade para vender (descontar small fee)
+            quantity_to_sell = brl_amount * 0.999  # 0.1% buffer para fees
+            
+            log.info(f"Placing BRL/USDT market sell order: {quantity_to_sell:.6f} BRL")
+            
+            # Executar order de mercado
+            if self.api_client.operation_mode == "shadow":
+                # Em modo shadow, simular a conversão
+                log.info(f"[SHADOW MODE] Simulated BRL->USDT conversion: {quantity_to_sell:.2f} BRL -> ${quantity_to_sell * brl_usdt_price:.2f} USDT")
+                return True
+            else:
+                # Modo production - order real
+                order_result = self.api_client.place_spot_order(
+                    symbol="BRLUSDT",
+                    side="SELL",
+                    order_type="MARKET",
+                    quantity=quantity_to_sell
+                )
+                
+                if order_result and order_result.get("status") in ["FILLED", "NEW"]:
+                    log.info(f"BRL conversion order successful: {order_result.get('orderId')}")
+                    return True
+                else:
+                    log.error(f"BRL conversion order failed: {order_result}")
+                    return False
+                    
+        except Exception as e:
+            log.error(f"Error executing BRL conversion: {e}")
+            return False
+    
     def calculate_optimal_allocations(self, 
                                     symbols: List[str], 
                                     market_types: Dict[str, str] = None,
@@ -134,6 +244,12 @@ class CapitalManager:
             symbols: Lista de símbolos para trading
             market_types: Dict mapeando símbolo para tipo de mercado (spot/futures)
         """
+        # Primeiro, verificar e converter saldo BRL se disponível
+        try:
+            self.detect_and_convert_brl_balance()
+        except Exception as e:
+            log.warning(f"BRL conversion check failed: {e}")
+        
         balances = self.get_available_balances()
         total_capital = balances["total_usdt"]
         
@@ -383,6 +499,12 @@ class CapitalManager:
         Returns:
             bool: True se transferências foram bem-sucedidas
         """
+        # Primeiro, verificar e converter saldo BRL se disponível
+        try:
+            self.detect_and_convert_brl_balance()
+        except Exception as e:
+            log.warning(f"BRL conversion check failed during transfer: {e}")
+        
         balances = self.get_available_balances()
         
         # Verificar se transferências são necessárias
@@ -396,8 +518,16 @@ class CapitalManager:
         # Realizar transferências necessárias
         transfers_successful = True
         
-        if spot_deficit > 0 and balances["futures_usdt"] >= spot_deficit:
-            # Transferir de Futures para Spot
+        # Verificar se vale a pena fazer transferências (saldo mínimo para transferir)
+        min_transfer_amount = 5.0  # Mínimo de $5 para transferências
+        total_balance = balances["spot_usdt"] + balances["futures_usdt"]
+        
+        # Se o saldo total é muito baixo, evitar transferências
+        if total_balance < 100.0:
+            log.info(f"Total balance too low (${total_balance:.2f}) to justify transfers. Minimum required: $100. Skipping rebalancing.")
+            transfers_successful = True  # Considerar como "sucesso" para não bloquear
+        elif spot_deficit > min_transfer_amount and balances["futures_usdt"] >= (spot_deficit + 10):
+            # Transferir de Futures para Spot (deixar pelo menos $10 em Futures)
             log.info(f"Transferring ${spot_deficit:.2f} from Futures to Spot")
             result = self.api_client.transfer_between_markets("USDT", spot_deficit, "2")  # 2 = Futures->Spot
             
@@ -407,8 +537,8 @@ class CapitalManager:
                 log.error(f"❌ Transfer Futures->Spot failed")
                 transfers_successful = False
         
-        elif futures_deficit > 0 and balances["spot_usdt"] >= futures_deficit:
-            # Transferir de Spot para Futures
+        elif futures_deficit > min_transfer_amount and balances["spot_usdt"] >= (futures_deficit + 10):
+            # Transferir de Spot para Futures (deixar pelo menos $10 em Spot)
             log.info(f"Transferring ${futures_deficit:.2f} from Spot to Futures")
             result = self.api_client.transfer_between_markets("USDT", futures_deficit, "1")  # 1 = Spot->Futures
             
@@ -417,10 +547,9 @@ class CapitalManager:
             else:
                 log.error(f"❌ Transfer Spot->Futures failed")
                 transfers_successful = False
-        
         else:
-            log.warning(f"Cannot satisfy capital requirements - insufficient total balance")
-            transfers_successful = False
+            log.info(f"Transfer amounts too small or insufficient buffer. Spot deficit: ${spot_deficit:.2f}, Futures deficit: ${futures_deficit:.2f}")
+            transfers_successful = True  # Não é um erro, apenas não necessário
         
         return transfers_successful
     
