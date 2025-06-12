@@ -22603,3 +22603,1238 @@ onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError]
 2025-06-12 01:25:16 - flask_api - INFO - Recebida requisição para /api/market_data
 2025-06-12 01:25:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
 2025-06-12 01:25:17 - flask_api - INFO - Tickers com volume obtidos: 3138
+2025-06-12 13:25:28 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 13:25:28 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 13:25:33 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 13:25:33 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 13:25:33 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 13:25:39 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 13:25:39 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 13:25:39 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 13:25:39 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 13:25:39 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:25:39 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 13:25:40 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 13:25:40 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 13:25:40 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 13:25:40 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 13:25:41 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 13:25:41 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 13:25:41 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 13:25:41 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 13:25:41 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 13:25:41 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 13:25:41 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:25:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:25:57 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:25:57 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:25:57 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:26:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:26:08 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:26:09 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:26:16 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:26:16 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:26:17 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:26:30 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:26:30 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:26:30 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:26:46 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:26:46 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:26:47 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:27:00 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:27:00 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:27:00 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:27:30 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:27:30 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:27:30 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:27:36 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:27:36 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:27:37 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:27:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:27:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:27:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:27:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:27:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:27:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:28:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:28:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:28:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:28:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:28:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:28:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:28:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:28:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:28:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:28:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:28:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:28:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:29:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:29:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:29:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:29:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:29:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:29:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:29:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:29:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:29:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:29:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:29:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:29:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:30:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:30:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:30:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:30:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:30:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:30:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:30:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:30:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:30:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:30:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:30:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:30:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:31:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:31:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:31:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:31:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:31:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:31:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:31:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:31:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:31:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:31:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:31:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:31:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:32:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:32:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:32:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:32:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:32:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:32:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:32:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:32:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:32:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:32:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:32:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:32:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:33:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:33:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:33:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:33:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:33:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:33:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:33:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:33:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:33:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:33:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:33:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:33:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:34:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:34:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:34:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:34:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:34:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:34:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:34:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:34:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:34:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:34:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:34:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:34:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:35:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:35:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:35:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:35:21 - flask_api - INFO - Recebida requisição para klines de BTCUSDT
+2025-06-12 13:35:21 - flask_api - INFO - Klines recebidos para BTCUSDT: [[1747947600000, '111076.24000000', '111108.89000000', '110763.27000000', '110831.36000000', '412.21360000', 1747951199999, '45722482.82945890', 96667, '216.45283000', '24009772.51580060', '0'], [1747951200000, '110831.36000000', '111252.03000000', '110831.36000000', '111020.93000000', '412.79621000', 1747954799999, '45854747.51015960', 95698, '228.32780000', '25362598.46040630', '0'], [1747954800000, '111020.93000000', '111717.34000000', '111020.92000000', '111696.21000000', '530.57513000', 1747958399999, '59080984.07029300', 86444, '262.09865000', '29195919.81060450', '0']]
+2025-06-12 13:35:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:35:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:35:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:35:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:35:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:35:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:35:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:35:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:35:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:36:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:36:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:36:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:36:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:36:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:36:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:36:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:36:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:36:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:36:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:36:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:36:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:37:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:37:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:37:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:37:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:37:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:37:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:37:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:37:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:37:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:37:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:37:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:37:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:38:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:38:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:38:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:38:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:38:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:38:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:38:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:38:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:38:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:38:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:38:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:38:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:39:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:39:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:15 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:39:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:39:16 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:16 - flask_api - INFO - Recebida requisição para klines de PEPEUSDT
+2025-06-12 13:39:16 - flask_api - INFO - Klines recebidos para PEPEUSDT: [[1749567600000, '0.00001271', '0.00001287', '0.00001248', '0.00001277', '2101372747285.00', 1749571199999, '26654213.67832979', 60268, '1065886617518.00', '13523282.89134748', '0'], [1749571200000, '0.00001276', '0.00001283', '0.00001255', '0.00001256', '1176551845121.00', 1749574799999, '14885301.32168666', 34986, '591427705196.00', '7485681.51348990', '0'], [1749574800000, '0.00001257', '0.00001269', '0.00001253', '0.00001257', '517064436386.00', 1749578399999, '6516378.81595282', 20773, '237746879530.00', '2997427.99726039', '0']]
+2025-06-12 13:39:16 - flask_api - INFO - Recebida requisição para klines de BTTCUSDT
+2025-06-12 13:39:17 - flask_api - INFO - Klines recebidos para BTTCUSDT: [[1749567600000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '16985117937.0', 1749571199999, '12120.07161638', 284, '6063788111.0', '4365.92743992', '0'], [1749571200000, '0.00000072', '0.00000072', '0.00000071', '0.00000071', '25812225587.0', 1749574799999, '18442.13505502', 257, '11545488825.0', '8312.75195400', '0'], [1749574800000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '18457404428.0', 1749578399999, '13211.88857720', 260, '10713143332.0', '7713.46319904', '0']]
+2025-06-12 13:39:17 - flask_api - INFO - Recebida requisição para klines de SHIBUSDT
+2025-06-12 13:39:17 - flask_api - INFO - Klines recebidos para SHIBUSDT: [[1749567600000, '0.00001294', '0.00001306', '0.00001284', '0.00001300', '95954041547.00', 1749571199999, '1243578.98490178', 38289, '47644495937.00', '617463.76239897', '0'], [1749571200000, '0.00001300', '0.00001307', '0.00001296', '0.00001297', '51589748985.00', 1749574799999, '671713.82946148', 19010, '26844764813.00', '349699.20708941', '0'], [1749574800000, '0.00001297', '0.00001305', '0.00001294', '0.00001296', '48912885145.00', 1749578399999, '634678.84758436', 16060, '25418144240.00', '329766.20292568', '0']]
+2025-06-12 13:39:17 - flask_api - INFO - Recebida requisição para klines de BONKUSDT
+2025-06-12 13:39:17 - flask_api - INFO - Klines recebidos para BONKUSDT: [[1749567600000, '0.00001718', '0.00001742', '0.00001701', '0.00001731', '63861960058.00', 1749571199999, '1098812.58514518', 96166, '31560557369.00', '543414.79771516', '0'], [1749571200000, '0.00001731', '0.00001739', '0.00001709', '0.00001710', '41334179523.00', 1749574799999, '712424.34909962', 52771, '17555534850.00', '302799.68854030', '0'], [1749574800000, '0.00001710', '0.00001726', '0.00001706', '0.00001711', '19573975604.00', 1749578399999, '335449.94866148', 42452, '10220371172.00', '175257.95208168', '0']]
+2025-06-12 13:39:17 - flask_api - INFO - Recebida requisição para klines de FLOKIUSDT
+2025-06-12 13:39:18 - flask_api - INFO - Klines recebidos para FLOKIUSDT: [[1749567600000, '0.00009103', '0.00009223', '0.00008988', '0.00009179', '14929592081.00', 1749571199999, '1361364.77522976', 436185, '6766792760.00', '617473.36465653', '0'], [1749571200000, '0.00009180', '0.00009258', '0.00009147', '0.00009153', '9801808430.00', 1749574799999, '902284.62921482', 269914, '4433011036.00', '408114.07811501', '0'], [1749574800000, '0.00009153', '0.00009318', '0.00009153', '0.00009234', '7656675908.00', 1749578399999, '707590.84198568', 245634, '4116056250.00', '380414.43179145', '0']]
+2025-06-12 13:39:18 - flask_api - INFO - Recebida requisição para klines de 1000SATSUSDT
+2025-06-12 13:39:18 - flask_api - INFO - Klines recebidos para 1000SATSUSDT: [[1749567600000, '0.00004680', '0.00004730', '0.00004640', '0.00004710', '6030053458.00', 1749571199999, '282807.19853940', 4758, '2852996238.00', '133832.57135010', '0'], [1749571200000, '0.00004700', '0.00004740', '0.00004670', '0.00004680', '6047886055.00', 1749574799999, '284779.52527190', 3892, '3013772545.00', '141975.18876800', '0'], [1749574800000, '0.00004670', '0.00004710', '0.00004650', '0.00004670', '4914528445.00', 1749578399999, '229397.34531220', 2926, '2007397378.00', '93748.67985930', '0']]
+2025-06-12 13:39:18 - flask_api - INFO - Recebida requisição para klines de NEIROUSDT
+2025-06-12 13:39:19 - flask_api - INFO - Klines recebidos para NEIROUSDT: [[1749567600000, '0.00050468', '0.00051464', '0.00049608', '0.00051356', '11415307650.00', 1749571199999, '5772211.27784451', 110401, '5796088849.00', '2933678.22476161', '0'], [1749571200000, '0.00051355', '0.00051947', '0.00050590', '0.00050950', '6164661244.00', 1749574799999, '3156012.01084884', 60980, '3184918335.00', '1632501.45597787', '0'], [1749574800000, '0.00050942', '0.00051699', '0.00050737', '0.00051542', '3382744873.00', 1749578399999, '1733148.94583928', 45060, '2023378066.00', '1037130.74462300', '0']]
+2025-06-12 13:39:19 - flask_api - INFO - Recebida requisição para klines de LUNCUSDT
+2025-06-12 13:39:19 - flask_api - INFO - Klines recebidos para LUNCUSDT: [[1749567600000, '0.00006156', '0.00006196', '0.00006114', '0.00006188', '2146101272.54000000', 1749571199999, '132283.08680463', 2308, '1130685549.85000000', '69745.11598593', '0'], [1749571200000, '0.00006192', '0.00006217', '0.00006173', '0.00006178', '653463928.40000000', 1749574799999, '40478.18500335', 850, '214549639.57000000', '13294.63658606', '0'], [1749574800000, '0.00006176', '0.00006203', '0.00006144', '0.00006164', '818541233.81000000', 1749578399999, '50508.66359578', 1096, '273152682.80000000', '16855.72511706', '0']]
+2025-06-12 13:39:19 - flask_api - INFO - Recebida requisição para klines de XECUSDT
+2025-06-12 13:39:19 - flask_api - INFO - Klines recebidos para XECUSDT: [[1749567600000, '0.00002251', '0.00002263', '0.00002227', '0.00002255', '5787410162.00', 1749571199999, '129516.60928880', 866, '2925349118.00', '65526.94675489', '0'], [1749571200000, '0.00002258', '0.00002264', '0.00002244', '0.00002244', '934642792.00', 1749574799999, '21086.66725667', 323, '208251081.00', '4700.37514863', '0'], [1749574800000, '0.00002245', '0.00002260', '0.00002245', '0.00002248', '1433526500.00', 1749578399999, '32272.66518755', 272, '846548636.00', '19062.69097448', '0']]
+2025-06-12 13:39:19 - flask_api - INFO - Recebida requisição para klines de HMSTRUSDT
+2025-06-12 13:39:20 - flask_api - INFO - Klines recebidos para HMSTRUSDT: [[1749567600000, '0.00146900', '0.00148200', '0.00146000', '0.00147700', '131474681.00', 1749571199999, '193290.14886000', 1765, '69858546.00', '102750.12911800', '0'], [1749571200000, '0.00147600', '0.00148300', '0.00146700', '0.00146800', '137537703.00', 1749574799999, '202924.36745000', 1603, '58236645.00', '85943.41462700', '0'], [1749574800000, '0.00146800', '0.00147500', '0.00146300', '0.00146300', '95125470.00', 1749578399999, '139742.49919800', 1285, '45947943.00', '67535.47654200', '0']]
+2025-06-12 13:39:20 - flask_api - INFO - Recebida requisição para klines de DOGSUSDT
+2025-06-12 13:39:20 - flask_api - INFO - Klines recebidos para DOGSUSDT: [[1749567600000, '0.00016160', '0.00016340', '0.00015960', '0.00016210', '821616541.00', 1749571199999, '132465.00904740', 1608, '331422796.00', '53440.16207520', '0'], [1749571200000, '0.00016230', '0.00016350', '0.00016090', '0.00016100', '466707760.00', 1749574799999, '75545.74208540', 1023, '244074520.00', '39525.34579180', '0'], [1749574800000, '0.00016110', '0.00016240', '0.00016040', '0.00016090', '257225661.00', 1749578399999, '41422.44112150', 792, '92842106.00', '14957.80556090', '0']]
+2025-06-12 13:39:20 - flask_api - INFO - Recebida requisição para klines de WINUSDT
+2025-06-12 13:39:21 - flask_api - INFO - Klines recebidos para WINUSDT: [[1749567600000, '0.00005382', '0.00005398', '0.00005343', '0.00005374', '278540644.00000000', 1749571199999, '14957.77833433', 758, '103882621.00000000', '5580.13797388', '0'], [1749571200000, '0.00005374', '0.00005409', '0.00005370', '0.00005371', '385395330.00000000', 1749574799999, '20761.86167096', 834, '219118227.00000000', '11806.54327764', '0'], [1749574800000, '0.00005371', '0.00005389', '0.00005355', '0.00005368', '253864321.00000000', 1749578399999, '13635.34624351', 541, '146006569.00000000', '7841.08079897', '0']]
+2025-06-12 13:39:21 - flask_api - INFO - Recebida requisição para klines de BOMEUSDT
+2025-06-12 13:39:21 - flask_api - INFO - Klines recebidos para BOMEUSDT: [[1749567600000, '0.00197200', '0.00199900', '0.00193200', '0.00197600', '557938463.00', 1749571199999, '1094773.86001200', 16239, '257829796.00', '506007.97000200', '0'], [1749571200000, '0.00197700', '0.00198900', '0.00195900', '0.00196000', '169944043.00', 1749574799999, '335299.21462500', 8671, '86030681.00', '169778.78705600', '0'], [1749574800000, '0.00196100', '0.00198200', '0.00195000', '0.00195800', '175445198.00', 1749578399999, '344322.17047600', 6336, '77284964.00', '151648.52378200', '0']]
+2025-06-12 13:39:21 - flask_api - INFO - Recebida requisição para klines de PENGUUSDT
+2025-06-12 13:39:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:39:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:39:21 - flask_api - INFO - Klines recebidos para PENGUUSDT: [[1749567600000, '0.01130400', '0.01139500', '0.01116500', '0.01136800', '99407533.00000000', 1749571199999, '1123830.28209900', 14313, '45380572.00000000', '513329.63289700', '0'], [1749571200000, '0.01136900', '0.01147800', '0.01127100', '0.01128000', '76048994.00000000', 1749574799999, '865739.12564100', 7780, '40329912.00000000', '459428.82199300', '0'], [1749574800000, '0.01128200', '0.01138700', '0.01128200', '0.01133700', '41840286.00000000', 1749578399999, '474439.55865100', 6910, '26731488.00000000', '303129.96419100', '0']]
+2025-06-12 13:39:21 - flask_api - INFO - Recebida requisição para klines de SPELLUSDT
+2025-06-12 13:39:22 - flask_api - INFO - Klines recebidos para SPELLUSDT: [[1749567600000, '0.00054290', '0.00054780', '0.00053940', '0.00054520', '80755333.00000000', 1749571199999, '43905.73166090', 936, '34550354.00000000', '18800.63012520', '0'], [1749571200000, '0.00054520', '0.00054650', '0.00054030', '0.00054110', '104456576.00000000', 1749574799999, '56681.75008400', 1034, '39077440.00000000', '21235.48409730', '0'], [1749574800000, '0.00054120', '0.00054570', '0.00054060', '0.00054200', '50756289.00000000', 1749578399999, '27538.96339950', 470, '22780080.00000000', '12354.90858280', '0']]
+2025-06-12 13:39:22 - flask_api - INFO - Recebida requisição para klines de 1MBABYDOGEUSDT
+2025-06-12 13:39:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:22 - flask_api - INFO - Klines recebidos para 1MBABYDOGEUSDT: [[1749567600000, '0.00143540', '0.00144610', '0.00141530', '0.00144330', '136617125.00', 1749571199999, '195559.78352910', 2203, '57797240.00', '82830.06796270', '0'], [1749571200000, '0.00144330', '0.00145010', '0.00142870', '0.00143030', '53725853.00', 1749574799999, '77296.65767540', 908, '27884939.00', '40090.61910000', '0'], [1749574800000, '0.00143080', '0.00144250', '0.00142430', '0.00143030', '43795549.00', 1749578399999, '62650.48681880', 615, '21662681.00', '30990.82009800', '0']]
+2025-06-12 13:39:22 - flask_api - INFO - Recebida requisição para klines de MEMEUSDT
+2025-06-12 13:39:22 - flask_api - INFO - Klines recebidos para MEMEUSDT: [[1749567600000, '0.00194400', '0.00196300', '0.00192000', '0.00194900', '86875392.00000000', 1749571199999, '168721.32230800', 2096, '38083782.00000000', '74029.19847400', '0'], [1749571200000, '0.00195000', '0.00196700', '0.00194100', '0.00194200', '82173025.00000000', 1749574799999, '160740.30544300', 1466, '38421914.00000000', '75151.14381700', '0'], [1749574800000, '0.00194400', '0.00196100', '0.00192800', '0.00193500', '60488435.00000000', 1749578399999, '117543.62872600', 1306, '29146262.00000000', '56690.42535200', '0']]
+2025-06-12 13:39:22 - flask_api - INFO - Recebida requisição para klines de RVNUSDT
+2025-06-12 13:39:23 - flask_api - INFO - Klines recebidos para RVNUSDT: [[1749567600000, '0.01855000', '0.01894000', '0.01838000', '0.01875000', '34545437.60000000', 1749571199999, '645386.77813700', 4508, '17768963.60000000', '332091.51123500', '0'], [1749571200000, '0.01875000', '0.01883000', '0.01826000', '0.01827000', '27481735.80000000', 1749574799999, '510067.88031300', 3784, '11300549.90000000', '209865.27147800', '0'], [1749574800000, '0.01829000', '0.01845000', '0.01819000', '0.01841000', '31952982.10000000', 1749578399999, '585621.97003400', 5237, '17556771.50000000', '321932.29315000', '0']]
+2025-06-12 13:39:23 - flask_api - INFO - Recebida requisição para klines de NOTUSDT
+2025-06-12 13:39:23 - flask_api - INFO - Klines recebidos para NOTUSDT: [[1749567600000, '0.00239300', '0.00242100', '0.00237600', '0.00240800', '93313319.00', 1749571199999, '223662.26144800', 2375, '37757569.00', '90493.96754100', '0'], [1749571200000, '0.00240900', '0.00242700', '0.00239700', '0.00240300', '61684187.00', 1749574799999, '148689.17539200', 1344, '30448646.00', '73410.59670100', '0'], [1749574800000, '0.00240300', '0.00242100', '0.00238700', '0.00239300', '39425321.00', 1749578399999, '94716.62334500', 952, '18838909.00', '45248.25201100', '0']]
+2025-06-12 13:39:23 - flask_api - INFO - Recebida requisição para klines de TURBOUSDT
+2025-06-12 13:39:24 - flask_api - INFO - Klines recebidos para TURBOUSDT: [[1749567600000, '0.00444000', '0.00448800', '0.00438300', '0.00444600', '64641347.00000000', 1749571199999, '286659.65931200', 4401, '28355703.00000000', '125948.25833100', '0'], [1749571200000, '0.00444800', '0.00447800', '0.00440100', '0.00440200', '37859608.00000000', 1749574799999, '168199.08389600', 2772, '14794361.00000000', '65747.18684100', '0'], [1749574800000, '0.00440300', '0.00444300', '0.00438900', '0.00439300', '25100318.00000000', 1749578399999, '110694.28364600', 2076, '12923156.00000000', '57036.23159200', '0']]
+2025-06-12 13:39:24 - flask_api - INFO - Recebida requisição para klines de LEVERUSDT
+2025-06-12 13:39:24 - flask_api - INFO - Klines recebidos para LEVERUSDT: [[1749567600000, '0.00047400', '0.00047800', '0.00046900', '0.00047700', '83188693.00000000', 1749571199999, '39438.00639200', 859, '40222649.00000000', '19088.39871600', '0'], [1749571200000, '0.00047700', '0.00047900', '0.00047300', '0.00047400', '52229268.00000000', 1749574799999, '24870.17486100', 507, '21857454.00000000', '10414.03987900', '0'], [1749574800000, '0.00047500', '0.00047900', '0.00047400', '0.00047600', '42568352.00000000', 1749578399999, '20270.12941700', 418, '19170017.00000000', '9129.41814100', '0']]
+2025-06-12 13:39:24 - flask_api - INFO - Recebida requisição para klines de HOTUSDT
+2025-06-12 13:39:24 - flask_api - INFO - Klines recebidos para HOTUSDT: [[1749567600000, '0.00101700', '0.00102400', '0.00100700', '0.00102400', '79195043.00000000', 1749571199999, '80561.73239400', 515, '45152391.00000000', '45917.32811100', '0'], [1749571200000, '0.00102500', '0.00103000', '0.00101800', '0.00101800', '44963652.00000000', 1749574799999, '46090.49227800', 413, '21297363.00000000', '21849.78072500', '0'], [1749574800000, '0.00101900', '0.00102700', '0.00101700', '0.00102200', '86245609.00000000', 1749578399999, '88048.75633700', 517, '44445795.00000000', '45415.77404500', '0']]
+2025-06-12 13:39:24 - flask_api - INFO - Recebida requisição para klines de USDCUSDT
+2025-06-12 13:39:25 - flask_api - INFO - Klines recebidos para USDCUSDT: [[1749567600000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '55304858.00000000', 1749571199999, '55285079.79930000', 13870, '23437425.00000000', '23430393.77250000', '0'], [1749571200000, '0.99970000', '0.99970000', '0.99960000', '0.99960000', '45352521.00000000', 1749574799999, '45337136.37060000', 11084, '27563790.00000000', '27555520.86300000', '0'], [1749574800000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '25308973.00000000', 1749578399999, '25300546.00300000', 8119, '16965922.00000000', '16960832.22340000', '0']]
+2025-06-12 13:39:25 - flask_api - INFO - Recebida requisição para klines de DENTUSDT
+2025-06-12 13:39:25 - flask_api - INFO - Klines recebidos para DENTUSDT: [[1749567600000, '0.00076400', '0.00077100', '0.00075700', '0.00076600', '43754835.00000000', 1749571199999, '33470.62705700', 358, '13525220.00000000', '10340.48352500', '0'], [1749571200000, '0.00076500', '0.00077100', '0.00076100', '0.00076100', '23544499.00000000', 1749574799999, '18054.47763300', 238, '11230808.00000000', '8616.27437200', '0'], [1749574800000, '0.00076300', '0.00076800', '0.00076100', '0.00076200', '7368666.00000000', 1749578399999, '5630.95573200', 114, '5867022.00000000', '4483.31959600', '0']]
+2025-06-12 13:39:25 - flask_api - INFO - Recebida requisição para klines de DOGEUSDT
+2025-06-12 13:39:25 - flask_api - INFO - Klines recebidos para DOGEUSDT: [[1749567600000, '0.19061000', '0.19221000', '0.18880000', '0.19110000', '42988301.00000000', 1749571199999, '8190783.94778000', 54040, '17693950.00000000', '3374614.08876000', '0'], [1749571200000, '0.19109000', '0.19184000', '0.18997000', '0.19055000', '20061172.00000000', 1749574799999, '3830419.70055000', 25731, '10414369.00000000', '1988859.35145000', '0'], [1749574800000, '0.19054000', '0.19193000', '0.19053000', '0.19087000', '12465635.00000000', 1749578399999, '2382647.78329000', 16030, '5946374.00000000', '1136341.57221000', '0']]
+2025-06-12 13:39:25 - flask_api - INFO - Recebida requisição para klines de ANIMEUSDT
+2025-06-12 13:39:26 - flask_api - INFO - Klines recebidos para ANIMEUSDT: [[1749567600000, '0.03886000', '0.03920000', '0.03844000', '0.03853000', '12962527.60000000', 1749571199999, '502080.91170200', 5915, '5715876.70000000', '221439.77714300', '0'], [1749571200000, '0.03853000', '0.03867000', '0.03720000', '0.03723000', '28906013.60000000', 1749574799999, '1094580.84910100', 10216, '14453138.00000000', '547388.55495500', '0'], [1749574800000, '0.03722000', '0.03745000', '0.03583000', '0.03585000', '39310551.00000000', 1749578399999, '1440266.42097900', 11049, '15235270.70000000', '557420.86035100', '0']]
+2025-06-12 13:39:26 - flask_api - INFO - Recebida requisição para klines de MBLUSDT
+2025-06-12 13:39:26 - flask_api - INFO - Klines recebidos para MBLUSDT: [[1749567600000, '0.00234000', '0.00235400', '0.00232800', '0.00234600', '44942250.00000000', 1749571199999, '105325.59834000', 3011, '22123496.00000000', '51850.55854300', '0'], [1749571200000, '0.00234600', '0.00235800', '0.00234500', '0.00235200', '39874405.00000000', 1749574799999, '93786.47289800', 2779, '19592347.00000000', '46085.66571300', '0'], [1749574800000, '0.00235100', '0.00236800', '0.00235100', '0.00235400', '31669350.00000000', 1749578399999, '74661.43967000', 2480, '15178358.00000000', '35787.30367000', '0']]
+2025-06-12 13:39:26 - flask_api - INFO - Recebida requisição para klines de FUNUSDT
+2025-06-12 13:39:26 - flask_api - INFO - Klines recebidos para FUNUSDT: [[1749567600000, '0.00381900', '0.00389900', '0.00381700', '0.00387600', '64505816.00000000', 1749571199999, '248988.61941900', 4572, '41334747.00000000', '159454.24589600', '0'], [1749571200000, '0.00387700', '0.00388700', '0.00384000', '0.00385500', '29208351.00000000', 1749574799999, '112791.89152900', 2639, '16428220.00000000', '63425.56084600', '0'], [1749574800000, '0.00385500', '0.00388000', '0.00383100', '0.00384900', '22783796.00000000', 1749578399999, '87774.10745700', 2780, '12151399.00000000', '46819.84973600', '0']]
+2025-06-12 13:39:27 - flask_api - INFO - Recebida requisição para klines de GALAUSDT
+2025-06-12 13:39:27 - flask_api - INFO - Klines recebidos para GALAUSDT: [[1749567600000, '0.01734000', '0.01753000', '0.01714000', '0.01739000', '53918498.00000000', 1749571199999, '934707.28664000', 6396, '28990379.00000000', '502764.86802000', '0'], [1749571200000, '0.01739000', '0.01757000', '0.01737000', '0.01740000', '26664980.00000000', 1749574799999, '466071.55528000', 3910, '14492960.00000000', '253370.45352000', '0'], [1749574800000, '0.01740000', '0.01755000', '0.01736000', '0.01739000', '17057321.00000000', 1749578399999, '297260.57057000', 3279, '9528709.00000000', '165989.43523000', '0']]
+2025-06-12 13:39:27 - flask_api - INFO - Recebida requisição para klines de TRXUSDT
+2025-06-12 13:39:28 - flask_api - INFO - Klines recebidos para TRXUSDT: [[1749567600000, '0.29440000', '0.29440000', '0.29130000', '0.29200000', '27643228.70000000', 1749571199999, '8092077.43230000', 10140, '10421023.40000000', '3050834.60868000', '0'], [1749571200000, '0.29200000', '0.29350000', '0.29190000', '0.29280000', '14507557.20000000', 1749574799999, '4248060.52900000', 5874, '8047875.40000000', '2356620.01606000', '0'], [1749574800000, '0.29290000', '0.29360000', '0.29060000', '0.29070000', '14461737.00000000', 1749578399999, '4221542.10172000', 5806, '3497377.20000000', '1021475.00291000', '0']]
+2025-06-12 13:39:28 - flask_api - INFO - Recebida requisição para klines de IOSTUSDT
+2025-06-12 13:39:29 - flask_api - INFO - Klines recebidos para IOSTUSDT: [[1749567600000, '0.00421100', '0.00424800', '0.00416300', '0.00422700', '54153019.00000000', 1749571199999, '227930.12091500', 2463, '23457310.00000000', '98864.55801900', '0'], [1749571200000, '0.00422600', '0.00425200', '0.00420300', '0.00420500', '18859032.00000000', 1749574799999, '79796.27701300', 997, '10066908.00000000', '42604.45852100', '0'], [1749574800000, '0.00420800', '0.00424000', '0.00420300', '0.00422400', '27523472.00000000', 1749578399999, '116135.95488000', 1298, '19575454.00000000', '82588.83869800', '0']]
+2025-06-12 13:39:29 - flask_api - INFO - Recebida requisição para klines de 1000CHEEMSUSDT
+2025-06-12 13:39:29 - flask_api - INFO - Klines recebidos para 1000CHEEMSUSDT: [[1749567600000, '0.00145200', '0.00145400', '0.00144000', '0.00145200', '11367686.00', 1749571199999, '16454.44614800', 470, '6514553.00', '9436.04401300', '0'], [1749571200000, '0.00145300', '0.00145300', '0.00144500', '0.00145100', '13799674.00', 1749574799999, '20006.91891300', 352, '10465887.00', '15178.81238300', '0'], [1749574800000, '0.00145200', '0.00145900', '0.00145100', '0.00145500', '10515835.00', 1749578399999, '15302.85025800', 313, '6791636.00', '9883.92757500', '0']]
+2025-06-12 13:39:29 - flask_api - INFO - Recebida requisição para klines de SLPUSDT
+2025-06-12 13:39:29 - flask_api - INFO - Klines recebidos para SLPUSDT: [[1749567600000, '0.00153300', '0.00154000', '0.00150600', '0.00153100', '27116446.00000000', 1749571199999, '41327.83872400', 720, '10307279.00000000', '15698.91913900', '0'], [1749571200000, '0.00153200', '0.00154500', '0.00151900', '0.00152300', '40489000.00000000', 1749574799999, '62071.89211000', 839, '15895425.00000000', '24400.68593600', '0'], [1749574800000, '0.00152300', '0.00153500', '0.00151300', '0.00151300', '13881919.00000000', 1749578399999, '21167.38221800', 409, '5266601.00000000', '8030.97547600', '0']]
+2025-06-12 13:39:29 - flask_api - INFO - Recebida requisição para klines de HOMEUSDT
+2025-06-12 13:39:30 - flask_api - INFO - Klines recebidos para HOMEUSDT: [[1749740400000, '0.02733000', '0.03632000', '0.02733000', '0.03312000', '385809130.00000000', 1749743999999, '13324324.27659000', 74134, '197473448.00000000', '6828633.57401000', '0'], [1749744000000, '0.03312000', '0.03324000', '0.03140000', '0.03183000', '86675733.00000000', 1749747599999, '2809793.80727000', 16000, '43753026.00000000', '1419380.79147000', '0']]
+2025-06-12 13:39:30 - flask_api - INFO - Recebida requisição para klines de RSRUSDT
+2025-06-12 13:39:30 - flask_api - INFO - Klines recebidos para RSRUSDT: [[1749567600000, '0.00740100', '0.00747500', '0.00730900', '0.00740100', '29906880.40000000', 1749571199999, '220594.41750580', 4671, '12100922.40000000', '89307.61542860', '0'], [1749571200000, '0.00740100', '0.00746500', '0.00738700', '0.00740100', '11918445.70000000', 1749574799999, '88493.38955410', 1712, '5655617.10000000', '41971.35853140', '0'], [1749574800000, '0.00739900', '0.00747100', '0.00736900', '0.00737800', '9604206.00000000', 1749578399999, '71195.13155110', 1287, '5145337.50000000', '38128.55147210', '0']]
+2025-06-12 13:39:30 - flask_api - INFO - Recebida requisição para klines de AMPUSDT
+2025-06-12 13:39:31 - flask_api - INFO - Klines recebidos para AMPUSDT: [[1749567600000, '0.00403400', '0.00406000', '0.00399900', '0.00402800', '12443010.00000000', 1749571199999, '50167.68543700', 532, '6017856.00000000', '24272.56946400', '0'], [1749571200000, '0.00403800', '0.00405200', '0.00401700', '0.00401800', '9286627.00000000', 1749574799999, '37463.40766600', 383, '4315272.00000000', '17420.85175200', '0'], [1749574800000, '0.00401800', '0.00404000', '0.00400800', '0.00401200', '5781543.00000000', 1749578399999, '23249.11325100', 378, '2384377.00000000', '9589.37827800', '0']]
+2025-06-12 13:39:31 - flask_api - INFO - Recebida requisição para klines de CKBUSDT
+2025-06-12 13:39:31 - flask_api - INFO - Klines recebidos para CKBUSDT: [[1749567600000, '0.00427700', '0.00431300', '0.00423100', '0.00429100', '13081111.00000000', 1749571199999, '55870.82968400', 780, '4985271.00000000', '21296.77777700', '0'], [1749571200000, '0.00429000', '0.00432000', '0.00426200', '0.00426400', '6350952.00000000', 1749574799999, '27291.95343900', 479, '4690463.00000000', '20153.67251600', '0'], [1749574800000, '0.00426400', '0.00429400', '0.00426200', '0.00426800', '5131897.00000000', 1749578399999, '21935.41067700', 387, '2441677.00000000', '10437.63213800', '0']]
+2025-06-12 13:39:31 - flask_api - INFO - Recebida requisição para klines de PEOPLEUSDT
+2025-06-12 13:39:31 - flask_api - INFO - Klines recebidos para PEOPLEUSDT: [[1749567600000, '0.02364000', '0.02406000', '0.02332000', '0.02389000', '28484427.10000000', 1749571199999, '675736.03693600', 5539, '12922358.20000000', '306886.86588300', '0'], [1749571200000, '0.02390000', '0.02402000', '0.02336000', '0.02344000', '19210013.50000000', 1749574799999, '454886.83517200', 2904, '7895602.70000000', '187100.42901900', '0'], [1749574800000, '0.02344000', '0.02359000', '0.02321000', '0.02332000', '8238455.90000000', 1749578399999, '192843.70795500', 1746, '3350167.90000000', '78415.83086500', '0']]
+2025-06-12 13:39:31 - flask_api - INFO - Recebida requisição para klines de XVGUSDT
+2025-06-12 13:39:32 - flask_api - INFO - Klines recebidos para XVGUSDT: [[1749567600000, '0.00626100', '0.00630900', '0.00617300', '0.00624400', '21935841.00000000', 1749571199999, '136495.26164000', 723, '12583073.00000000', '78310.75541200', '0'], [1749571200000, '0.00625400', '0.00629000', '0.00621000', '0.00626500', '11083375.00000000', 1749574799999, '69410.18315400', 470, '6565655.00000000', '41147.15034100', '0'], [1749574800000, '0.00625400', '0.00631500', '0.00621400', '0.00622700', '4950191.00000000', 1749578399999, '31009.89824800', 319, '2037531.00000000', '12785.57734900', '0']]
+2025-06-12 13:39:32 - flask_api - INFO - Recebida requisição para klines de BEAMXUSDT
+2025-06-12 13:39:32 - flask_api - INFO - Klines recebidos para BEAMXUSDT: [[1749567600000, '0.00673000', '0.00682000', '0.00669000', '0.00677000', '29808245.00000000', 1749571199999, '201242.23371000', 2381, '15804002.00000000', '106728.77576000', '0'], [1749571200000, '0.00678000', '0.00681000', '0.00672000', '0.00672000', '10857513.00000000', 1749574799999, '73446.12094000', 1488, '3955588.00000000', '26757.58592000', '0'], [1749574800000, '0.00672000', '0.00678000', '0.00671000', '0.00672000', '7652470.00000000', 1749578399999, '51573.81120000', 1022, '2197272.00000000', '14822.84780000', '0']]
+2025-06-12 13:39:32 - flask_api - INFO - Recebida requisição para klines de JASMYUSDT
+2025-06-12 13:39:33 - flask_api - INFO - Klines recebidos para JASMYUSDT: [[1749567600000, '0.01508000', '0.01526000', '0.01499000', '0.01519000', '13829160.80000000', 1749571199999, '209282.04285300', 1146, '6362537.20000000', '96241.53911300', '0'], [1749571200000, '0.01519000', '0.01526000', '0.01513000', '0.01513000', '6341398.80000000', 1749574799999, '96336.64082600', 574, '3283759.20000000', '49883.31617800', '0'], [1749574800000, '0.01513000', '0.01524000', '0.01512000', '0.01513000', '7302882.80000000', 1749578399999, '110681.19485300', 583, '3357524.20000000', '50876.49759900', '0']]
+2025-06-12 13:39:33 - flask_api - INFO - Recebida requisição para klines de VTHOUSDT
+2025-06-12 13:39:33 - flask_api - INFO - Klines recebidos para VTHOUSDT: [[1749567600000, '0.00216700', '0.00218200', '0.00215300', '0.00217900', '17088446.00000000', 1749571199999, '37063.85833800', 661, '8335278.00000000', '18063.30291400', '0'], [1749571200000, '0.00218000', '0.00218800', '0.00216700', '0.00217200', '9643133.00000000', 1749574799999, '21002.46792600', 550, '5311640.00000000', '11572.10274900', '0'], [1749574800000, '0.00217200', '0.00218800', '0.00217200', '0.00217500', '7154530.00000000', 1749578399999, '15576.29137200', 522, '4271643.00000000', '9299.20278800', '0']]
+2025-06-12 13:39:33 - flask_api - INFO - Recebida requisição para klines de MUBARAKUSDT
+2025-06-12 13:39:33 - flask_api - INFO - Klines recebidos para MUBARAKUSDT: [[1749567600000, '0.04210000', '0.04240000', '0.04130000', '0.04220000', '17738038.90000000', 1749571199999, '742576.11323000', 3412, '9955013.80000000', '417175.43408000', '0'], [1749571200000, '0.04230000', '0.04260000', '0.04150000', '0.04170000', '15121873.20000000', 1749574799999, '637979.41878000', 3092, '7801097.10000000', '329466.57184000', '0'], [1749574800000, '0.04160000', '0.04200000', '0.04120000', '0.04130000', '10881111.50000000', 1749578399999, '452458.00246000', 2135, '4822008.30000000', '200556.95276000', '0']]
+2025-06-12 13:39:33 - flask_api - INFO - Recebida requisição para klines de VETUSDT
+2025-06-12 13:39:34 - flask_api - INFO - Klines recebidos para VETUSDT: [[1749567600000, '0.02547000', '0.02569000', '0.02520000', '0.02550000', '18815789.70000000', 1749571199999, '478069.76801500', 3943, '7032919.90000000', '178899.07240800', '0'], [1749571200000, '0.02551000', '0.02564000', '0.02538000', '0.02539000', '16401275.20000000', 1749574799999, '419107.14871500', 2681, '7542081.00000000', '192860.96673200', '0'], [1749574800000, '0.02538000', '0.02563000', '0.02538000', '0.02549000', '5106074.10000000', 1749578399999, '130228.23314400', 991, '2990451.70000000', '76262.57584700', '0']]
+2025-06-12 13:39:34 - flask_api - INFO - Recebida requisição para klines de FDUSDUSDT
+2025-06-12 13:39:34 - flask_api - INFO - Klines recebidos para FDUSDUSDT: [[1749567600000, '0.99840000', '0.99850000', '0.99830000', '0.99840000', '18108267.00000000', 1749571199999, '18080035.11320000', 11804, '9114396.00000000', '9100570.01220000', '0'], [1749571200000, '0.99840000', '0.99850000', '0.99840000', '0.99840000', '9843173.00000000', 1749574799999, '9827795.23470000', 8575, '3713115.00000000', '3707545.32750000', '0'], [1749574800000, '0.99840000', '0.99850000', '0.99840000', '0.99850000', '5976813.00000000', 1749578399999, '5967654.32030000', 3710, '4042211.00000000', '4036147.68350000', '0']]
+2025-06-12 13:39:34 - flask_api - INFO - Recebida requisição para klines de 1000CATUSDT
+2025-06-12 13:39:35 - flask_api - INFO - Klines recebidos para 1000CATUSDT: [[1749567600000, '0.00747000', '0.00757000', '0.00740000', '0.00754000', '14178823.00000000', 1749571199999, '106170.43756100', 782, '6258463.50000000', '46872.96671200', '0'], [1749571200000, '0.00755000', '0.00758000', '0.00749000', '0.00750000', '8232645.70000000', 1749574799999, '61956.85223000', 548, '3548735.00000000', '26718.71315900', '0'], [1749574800000, '0.00751000', '0.00757000', '0.00746000', '0.00749000', '6290669.80000000', 1749578399999, '47242.21946900', 332, '3082304.10000000', '23147.25898500', '0']]
+2025-06-12 13:39:35 - flask_api - INFO - Recebida requisição para klines de TLMUSDT
+2025-06-12 13:39:35 - flask_api - INFO - Klines recebidos para TLMUSDT: [[1749567600000, '0.00512000', '0.00517000', '0.00507000', '0.00513000', '15582949.00000000', 1749571199999, '79669.35172000', 846, '7352272.00000000', '37631.72985000', '0'], [1749571200000, '0.00513000', '0.00516000', '0.00511000', '0.00511000', '5844636.00000000', 1749574799999, '29992.48430000', 311, '3194745.00000000', '16403.25582000', '0'], [1749574800000, '0.00511000', '0.00515000', '0.00509000', '0.00510000', '6046186.00000000', 1749578399999, '30893.17702000', 450, '1785156.00000000', '9124.32786000', '0']]
+2025-06-12 13:39:35 - flask_api - INFO - Recebida requisição para klines de HUMAUSDT
+2025-06-12 13:39:36 - flask_api - INFO - Klines recebidos para HUMAUSDT: [[1749567600000, '0.05093000', '0.05123000', '0.05010000', '0.05049000', '25244037.00000000', 1749571199999, '1278152.46774000', 8433, '11333364.00000000', '574332.58030000', '0'], [1749571200000, '0.05048000', '0.05080000', '0.05003000', '0.05008000', '16526100.00000000', 1749574799999, '831505.16726000', 5581, '7711590.00000000', '388335.86026000', '0'], [1749574800000, '0.05009000', '0.05022000', '0.04930000', '0.04967000', '16154441.00000000', 1749578399999, '803478.94898000', 5306, '6197783.00000000', '308128.50540000', '0']]
+2025-06-12 13:39:36 - flask_api - INFO - Recebida requisição para klines de GUNUSDT
+2025-06-12 13:39:36 - flask_api - INFO - Klines recebidos para GUNUSDT: [[1749567600000, '0.03407000', '0.03443000', '0.03384000', '0.03440000', '6538038.00000000', 1749571199999, '223654.61672000', 2539, '3945072.00000000', '135026.25955000', '0'], [1749571200000, '0.03442000', '0.03459000', '0.03404000', '0.03406000', '2428889.00000000', 1749574799999, '83491.88990000', 1230, '826744.00000000', '28430.20992000', '0'], [1749574800000, '0.03406000', '0.03429000', '0.03397000', '0.03413000', '3263951.00000000', 1749578399999, '111311.53553000', 1267, '2106102.00000000', '71818.13315000', '0']]
+2025-06-12 13:39:36 - flask_api - INFO - Recebida requisição para klines de ONEUSDT
+2025-06-12 13:39:37 - flask_api - INFO - Klines recebidos para ONEUSDT: [[1749567600000, '0.01259000', '0.01270000', '0.01242000', '0.01264000', '7492476.90000000', 1749571199999, '94067.32710200', 786, '3227788.50000000', '40617.48525400', '0'], [1749571200000, '0.01265000', '0.01271000', '0.01257000', '0.01257000', '4174959.30000000', 1749574799999, '52758.14603900', 463, '1950137.00000000', '24645.87420300', '0'], [1749574800000, '0.01258000', '0.01274000', '0.01257000', '0.01258000', '6304128.60000000', 1749578399999, '79838.87465000', 580, '3805921.60000000', '48230.85358900', '0']]
+2025-06-12 13:39:37 - flask_api - INFO - Recebida solicitação para iniciar bot para PEPEUSDT
+2025-06-12 13:39:37 - flask_api - INFO - Iniciando bot para PEPEUSDT em uma nova thread...
+2025-06-12 13:39:38 - flask_api - INFO - Recebida solicitação para iniciar bot para BONKUSDT
+2025-06-12 13:39:38 - flask_api - INFO - Iniciando bot para BONKUSDT em uma nova thread...
+2025-06-12 13:39:38 - flask_api - INFO - Recebida solicitação para iniciar bot para 1000SATSUSDT
+2025-06-12 13:39:38 - flask_api - INFO - Iniciando bot para 1000SATSUSDT em uma nova thread...
+2025-06-12 13:39:39 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:39 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:39:39 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:39 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:39:39 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:39 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:39:40 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:40 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:40 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:42 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:42 - capital_management - INFO - Market decision for 1000SATSUSDT: futures (More capital available in futures)
+2025-06-12 13:39:42 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:39:42 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:39:42 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:39:42 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:39:42 - flask_api - INFO - [1000SATSUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:39:42 - grid_logic - INFO - [1000SATSUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:39:42 - grid_logic - INFO - [1000SATSUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:39:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:39:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:39:42 - grid_logic - INFO - [1000SATSUSDT] Tick: 1E-7, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-12 13:39:42 - grid_logic - INFO - [1000SATSUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-12 13:39:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:43 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens FUTURES
+2025-06-12 13:39:43 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens SPOT
+2025-06-12 13:39:43 - grid_logic - INFO - [1000SATSUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-12 13:39:43 - risk_management - INFO - [1000SATSUSDT] RiskManager inicializado para mercado SPOT. Max Drawdown: 10.0%, Use ATR SL: False, Check Reversal Patterns: False, Sentiment Risk Adj: True
+2025-06-12 13:39:43 - risk_management - WARNING - [1000SATSUSDT] Ajuste de risco por sentimento habilitado, mas nenhuma função de score de sentimento fornecida. Recurso desabilitado.
+2025-06-12 13:39:43 - flask_api - ERROR - Erro crítico no loop do bot 1000SATSUSDT: 'bool' object is not callable
+2025-06-12 13:39:43 - flask_api - INFO - Thread do bot para 1000SATSUSDT finalizada.
+2025-06-12 13:39:43 - grid_logic - INFO - [1000SATSUSDT] Parando bot de grid trading...
+2025-06-12 13:39:43 - grid_logic - INFO - [1000SATSUSDT] Bot parado com sucesso
+2025-06-12 13:39:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:39:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:39:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:39:58 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:58 - capital_management - INFO - Market decision for PEPEUSDT: futures (More capital available in futures)
+2025-06-12 13:39:58 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:39:58 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:39:58 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:39:58 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:39:58 - flask_api - INFO - [PEPEUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:39:58 - grid_logic - INFO - [PEPEUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:39:58 - grid_logic - INFO - [PEPEUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:39:58 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:39:58 - capital_management - INFO - Market decision for BONKUSDT: futures (More capital available in futures)
+2025-06-12 13:39:58 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:39:58 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:39:58 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:39:58 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:39:58 - flask_api - INFO - [BONKUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:39:58 - grid_logic - INFO - [BONKUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:39:58 - grid_logic - INFO - [BONKUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:39:58 - grid_logic - ERROR - [PEPEUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:39:58 - grid_logic - ERROR - [BONKUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:39:58 - flask_api - ERROR - Erro na thread do bot para PEPEUSDT: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:39:58 - flask_api - ERROR - Erro na thread do bot para BONKUSDT: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:39:58 - flask_api - INFO - Thread do bot para PEPEUSDT finalizada.
+2025-06-12 13:39:58 - flask_api - INFO - Thread do bot para BONKUSDT finalizada.
+2025-06-12 13:39:58 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot PEPEUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:39:58 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot BONKUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:40:04 - flask_api - INFO - Recebida requisição para klines de BTCUSDT
+2025-06-12 13:40:04 - flask_api - INFO - Klines recebidos para BTCUSDT: [[1747947600000, '111076.24000000', '111108.89000000', '110763.27000000', '110831.36000000', '412.21360000', 1747951199999, '45722482.82945890', 96667, '216.45283000', '24009772.51580060', '0'], [1747951200000, '110831.36000000', '111252.03000000', '110831.36000000', '111020.93000000', '412.79621000', 1747954799999, '45854747.51015960', 95698, '228.32780000', '25362598.46040630', '0'], [1747954800000, '111020.93000000', '111717.34000000', '111020.92000000', '111696.21000000', '530.57513000', 1747958399999, '59080984.07029300', 86444, '262.09865000', '29195919.81060450', '0']]
+2025-06-12 13:40:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:40:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:40:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:40:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:40:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:40:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:40:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:40:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:40:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:40:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:40:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:40:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:41:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:41:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:41:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:41:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:41:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:41:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:41:28 - flask_api - INFO - Recebida requisição para klines de BTCUSDT
+2025-06-12 13:41:28 - flask_api - INFO - Klines recebidos para BTCUSDT: [[1742558400000, '84046.52000000', '84358.51000000', '83175.25000000', '83565.48000000', '3473.84885000', 1742572799999, '291107116.71918020', 777768, '1647.56401000', '138079982.72979840', '0'], [1742572800000, '83565.47000000', '84435.87000000', '83379.00000000', '83956.36000000', '2229.62892000', 1742587199999, '187226432.21254640', 475764, '1076.53662000', '90402981.91352080', '0'], [1742587200000, '83956.35000000', '84584.00000000', '83813.21000000', '84088.79000000', '1207.35403000', 1742601599999, '101665102.90446670', 210285, '662.20468000', '55765105.44975780', '0']]
+2025-06-12 13:41:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:41:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:41:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:41:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:41:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:41:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:42:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:42:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:42:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:42:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:42:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:42:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:42:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:42:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:42:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:42:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:42:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:42:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:43:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:43:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:43:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:43:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:43:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:43:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:43:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:43:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:43:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:43:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:43:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:43:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:44:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:44:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:44:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:44:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:38 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:44:38 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:44:39 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:39 - flask_api - INFO - Recebida requisição para klines de PEPEUSDT
+2025-06-12 13:44:39 - flask_api - INFO - Klines recebidos para PEPEUSDT: [[1749567600000, '0.00001271', '0.00001287', '0.00001248', '0.00001277', '2101372747285.00', 1749571199999, '26654213.67832979', 60268, '1065886617518.00', '13523282.89134748', '0'], [1749571200000, '0.00001276', '0.00001283', '0.00001255', '0.00001256', '1176551845121.00', 1749574799999, '14885301.32168666', 34986, '591427705196.00', '7485681.51348990', '0'], [1749574800000, '0.00001257', '0.00001269', '0.00001253', '0.00001257', '517064436386.00', 1749578399999, '6516378.81595282', 20773, '237746879530.00', '2997427.99726039', '0']]
+2025-06-12 13:44:39 - flask_api - INFO - Recebida requisição para klines de BTTCUSDT
+2025-06-12 13:44:40 - flask_api - INFO - Klines recebidos para BTTCUSDT: [[1749567600000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '16985117937.0', 1749571199999, '12120.07161638', 284, '6063788111.0', '4365.92743992', '0'], [1749571200000, '0.00000072', '0.00000072', '0.00000071', '0.00000071', '25812225587.0', 1749574799999, '18442.13505502', 257, '11545488825.0', '8312.75195400', '0'], [1749574800000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '18457404428.0', 1749578399999, '13211.88857720', 260, '10713143332.0', '7713.46319904', '0']]
+2025-06-12 13:44:40 - flask_api - INFO - Recebida requisição para klines de SHIBUSDT
+2025-06-12 13:44:40 - flask_api - INFO - Klines recebidos para SHIBUSDT: [[1749567600000, '0.00001294', '0.00001306', '0.00001284', '0.00001300', '95954041547.00', 1749571199999, '1243578.98490178', 38289, '47644495937.00', '617463.76239897', '0'], [1749571200000, '0.00001300', '0.00001307', '0.00001296', '0.00001297', '51589748985.00', 1749574799999, '671713.82946148', 19010, '26844764813.00', '349699.20708941', '0'], [1749574800000, '0.00001297', '0.00001305', '0.00001294', '0.00001296', '48912885145.00', 1749578399999, '634678.84758436', 16060, '25418144240.00', '329766.20292568', '0']]
+2025-06-12 13:44:40 - flask_api - INFO - Recebida requisição para klines de BONKUSDT
+2025-06-12 13:44:40 - flask_api - INFO - Klines recebidos para BONKUSDT: [[1749567600000, '0.00001718', '0.00001742', '0.00001701', '0.00001731', '63861960058.00', 1749571199999, '1098812.58514518', 96166, '31560557369.00', '543414.79771516', '0'], [1749571200000, '0.00001731', '0.00001739', '0.00001709', '0.00001710', '41334179523.00', 1749574799999, '712424.34909962', 52771, '17555534850.00', '302799.68854030', '0'], [1749574800000, '0.00001710', '0.00001726', '0.00001706', '0.00001711', '19573975604.00', 1749578399999, '335449.94866148', 42452, '10220371172.00', '175257.95208168', '0']]
+2025-06-12 13:44:40 - flask_api - INFO - Recebida requisição para klines de FLOKIUSDT
+2025-06-12 13:44:41 - flask_api - INFO - Klines recebidos para FLOKIUSDT: [[1749567600000, '0.00009103', '0.00009223', '0.00008988', '0.00009179', '14929592081.00', 1749571199999, '1361364.77522976', 436185, '6766792760.00', '617473.36465653', '0'], [1749571200000, '0.00009180', '0.00009258', '0.00009147', '0.00009153', '9801808430.00', 1749574799999, '902284.62921482', 269914, '4433011036.00', '408114.07811501', '0'], [1749574800000, '0.00009153', '0.00009318', '0.00009153', '0.00009234', '7656675908.00', 1749578399999, '707590.84198568', 245634, '4116056250.00', '380414.43179145', '0']]
+2025-06-12 13:44:41 - flask_api - INFO - Recebida requisição para klines de 1000SATSUSDT
+2025-06-12 13:44:41 - flask_api - INFO - Klines recebidos para 1000SATSUSDT: [[1749567600000, '0.00004680', '0.00004730', '0.00004640', '0.00004710', '6030053458.00', 1749571199999, '282807.19853940', 4758, '2852996238.00', '133832.57135010', '0'], [1749571200000, '0.00004700', '0.00004740', '0.00004670', '0.00004680', '6047886055.00', 1749574799999, '284779.52527190', 3892, '3013772545.00', '141975.18876800', '0'], [1749574800000, '0.00004670', '0.00004710', '0.00004650', '0.00004670', '4914528445.00', 1749578399999, '229397.34531220', 2926, '2007397378.00', '93748.67985930', '0']]
+2025-06-12 13:44:41 - flask_api - INFO - Recebida requisição para klines de NEIROUSDT
+2025-06-12 13:44:41 - flask_api - INFO - Klines recebidos para NEIROUSDT: [[1749567600000, '0.00050468', '0.00051464', '0.00049608', '0.00051356', '11415307650.00', 1749571199999, '5772211.27784451', 110401, '5796088849.00', '2933678.22476161', '0'], [1749571200000, '0.00051355', '0.00051947', '0.00050590', '0.00050950', '6164661244.00', 1749574799999, '3156012.01084884', 60980, '3184918335.00', '1632501.45597787', '0'], [1749574800000, '0.00050942', '0.00051699', '0.00050737', '0.00051542', '3382744873.00', 1749578399999, '1733148.94583928', 45060, '2023378066.00', '1037130.74462300', '0']]
+2025-06-12 13:44:41 - flask_api - INFO - Recebida requisição para klines de LUNCUSDT
+2025-06-12 13:44:42 - flask_api - INFO - Klines recebidos para LUNCUSDT: [[1749567600000, '0.00006156', '0.00006196', '0.00006114', '0.00006188', '2146101272.54000000', 1749571199999, '132283.08680463', 2308, '1130685549.85000000', '69745.11598593', '0'], [1749571200000, '0.00006192', '0.00006217', '0.00006173', '0.00006178', '653463928.40000000', 1749574799999, '40478.18500335', 850, '214549639.57000000', '13294.63658606', '0'], [1749574800000, '0.00006176', '0.00006203', '0.00006144', '0.00006164', '818541233.81000000', 1749578399999, '50508.66359578', 1096, '273152682.80000000', '16855.72511706', '0']]
+2025-06-12 13:44:42 - flask_api - INFO - Recebida requisição para klines de XECUSDT
+2025-06-12 13:44:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:44:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:44:42 - flask_api - INFO - Klines recebidos para XECUSDT: [[1749567600000, '0.00002251', '0.00002263', '0.00002227', '0.00002255', '5787410162.00', 1749571199999, '129516.60928880', 866, '2925349118.00', '65526.94675489', '0'], [1749571200000, '0.00002258', '0.00002264', '0.00002244', '0.00002244', '934642792.00', 1749574799999, '21086.66725667', 323, '208251081.00', '4700.37514863', '0'], [1749574800000, '0.00002245', '0.00002260', '0.00002245', '0.00002248', '1433526500.00', 1749578399999, '32272.66518755', 272, '846548636.00', '19062.69097448', '0']]
+2025-06-12 13:44:42 - flask_api - INFO - Recebida requisição para klines de HMSTRUSDT
+2025-06-12 13:44:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:42 - flask_api - INFO - Klines recebidos para HMSTRUSDT: [[1749567600000, '0.00146900', '0.00148200', '0.00146000', '0.00147700', '131474681.00', 1749571199999, '193290.14886000', 1765, '69858546.00', '102750.12911800', '0'], [1749571200000, '0.00147600', '0.00148300', '0.00146700', '0.00146800', '137537703.00', 1749574799999, '202924.36745000', 1603, '58236645.00', '85943.41462700', '0'], [1749574800000, '0.00146800', '0.00147500', '0.00146300', '0.00146300', '95125470.00', 1749578399999, '139742.49919800', 1285, '45947943.00', '67535.47654200', '0']]
+2025-06-12 13:44:42 - flask_api - INFO - Recebida requisição para klines de DOGSUSDT
+2025-06-12 13:44:43 - flask_api - INFO - Klines recebidos para DOGSUSDT: [[1749567600000, '0.00016160', '0.00016340', '0.00015960', '0.00016210', '821616541.00', 1749571199999, '132465.00904740', 1608, '331422796.00', '53440.16207520', '0'], [1749571200000, '0.00016230', '0.00016350', '0.00016090', '0.00016100', '466707760.00', 1749574799999, '75545.74208540', 1023, '244074520.00', '39525.34579180', '0'], [1749574800000, '0.00016110', '0.00016240', '0.00016040', '0.00016090', '257225661.00', 1749578399999, '41422.44112150', 792, '92842106.00', '14957.80556090', '0']]
+2025-06-12 13:44:43 - flask_api - INFO - Recebida requisição para klines de WINUSDT
+2025-06-12 13:44:43 - flask_api - INFO - Klines recebidos para WINUSDT: [[1749567600000, '0.00005382', '0.00005398', '0.00005343', '0.00005374', '278540644.00000000', 1749571199999, '14957.77833433', 758, '103882621.00000000', '5580.13797388', '0'], [1749571200000, '0.00005374', '0.00005409', '0.00005370', '0.00005371', '385395330.00000000', 1749574799999, '20761.86167096', 834, '219118227.00000000', '11806.54327764', '0'], [1749574800000, '0.00005371', '0.00005389', '0.00005355', '0.00005368', '253864321.00000000', 1749578399999, '13635.34624351', 541, '146006569.00000000', '7841.08079897', '0']]
+2025-06-12 13:44:43 - flask_api - INFO - Recebida requisição para klines de BOMEUSDT
+2025-06-12 13:44:43 - flask_api - INFO - Klines recebidos para BOMEUSDT: [[1749567600000, '0.00197200', '0.00199900', '0.00193200', '0.00197600', '557938463.00', 1749571199999, '1094773.86001200', 16239, '257829796.00', '506007.97000200', '0'], [1749571200000, '0.00197700', '0.00198900', '0.00195900', '0.00196000', '169944043.00', 1749574799999, '335299.21462500', 8671, '86030681.00', '169778.78705600', '0'], [1749574800000, '0.00196100', '0.00198200', '0.00195000', '0.00195800', '175445198.00', 1749578399999, '344322.17047600', 6336, '77284964.00', '151648.52378200', '0']]
+2025-06-12 13:44:44 - flask_api - INFO - Recebida requisição para klines de PENGUUSDT
+2025-06-12 13:44:44 - flask_api - INFO - Klines recebidos para PENGUUSDT: [[1749567600000, '0.01130400', '0.01139500', '0.01116500', '0.01136800', '99407533.00000000', 1749571199999, '1123830.28209900', 14313, '45380572.00000000', '513329.63289700', '0'], [1749571200000, '0.01136900', '0.01147800', '0.01127100', '0.01128000', '76048994.00000000', 1749574799999, '865739.12564100', 7780, '40329912.00000000', '459428.82199300', '0'], [1749574800000, '0.01128200', '0.01138700', '0.01128200', '0.01133700', '41840286.00000000', 1749578399999, '474439.55865100', 6910, '26731488.00000000', '303129.96419100', '0']]
+2025-06-12 13:44:44 - flask_api - INFO - Recebida requisição para klines de SPELLUSDT
+2025-06-12 13:44:44 - flask_api - INFO - Klines recebidos para SPELLUSDT: [[1749567600000, '0.00054290', '0.00054780', '0.00053940', '0.00054520', '80755333.00000000', 1749571199999, '43905.73166090', 936, '34550354.00000000', '18800.63012520', '0'], [1749571200000, '0.00054520', '0.00054650', '0.00054030', '0.00054110', '104456576.00000000', 1749574799999, '56681.75008400', 1034, '39077440.00000000', '21235.48409730', '0'], [1749574800000, '0.00054120', '0.00054570', '0.00054060', '0.00054200', '50756289.00000000', 1749578399999, '27538.96339950', 470, '22780080.00000000', '12354.90858280', '0']]
+2025-06-12 13:44:44 - flask_api - INFO - Recebida requisição para klines de 1MBABYDOGEUSDT
+2025-06-12 13:44:44 - flask_api - INFO - Klines recebidos para 1MBABYDOGEUSDT: [[1749567600000, '0.00143540', '0.00144610', '0.00141530', '0.00144330', '136617125.00', 1749571199999, '195559.78352910', 2203, '57797240.00', '82830.06796270', '0'], [1749571200000, '0.00144330', '0.00145010', '0.00142870', '0.00143030', '53725853.00', 1749574799999, '77296.65767540', 908, '27884939.00', '40090.61910000', '0'], [1749574800000, '0.00143080', '0.00144250', '0.00142430', '0.00143030', '43795549.00', 1749578399999, '62650.48681880', 615, '21662681.00', '30990.82009800', '0']]
+2025-06-12 13:44:44 - flask_api - INFO - Recebida requisição para klines de MEMEUSDT
+2025-06-12 13:44:45 - flask_api - INFO - Klines recebidos para MEMEUSDT: [[1749567600000, '0.00194400', '0.00196300', '0.00192000', '0.00194900', '86875392.00000000', 1749571199999, '168721.32230800', 2096, '38083782.00000000', '74029.19847400', '0'], [1749571200000, '0.00195000', '0.00196700', '0.00194100', '0.00194200', '82173025.00000000', 1749574799999, '160740.30544300', 1466, '38421914.00000000', '75151.14381700', '0'], [1749574800000, '0.00194400', '0.00196100', '0.00192800', '0.00193500', '60488435.00000000', 1749578399999, '117543.62872600', 1306, '29146262.00000000', '56690.42535200', '0']]
+2025-06-12 13:44:45 - flask_api - INFO - Recebida requisição para klines de RVNUSDT
+2025-06-12 13:44:45 - flask_api - INFO - Klines recebidos para RVNUSDT: [[1749567600000, '0.01855000', '0.01894000', '0.01838000', '0.01875000', '34545437.60000000', 1749571199999, '645386.77813700', 4508, '17768963.60000000', '332091.51123500', '0'], [1749571200000, '0.01875000', '0.01883000', '0.01826000', '0.01827000', '27481735.80000000', 1749574799999, '510067.88031300', 3784, '11300549.90000000', '209865.27147800', '0'], [1749574800000, '0.01829000', '0.01845000', '0.01819000', '0.01841000', '31952982.10000000', 1749578399999, '585621.97003400', 5237, '17556771.50000000', '321932.29315000', '0']]
+2025-06-12 13:44:45 - flask_api - INFO - Recebida requisição para klines de NOTUSDT
+2025-06-12 13:44:46 - flask_api - INFO - Klines recebidos para NOTUSDT: [[1749567600000, '0.00239300', '0.00242100', '0.00237600', '0.00240800', '93313319.00', 1749571199999, '223662.26144800', 2375, '37757569.00', '90493.96754100', '0'], [1749571200000, '0.00240900', '0.00242700', '0.00239700', '0.00240300', '61684187.00', 1749574799999, '148689.17539200', 1344, '30448646.00', '73410.59670100', '0'], [1749574800000, '0.00240300', '0.00242100', '0.00238700', '0.00239300', '39425321.00', 1749578399999, '94716.62334500', 952, '18838909.00', '45248.25201100', '0']]
+2025-06-12 13:44:46 - flask_api - INFO - Recebida requisição para klines de TURBOUSDT
+2025-06-12 13:44:46 - flask_api - INFO - Klines recebidos para TURBOUSDT: [[1749567600000, '0.00444000', '0.00448800', '0.00438300', '0.00444600', '64641347.00000000', 1749571199999, '286659.65931200', 4401, '28355703.00000000', '125948.25833100', '0'], [1749571200000, '0.00444800', '0.00447800', '0.00440100', '0.00440200', '37859608.00000000', 1749574799999, '168199.08389600', 2772, '14794361.00000000', '65747.18684100', '0'], [1749574800000, '0.00440300', '0.00444300', '0.00438900', '0.00439300', '25100318.00000000', 1749578399999, '110694.28364600', 2076, '12923156.00000000', '57036.23159200', '0']]
+2025-06-12 13:44:46 - flask_api - INFO - Recebida requisição para klines de LEVERUSDT
+2025-06-12 13:44:46 - flask_api - INFO - Klines recebidos para LEVERUSDT: [[1749567600000, '0.00047400', '0.00047800', '0.00046900', '0.00047700', '83188693.00000000', 1749571199999, '39438.00639200', 859, '40222649.00000000', '19088.39871600', '0'], [1749571200000, '0.00047700', '0.00047900', '0.00047300', '0.00047400', '52229268.00000000', 1749574799999, '24870.17486100', 507, '21857454.00000000', '10414.03987900', '0'], [1749574800000, '0.00047500', '0.00047900', '0.00047400', '0.00047600', '42568352.00000000', 1749578399999, '20270.12941700', 418, '19170017.00000000', '9129.41814100', '0']]
+2025-06-12 13:44:46 - flask_api - INFO - Recebida requisição para klines de HOTUSDT
+2025-06-12 13:44:47 - flask_api - INFO - Klines recebidos para HOTUSDT: [[1749567600000, '0.00101700', '0.00102400', '0.00100700', '0.00102400', '79195043.00000000', 1749571199999, '80561.73239400', 515, '45152391.00000000', '45917.32811100', '0'], [1749571200000, '0.00102500', '0.00103000', '0.00101800', '0.00101800', '44963652.00000000', 1749574799999, '46090.49227800', 413, '21297363.00000000', '21849.78072500', '0'], [1749574800000, '0.00101900', '0.00102700', '0.00101700', '0.00102200', '86245609.00000000', 1749578399999, '88048.75633700', 517, '44445795.00000000', '45415.77404500', '0']]
+2025-06-12 13:44:47 - flask_api - INFO - Recebida requisição para klines de USDCUSDT
+2025-06-12 13:44:47 - flask_api - INFO - Klines recebidos para USDCUSDT: [[1749567600000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '55304858.00000000', 1749571199999, '55285079.79930000', 13870, '23437425.00000000', '23430393.77250000', '0'], [1749571200000, '0.99970000', '0.99970000', '0.99960000', '0.99960000', '45352521.00000000', 1749574799999, '45337136.37060000', 11084, '27563790.00000000', '27555520.86300000', '0'], [1749574800000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '25308973.00000000', 1749578399999, '25300546.00300000', 8119, '16965922.00000000', '16960832.22340000', '0']]
+2025-06-12 13:44:47 - flask_api - INFO - Recebida requisição para klines de DENTUSDT
+2025-06-12 13:44:48 - flask_api - INFO - Klines recebidos para DENTUSDT: [[1749567600000, '0.00076400', '0.00077100', '0.00075700', '0.00076600', '43754835.00000000', 1749571199999, '33470.62705700', 358, '13525220.00000000', '10340.48352500', '0'], [1749571200000, '0.00076500', '0.00077100', '0.00076100', '0.00076100', '23544499.00000000', 1749574799999, '18054.47763300', 238, '11230808.00000000', '8616.27437200', '0'], [1749574800000, '0.00076300', '0.00076800', '0.00076100', '0.00076200', '7368666.00000000', 1749578399999, '5630.95573200', 114, '5867022.00000000', '4483.31959600', '0']]
+2025-06-12 13:44:48 - flask_api - INFO - Recebida requisição para klines de DOGEUSDT
+2025-06-12 13:44:48 - flask_api - INFO - Klines recebidos para DOGEUSDT: [[1749567600000, '0.19061000', '0.19221000', '0.18880000', '0.19110000', '42988301.00000000', 1749571199999, '8190783.94778000', 54040, '17693950.00000000', '3374614.08876000', '0'], [1749571200000, '0.19109000', '0.19184000', '0.18997000', '0.19055000', '20061172.00000000', 1749574799999, '3830419.70055000', 25731, '10414369.00000000', '1988859.35145000', '0'], [1749574800000, '0.19054000', '0.19193000', '0.19053000', '0.19087000', '12465635.00000000', 1749578399999, '2382647.78329000', 16030, '5946374.00000000', '1136341.57221000', '0']]
+2025-06-12 13:44:48 - flask_api - INFO - Recebida requisição para klines de ANIMEUSDT
+2025-06-12 13:44:48 - flask_api - INFO - Klines recebidos para ANIMEUSDT: [[1749567600000, '0.03886000', '0.03920000', '0.03844000', '0.03853000', '12962527.60000000', 1749571199999, '502080.91170200', 5915, '5715876.70000000', '221439.77714300', '0'], [1749571200000, '0.03853000', '0.03867000', '0.03720000', '0.03723000', '28906013.60000000', 1749574799999, '1094580.84910100', 10216, '14453138.00000000', '547388.55495500', '0'], [1749574800000, '0.03722000', '0.03745000', '0.03583000', '0.03585000', '39310551.00000000', 1749578399999, '1440266.42097900', 11049, '15235270.70000000', '557420.86035100', '0']]
+2025-06-12 13:44:48 - flask_api - INFO - Recebida requisição para klines de MBLUSDT
+2025-06-12 13:44:49 - flask_api - INFO - Klines recebidos para MBLUSDT: [[1749567600000, '0.00234000', '0.00235400', '0.00232800', '0.00234600', '44942250.00000000', 1749571199999, '105325.59834000', 3011, '22123496.00000000', '51850.55854300', '0'], [1749571200000, '0.00234600', '0.00235800', '0.00234500', '0.00235200', '39874405.00000000', 1749574799999, '93786.47289800', 2779, '19592347.00000000', '46085.66571300', '0'], [1749574800000, '0.00235100', '0.00236800', '0.00235100', '0.00235400', '31669350.00000000', 1749578399999, '74661.43967000', 2480, '15178358.00000000', '35787.30367000', '0']]
+2025-06-12 13:44:49 - flask_api - INFO - Recebida requisição para klines de FUNUSDT
+2025-06-12 13:44:49 - flask_api - INFO - Klines recebidos para FUNUSDT: [[1749567600000, '0.00381900', '0.00389900', '0.00381700', '0.00387600', '64505816.00000000', 1749571199999, '248988.61941900', 4572, '41334747.00000000', '159454.24589600', '0'], [1749571200000, '0.00387700', '0.00388700', '0.00384000', '0.00385500', '29208351.00000000', 1749574799999, '112791.89152900', 2639, '16428220.00000000', '63425.56084600', '0'], [1749574800000, '0.00385500', '0.00388000', '0.00383100', '0.00384900', '22783796.00000000', 1749578399999, '87774.10745700', 2780, '12151399.00000000', '46819.84973600', '0']]
+2025-06-12 13:44:49 - flask_api - INFO - Recebida requisição para klines de GALAUSDT
+2025-06-12 13:44:50 - flask_api - INFO - Klines recebidos para GALAUSDT: [[1749567600000, '0.01734000', '0.01753000', '0.01714000', '0.01739000', '53918498.00000000', 1749571199999, '934707.28664000', 6396, '28990379.00000000', '502764.86802000', '0'], [1749571200000, '0.01739000', '0.01757000', '0.01737000', '0.01740000', '26664980.00000000', 1749574799999, '466071.55528000', 3910, '14492960.00000000', '253370.45352000', '0'], [1749574800000, '0.01740000', '0.01755000', '0.01736000', '0.01739000', '17057321.00000000', 1749578399999, '297260.57057000', 3279, '9528709.00000000', '165989.43523000', '0']]
+2025-06-12 13:44:50 - flask_api - INFO - Recebida requisição para klines de TRXUSDT
+2025-06-12 13:44:50 - flask_api - INFO - Klines recebidos para TRXUSDT: [[1749567600000, '0.29440000', '0.29440000', '0.29130000', '0.29200000', '27643228.70000000', 1749571199999, '8092077.43230000', 10140, '10421023.40000000', '3050834.60868000', '0'], [1749571200000, '0.29200000', '0.29350000', '0.29190000', '0.29280000', '14507557.20000000', 1749574799999, '4248060.52900000', 5874, '8047875.40000000', '2356620.01606000', '0'], [1749574800000, '0.29290000', '0.29360000', '0.29060000', '0.29070000', '14461737.00000000', 1749578399999, '4221542.10172000', 5806, '3497377.20000000', '1021475.00291000', '0']]
+2025-06-12 13:44:50 - flask_api - INFO - Recebida requisição para klines de IOSTUSDT
+2025-06-12 13:44:50 - flask_api - INFO - Klines recebidos para IOSTUSDT: [[1749567600000, '0.00421100', '0.00424800', '0.00416300', '0.00422700', '54153019.00000000', 1749571199999, '227930.12091500', 2463, '23457310.00000000', '98864.55801900', '0'], [1749571200000, '0.00422600', '0.00425200', '0.00420300', '0.00420500', '18859032.00000000', 1749574799999, '79796.27701300', 997, '10066908.00000000', '42604.45852100', '0'], [1749574800000, '0.00420800', '0.00424000', '0.00420300', '0.00422400', '27523472.00000000', 1749578399999, '116135.95488000', 1298, '19575454.00000000', '82588.83869800', '0']]
+2025-06-12 13:44:50 - flask_api - INFO - Recebida requisição para klines de 1000CHEEMSUSDT
+2025-06-12 13:44:51 - flask_api - INFO - Klines recebidos para 1000CHEEMSUSDT: [[1749567600000, '0.00145200', '0.00145400', '0.00144000', '0.00145200', '11367686.00', 1749571199999, '16454.44614800', 470, '6514553.00', '9436.04401300', '0'], [1749571200000, '0.00145300', '0.00145300', '0.00144500', '0.00145100', '13799674.00', 1749574799999, '20006.91891300', 352, '10465887.00', '15178.81238300', '0'], [1749574800000, '0.00145200', '0.00145900', '0.00145100', '0.00145500', '10515835.00', 1749578399999, '15302.85025800', 313, '6791636.00', '9883.92757500', '0']]
+2025-06-12 13:44:51 - flask_api - INFO - Recebida requisição para klines de SLPUSDT
+2025-06-12 13:44:51 - flask_api - INFO - Klines recebidos para SLPUSDT: [[1749567600000, '0.00153300', '0.00154000', '0.00150600', '0.00153100', '27116446.00000000', 1749571199999, '41327.83872400', 720, '10307279.00000000', '15698.91913900', '0'], [1749571200000, '0.00153200', '0.00154500', '0.00151900', '0.00152300', '40489000.00000000', 1749574799999, '62071.89211000', 839, '15895425.00000000', '24400.68593600', '0'], [1749574800000, '0.00152300', '0.00153500', '0.00151300', '0.00151300', '13881919.00000000', 1749578399999, '21167.38221800', 409, '5266601.00000000', '8030.97547600', '0']]
+2025-06-12 13:44:51 - flask_api - INFO - Recebida requisição para klines de HOMEUSDT
+2025-06-12 13:44:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:44:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:44:52 - flask_api - INFO - Klines recebidos para HOMEUSDT: [[1749740400000, '0.02733000', '0.03632000', '0.02733000', '0.03312000', '385809130.00000000', 1749743999999, '13324324.27659000', 74134, '197473448.00000000', '6828633.57401000', '0'], [1749744000000, '0.03312000', '0.03324000', '0.03118000', '0.03140000', '99814229.00000000', 1749747599999, '3223401.02459000', 17476, '50724596.00000000', '1638681.49834000', '0']]
+2025-06-12 13:44:52 - flask_api - INFO - Recebida requisição para klines de RSRUSDT
+2025-06-12 13:44:52 - flask_api - INFO - Klines recebidos para RSRUSDT: [[1749567600000, '0.00740100', '0.00747500', '0.00730900', '0.00740100', '29906880.40000000', 1749571199999, '220594.41750580', 4671, '12100922.40000000', '89307.61542860', '0'], [1749571200000, '0.00740100', '0.00746500', '0.00738700', '0.00740100', '11918445.70000000', 1749574799999, '88493.38955410', 1712, '5655617.10000000', '41971.35853140', '0'], [1749574800000, '0.00739900', '0.00747100', '0.00736900', '0.00737800', '9604206.00000000', 1749578399999, '71195.13155110', 1287, '5145337.50000000', '38128.55147210', '0']]
+2025-06-12 13:44:52 - flask_api - INFO - Recebida requisição para klines de AMPUSDT
+2025-06-12 13:44:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:44:52 - flask_api - INFO - Klines recebidos para AMPUSDT: [[1749567600000, '0.00403400', '0.00406000', '0.00399900', '0.00402800', '12443010.00000000', 1749571199999, '50167.68543700', 532, '6017856.00000000', '24272.56946400', '0'], [1749571200000, '0.00403800', '0.00405200', '0.00401700', '0.00401800', '9286627.00000000', 1749574799999, '37463.40766600', 383, '4315272.00000000', '17420.85175200', '0'], [1749574800000, '0.00401800', '0.00404000', '0.00400800', '0.00401200', '5781543.00000000', 1749578399999, '23249.11325100', 378, '2384377.00000000', '9589.37827800', '0']]
+2025-06-12 13:44:52 - flask_api - INFO - Recebida requisição para klines de CKBUSDT
+2025-06-12 13:44:53 - flask_api - INFO - Klines recebidos para CKBUSDT: [[1749567600000, '0.00427700', '0.00431300', '0.00423100', '0.00429100', '13081111.00000000', 1749571199999, '55870.82968400', 780, '4985271.00000000', '21296.77777700', '0'], [1749571200000, '0.00429000', '0.00432000', '0.00426200', '0.00426400', '6350952.00000000', 1749574799999, '27291.95343900', 479, '4690463.00000000', '20153.67251600', '0'], [1749574800000, '0.00426400', '0.00429400', '0.00426200', '0.00426800', '5131897.00000000', 1749578399999, '21935.41067700', 387, '2441677.00000000', '10437.63213800', '0']]
+2025-06-12 13:44:53 - flask_api - INFO - Recebida requisição para klines de PEOPLEUSDT
+2025-06-12 13:44:53 - flask_api - INFO - Klines recebidos para PEOPLEUSDT: [[1749567600000, '0.02364000', '0.02406000', '0.02332000', '0.02389000', '28484427.10000000', 1749571199999, '675736.03693600', 5539, '12922358.20000000', '306886.86588300', '0'], [1749571200000, '0.02390000', '0.02402000', '0.02336000', '0.02344000', '19210013.50000000', 1749574799999, '454886.83517200', 2904, '7895602.70000000', '187100.42901900', '0'], [1749574800000, '0.02344000', '0.02359000', '0.02321000', '0.02332000', '8238455.90000000', 1749578399999, '192843.70795500', 1746, '3350167.90000000', '78415.83086500', '0']]
+2025-06-12 13:44:53 - flask_api - INFO - Recebida requisição para klines de BEAMXUSDT
+2025-06-12 13:44:53 - flask_api - INFO - Klines recebidos para BEAMXUSDT: [[1749567600000, '0.00673000', '0.00682000', '0.00669000', '0.00677000', '29808245.00000000', 1749571199999, '201242.23371000', 2381, '15804002.00000000', '106728.77576000', '0'], [1749571200000, '0.00678000', '0.00681000', '0.00672000', '0.00672000', '10857513.00000000', 1749574799999, '73446.12094000', 1488, '3955588.00000000', '26757.58592000', '0'], [1749574800000, '0.00672000', '0.00678000', '0.00671000', '0.00672000', '7652470.00000000', 1749578399999, '51573.81120000', 1022, '2197272.00000000', '14822.84780000', '0']]
+2025-06-12 13:44:53 - flask_api - INFO - Recebida requisição para klines de XVGUSDT
+2025-06-12 13:44:54 - flask_api - INFO - Klines recebidos para XVGUSDT: [[1749567600000, '0.00626100', '0.00630900', '0.00617300', '0.00624400', '21935841.00000000', 1749571199999, '136495.26164000', 723, '12583073.00000000', '78310.75541200', '0'], [1749571200000, '0.00625400', '0.00629000', '0.00621000', '0.00626500', '11083375.00000000', 1749574799999, '69410.18315400', 470, '6565655.00000000', '41147.15034100', '0'], [1749574800000, '0.00625400', '0.00631500', '0.00621400', '0.00622700', '4950191.00000000', 1749578399999, '31009.89824800', 319, '2037531.00000000', '12785.57734900', '0']]
+2025-06-12 13:44:54 - flask_api - INFO - Recebida requisição para klines de JASMYUSDT
+2025-06-12 13:44:54 - flask_api - INFO - Klines recebidos para JASMYUSDT: [[1749567600000, '0.01508000', '0.01526000', '0.01499000', '0.01519000', '13829160.80000000', 1749571199999, '209282.04285300', 1146, '6362537.20000000', '96241.53911300', '0'], [1749571200000, '0.01519000', '0.01526000', '0.01513000', '0.01513000', '6341398.80000000', 1749574799999, '96336.64082600', 574, '3283759.20000000', '49883.31617800', '0'], [1749574800000, '0.01513000', '0.01524000', '0.01512000', '0.01513000', '7302882.80000000', 1749578399999, '110681.19485300', 583, '3357524.20000000', '50876.49759900', '0']]
+2025-06-12 13:44:54 - flask_api - INFO - Recebida requisição para klines de MUBARAKUSDT
+2025-06-12 13:44:54 - flask_api - INFO - Klines recebidos para MUBARAKUSDT: [[1749567600000, '0.04210000', '0.04240000', '0.04130000', '0.04220000', '17738038.90000000', 1749571199999, '742576.11323000', 3412, '9955013.80000000', '417175.43408000', '0'], [1749571200000, '0.04230000', '0.04260000', '0.04150000', '0.04170000', '15121873.20000000', 1749574799999, '637979.41878000', 3092, '7801097.10000000', '329466.57184000', '0'], [1749574800000, '0.04160000', '0.04200000', '0.04120000', '0.04130000', '10881111.50000000', 1749578399999, '452458.00246000', 2135, '4822008.30000000', '200556.95276000', '0']]
+2025-06-12 13:44:54 - flask_api - INFO - Recebida requisição para klines de VTHOUSDT
+2025-06-12 13:44:55 - flask_api - INFO - Klines recebidos para VTHOUSDT: [[1749567600000, '0.00216700', '0.00218200', '0.00215300', '0.00217900', '17088446.00000000', 1749571199999, '37063.85833800', 661, '8335278.00000000', '18063.30291400', '0'], [1749571200000, '0.00218000', '0.00218800', '0.00216700', '0.00217200', '9643133.00000000', 1749574799999, '21002.46792600', 550, '5311640.00000000', '11572.10274900', '0'], [1749574800000, '0.00217200', '0.00218800', '0.00217200', '0.00217500', '7154530.00000000', 1749578399999, '15576.29137200', 522, '4271643.00000000', '9299.20278800', '0']]
+2025-06-12 13:44:55 - flask_api - INFO - Recebida requisição para klines de VETUSDT
+2025-06-12 13:44:55 - flask_api - INFO - Klines recebidos para VETUSDT: [[1749567600000, '0.02547000', '0.02569000', '0.02520000', '0.02550000', '18815789.70000000', 1749571199999, '478069.76801500', 3943, '7032919.90000000', '178899.07240800', '0'], [1749571200000, '0.02551000', '0.02564000', '0.02538000', '0.02539000', '16401275.20000000', 1749574799999, '419107.14871500', 2681, '7542081.00000000', '192860.96673200', '0'], [1749574800000, '0.02538000', '0.02563000', '0.02538000', '0.02549000', '5106074.10000000', 1749578399999, '130228.23314400', 991, '2990451.70000000', '76262.57584700', '0']]
+2025-06-12 13:44:55 - flask_api - INFO - Recebida requisição para klines de FDUSDUSDT
+2025-06-12 13:44:56 - flask_api - INFO - Klines recebidos para FDUSDUSDT: [[1749567600000, '0.99840000', '0.99850000', '0.99830000', '0.99840000', '18108267.00000000', 1749571199999, '18080035.11320000', 11804, '9114396.00000000', '9100570.01220000', '0'], [1749571200000, '0.99840000', '0.99850000', '0.99840000', '0.99840000', '9843173.00000000', 1749574799999, '9827795.23470000', 8575, '3713115.00000000', '3707545.32750000', '0'], [1749574800000, '0.99840000', '0.99850000', '0.99840000', '0.99850000', '5976813.00000000', 1749578399999, '5967654.32030000', 3710, '4042211.00000000', '4036147.68350000', '0']]
+2025-06-12 13:44:56 - flask_api - INFO - Recebida requisição para klines de 1000CATUSDT
+2025-06-12 13:44:56 - flask_api - INFO - Klines recebidos para 1000CATUSDT: [[1749567600000, '0.00747000', '0.00757000', '0.00740000', '0.00754000', '14178823.00000000', 1749571199999, '106170.43756100', 782, '6258463.50000000', '46872.96671200', '0'], [1749571200000, '0.00755000', '0.00758000', '0.00749000', '0.00750000', '8232645.70000000', 1749574799999, '61956.85223000', 548, '3548735.00000000', '26718.71315900', '0'], [1749574800000, '0.00751000', '0.00757000', '0.00746000', '0.00749000', '6290669.80000000', 1749578399999, '47242.21946900', 332, '3082304.10000000', '23147.25898500', '0']]
+2025-06-12 13:44:56 - flask_api - INFO - Recebida requisição para klines de TLMUSDT
+2025-06-12 13:44:56 - flask_api - INFO - Klines recebidos para TLMUSDT: [[1749567600000, '0.00512000', '0.00517000', '0.00507000', '0.00513000', '15582949.00000000', 1749571199999, '79669.35172000', 846, '7352272.00000000', '37631.72985000', '0'], [1749571200000, '0.00513000', '0.00516000', '0.00511000', '0.00511000', '5844636.00000000', 1749574799999, '29992.48430000', 311, '3194745.00000000', '16403.25582000', '0'], [1749574800000, '0.00511000', '0.00515000', '0.00509000', '0.00510000', '6046186.00000000', 1749578399999, '30893.17702000', 450, '1785156.00000000', '9124.32786000', '0']]
+2025-06-12 13:44:56 - flask_api - INFO - Recebida requisição para klines de HUMAUSDT
+2025-06-12 13:44:57 - flask_api - INFO - Klines recebidos para HUMAUSDT: [[1749567600000, '0.05093000', '0.05123000', '0.05010000', '0.05049000', '25244037.00000000', 1749571199999, '1278152.46774000', 8433, '11333364.00000000', '574332.58030000', '0'], [1749571200000, '0.05048000', '0.05080000', '0.05003000', '0.05008000', '16526100.00000000', 1749574799999, '831505.16726000', 5581, '7711590.00000000', '388335.86026000', '0'], [1749574800000, '0.05009000', '0.05022000', '0.04930000', '0.04967000', '16154441.00000000', 1749578399999, '803478.94898000', 5306, '6197783.00000000', '308128.50540000', '0']]
+2025-06-12 13:44:57 - flask_api - INFO - Recebida requisição para klines de GUNUSDT
+2025-06-12 13:44:57 - flask_api - INFO - Klines recebidos para GUNUSDT: [[1749567600000, '0.03407000', '0.03443000', '0.03384000', '0.03440000', '6538038.00000000', 1749571199999, '223654.61672000', 2539, '3945072.00000000', '135026.25955000', '0'], [1749571200000, '0.03442000', '0.03459000', '0.03404000', '0.03406000', '2428889.00000000', 1749574799999, '83491.88990000', 1230, '826744.00000000', '28430.20992000', '0'], [1749574800000, '0.03406000', '0.03429000', '0.03397000', '0.03413000', '3263951.00000000', 1749578399999, '111311.53553000', 1267, '2106102.00000000', '71818.13315000', '0']]
+2025-06-12 13:44:57 - flask_api - INFO - Recebida requisição para klines de ONEUSDT
+2025-06-12 13:44:57 - flask_api - INFO - Klines recebidos para ONEUSDT: [[1749567600000, '0.01259000', '0.01270000', '0.01242000', '0.01264000', '7492476.90000000', 1749571199999, '94067.32710200', 786, '3227788.50000000', '40617.48525400', '0'], [1749571200000, '0.01265000', '0.01271000', '0.01257000', '0.01257000', '4174959.30000000', 1749574799999, '52758.14603900', 463, '1950137.00000000', '24645.87420300', '0'], [1749574800000, '0.01258000', '0.01274000', '0.01257000', '0.01258000', '6304128.60000000', 1749578399999, '79838.87465000', 580, '3805921.60000000', '48230.85358900', '0']]
+2025-06-12 13:44:58 - flask_api - INFO - Recebida solicitação para iniciar bot para PEPEUSDT
+2025-06-12 13:44:58 - flask_api - INFO - Iniciando bot para PEPEUSDT em uma nova thread...
+2025-06-12 13:44:58 - flask_api - INFO - Recebida solicitação para iniciar bot para BONKUSDT
+2025-06-12 13:44:58 - flask_api - INFO - Iniciando bot para BONKUSDT em uma nova thread...
+2025-06-12 13:44:58 - flask_api - INFO - Recebida solicitação para iniciar bot para 1000SATSUSDT
+2025-06-12 13:44:58 - flask_api - INFO - Iniciando bot para 1000SATSUSDT em uma nova thread...
+2025-06-12 13:44:59 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:44:59 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:44:59 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:44:59 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:45:00 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:00 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:45:01 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:01 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:01 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:03 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:03 - capital_management - INFO - Market decision for 1000SATSUSDT: futures (More capital available in futures)
+2025-06-12 13:45:03 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:45:03 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:45:03 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:45:03 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:45:03 - flask_api - INFO - [1000SATSUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:45:03 - grid_logic - INFO - [1000SATSUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:45:03 - grid_logic - INFO - [1000SATSUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Tick: 1E-7, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens FUTURES
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens SPOT
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-12 13:45:04 - risk_management - INFO - [1000SATSUSDT] RiskManager inicializado para mercado SPOT. Max Drawdown: 10.0%, Use ATR SL: False, Check Reversal Patterns: False, Sentiment Risk Adj: True
+2025-06-12 13:45:04 - risk_management - WARNING - [1000SATSUSDT] Ajuste de risco por sentimento habilitado, mas nenhuma função de score de sentimento fornecida. Recurso desabilitado.
+2025-06-12 13:45:04 - flask_api - ERROR - Erro crítico no loop do bot 1000SATSUSDT: 'bool' object is not callable
+2025-06-12 13:45:04 - flask_api - INFO - Thread do bot para 1000SATSUSDT finalizada.
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Parando bot de grid trading...
+2025-06-12 13:45:04 - grid_logic - INFO - [1000SATSUSDT] Bot parado com sucesso
+2025-06-12 13:45:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:45:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:45:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:45:19 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:19 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:45:19 - capital_management - INFO - Market decision for BONKUSDT: futures (More capital available in futures)
+2025-06-12 13:45:19 - capital_management - INFO - Market decision for PEPEUSDT: futures (More capital available in futures)
+2025-06-12 13:45:19 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:45:19 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:45:19 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:45:19 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:45:19 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:45:19 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:45:19 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:45:19 - flask_api - INFO - [BONKUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:45:19 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:45:19 - grid_logic - INFO - [BONKUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:45:19 - flask_api - INFO - [PEPEUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:45:19 - grid_logic - INFO - [BONKUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:45:19 - grid_logic - INFO - [PEPEUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:45:19 - grid_logic - INFO - [PEPEUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:45:19 - grid_logic - ERROR - [PEPEUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:45:19 - flask_api - ERROR - Erro na thread do bot para PEPEUSDT: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:45:19 - flask_api - INFO - Thread do bot para PEPEUSDT finalizada.
+2025-06-12 13:45:19 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot PEPEUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:45:20 - grid_logic - ERROR - [BONKUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:45:20 - flask_api - ERROR - Erro na thread do bot para BONKUSDT: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:45:20 - flask_api - INFO - Thread do bot para BONKUSDT finalizada.
+2025-06-12 13:45:20 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot BONKUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:45:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:45:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:45:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:45:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:45:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:45:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:45:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:45:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:45:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:46:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:46:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:46:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:46:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:46:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:46:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:46:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:46:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:46:44 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:46:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:46:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:46:53 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:47:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:47:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:47:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:47:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:47:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:47:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:47:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:47:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:47:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:47:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:47:51 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:47:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:48:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:48:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:48:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:48:21 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:48:21 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:48:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:48:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:48:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:48:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:48:50 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:48:50 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:48:52 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:49:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:49:12 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:49:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:49:21 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:49:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:49:42 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:50 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:49:50 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:49:51 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:58 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:49:58 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:49:59 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:49:59 - flask_api - INFO - Recebida requisição para klines de PEPEUSDT
+2025-06-12 13:50:00 - flask_api - INFO - Klines recebidos para PEPEUSDT: [[1749567600000, '0.00001271', '0.00001287', '0.00001248', '0.00001277', '2101372747285.00', 1749571199999, '26654213.67832979', 60268, '1065886617518.00', '13523282.89134748', '0'], [1749571200000, '0.00001276', '0.00001283', '0.00001255', '0.00001256', '1176551845121.00', 1749574799999, '14885301.32168666', 34986, '591427705196.00', '7485681.51348990', '0'], [1749574800000, '0.00001257', '0.00001269', '0.00001253', '0.00001257', '517064436386.00', 1749578399999, '6516378.81595282', 20773, '237746879530.00', '2997427.99726039', '0']]
+2025-06-12 13:50:00 - flask_api - INFO - Recebida requisição para klines de BTTCUSDT
+2025-06-12 13:50:00 - flask_api - INFO - Klines recebidos para BTTCUSDT: [[1749567600000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '16985117937.0', 1749571199999, '12120.07161638', 284, '6063788111.0', '4365.92743992', '0'], [1749571200000, '0.00000072', '0.00000072', '0.00000071', '0.00000071', '25812225587.0', 1749574799999, '18442.13505502', 257, '11545488825.0', '8312.75195400', '0'], [1749574800000, '0.00000071', '0.00000072', '0.00000071', '0.00000071', '18457404428.0', 1749578399999, '13211.88857720', 260, '10713143332.0', '7713.46319904', '0']]
+2025-06-12 13:50:00 - flask_api - INFO - Recebida requisição para klines de SHIBUSDT
+2025-06-12 13:50:00 - flask_api - INFO - Klines recebidos para SHIBUSDT: [[1749567600000, '0.00001294', '0.00001306', '0.00001284', '0.00001300', '95954041547.00', 1749571199999, '1243578.98490178', 38289, '47644495937.00', '617463.76239897', '0'], [1749571200000, '0.00001300', '0.00001307', '0.00001296', '0.00001297', '51589748985.00', 1749574799999, '671713.82946148', 19010, '26844764813.00', '349699.20708941', '0'], [1749574800000, '0.00001297', '0.00001305', '0.00001294', '0.00001296', '48912885145.00', 1749578399999, '634678.84758436', 16060, '25418144240.00', '329766.20292568', '0']]
+2025-06-12 13:50:00 - flask_api - INFO - Recebida requisição para klines de BONKUSDT
+2025-06-12 13:50:01 - flask_api - INFO - Klines recebidos para BONKUSDT: [[1749567600000, '0.00001718', '0.00001742', '0.00001701', '0.00001731', '63861960058.00', 1749571199999, '1098812.58514518', 96166, '31560557369.00', '543414.79771516', '0'], [1749571200000, '0.00001731', '0.00001739', '0.00001709', '0.00001710', '41334179523.00', 1749574799999, '712424.34909962', 52771, '17555534850.00', '302799.68854030', '0'], [1749574800000, '0.00001710', '0.00001726', '0.00001706', '0.00001711', '19573975604.00', 1749578399999, '335449.94866148', 42452, '10220371172.00', '175257.95208168', '0']]
+2025-06-12 13:50:01 - flask_api - INFO - Recebida requisição para klines de FLOKIUSDT
+2025-06-12 13:50:01 - flask_api - INFO - Klines recebidos para FLOKIUSDT: [[1749567600000, '0.00009103', '0.00009223', '0.00008988', '0.00009179', '14929592081.00', 1749571199999, '1361364.77522976', 436185, '6766792760.00', '617473.36465653', '0'], [1749571200000, '0.00009180', '0.00009258', '0.00009147', '0.00009153', '9801808430.00', 1749574799999, '902284.62921482', 269914, '4433011036.00', '408114.07811501', '0'], [1749574800000, '0.00009153', '0.00009318', '0.00009153', '0.00009234', '7656675908.00', 1749578399999, '707590.84198568', 245634, '4116056250.00', '380414.43179145', '0']]
+2025-06-12 13:50:01 - flask_api - INFO - Recebida requisição para klines de 1000SATSUSDT
+2025-06-12 13:50:02 - flask_api - INFO - Klines recebidos para 1000SATSUSDT: [[1749567600000, '0.00004680', '0.00004730', '0.00004640', '0.00004710', '6030053458.00', 1749571199999, '282807.19853940', 4758, '2852996238.00', '133832.57135010', '0'], [1749571200000, '0.00004700', '0.00004740', '0.00004670', '0.00004680', '6047886055.00', 1749574799999, '284779.52527190', 3892, '3013772545.00', '141975.18876800', '0'], [1749574800000, '0.00004670', '0.00004710', '0.00004650', '0.00004670', '4914528445.00', 1749578399999, '229397.34531220', 2926, '2007397378.00', '93748.67985930', '0']]
+2025-06-12 13:50:02 - flask_api - INFO - Recebida requisição para klines de NEIROUSDT
+2025-06-12 13:50:02 - flask_api - INFO - Klines recebidos para NEIROUSDT: [[1749567600000, '0.00050468', '0.00051464', '0.00049608', '0.00051356', '11415307650.00', 1749571199999, '5772211.27784451', 110401, '5796088849.00', '2933678.22476161', '0'], [1749571200000, '0.00051355', '0.00051947', '0.00050590', '0.00050950', '6164661244.00', 1749574799999, '3156012.01084884', 60980, '3184918335.00', '1632501.45597787', '0'], [1749574800000, '0.00050942', '0.00051699', '0.00050737', '0.00051542', '3382744873.00', 1749578399999, '1733148.94583928', 45060, '2023378066.00', '1037130.74462300', '0']]
+2025-06-12 13:50:02 - flask_api - INFO - Recebida requisição para klines de LUNCUSDT
+2025-06-12 13:50:02 - flask_api - INFO - Klines recebidos para LUNCUSDT: [[1749567600000, '0.00006156', '0.00006196', '0.00006114', '0.00006188', '2146101272.54000000', 1749571199999, '132283.08680463', 2308, '1130685549.85000000', '69745.11598593', '0'], [1749571200000, '0.00006192', '0.00006217', '0.00006173', '0.00006178', '653463928.40000000', 1749574799999, '40478.18500335', 850, '214549639.57000000', '13294.63658606', '0'], [1749574800000, '0.00006176', '0.00006203', '0.00006144', '0.00006164', '818541233.81000000', 1749578399999, '50508.66359578', 1096, '273152682.80000000', '16855.72511706', '0']]
+2025-06-12 13:50:02 - flask_api - INFO - Recebida requisição para klines de XECUSDT
+2025-06-12 13:50:03 - flask_api - INFO - Klines recebidos para XECUSDT: [[1749567600000, '0.00002251', '0.00002263', '0.00002227', '0.00002255', '5787410162.00', 1749571199999, '129516.60928880', 866, '2925349118.00', '65526.94675489', '0'], [1749571200000, '0.00002258', '0.00002264', '0.00002244', '0.00002244', '934642792.00', 1749574799999, '21086.66725667', 323, '208251081.00', '4700.37514863', '0'], [1749574800000, '0.00002245', '0.00002260', '0.00002245', '0.00002248', '1433526500.00', 1749578399999, '32272.66518755', 272, '846548636.00', '19062.69097448', '0']]
+2025-06-12 13:50:03 - flask_api - INFO - Recebida requisição para klines de HMSTRUSDT
+2025-06-12 13:50:03 - flask_api - INFO - Klines recebidos para HMSTRUSDT: [[1749567600000, '0.00146900', '0.00148200', '0.00146000', '0.00147700', '131474681.00', 1749571199999, '193290.14886000', 1765, '69858546.00', '102750.12911800', '0'], [1749571200000, '0.00147600', '0.00148300', '0.00146700', '0.00146800', '137537703.00', 1749574799999, '202924.36745000', 1603, '58236645.00', '85943.41462700', '0'], [1749574800000, '0.00146800', '0.00147500', '0.00146300', '0.00146300', '95125470.00', 1749578399999, '139742.49919800', 1285, '45947943.00', '67535.47654200', '0']]
+2025-06-12 13:50:03 - flask_api - INFO - Recebida requisição para klines de DOGSUSDT
+2025-06-12 13:50:04 - flask_api - INFO - Klines recebidos para DOGSUSDT: [[1749567600000, '0.00016160', '0.00016340', '0.00015960', '0.00016210', '821616541.00', 1749571199999, '132465.00904740', 1608, '331422796.00', '53440.16207520', '0'], [1749571200000, '0.00016230', '0.00016350', '0.00016090', '0.00016100', '466707760.00', 1749574799999, '75545.74208540', 1023, '244074520.00', '39525.34579180', '0'], [1749574800000, '0.00016110', '0.00016240', '0.00016040', '0.00016090', '257225661.00', 1749578399999, '41422.44112150', 792, '92842106.00', '14957.80556090', '0']]
+2025-06-12 13:50:04 - flask_api - INFO - Recebida requisição para klines de WINUSDT
+2025-06-12 13:50:04 - flask_api - INFO - Klines recebidos para WINUSDT: [[1749567600000, '0.00005382', '0.00005398', '0.00005343', '0.00005374', '278540644.00000000', 1749571199999, '14957.77833433', 758, '103882621.00000000', '5580.13797388', '0'], [1749571200000, '0.00005374', '0.00005409', '0.00005370', '0.00005371', '385395330.00000000', 1749574799999, '20761.86167096', 834, '219118227.00000000', '11806.54327764', '0'], [1749574800000, '0.00005371', '0.00005389', '0.00005355', '0.00005368', '253864321.00000000', 1749578399999, '13635.34624351', 541, '146006569.00000000', '7841.08079897', '0']]
+2025-06-12 13:50:04 - flask_api - INFO - Recebida requisição para klines de BOMEUSDT
+2025-06-12 13:50:04 - flask_api - INFO - Klines recebidos para BOMEUSDT: [[1749567600000, '0.00197200', '0.00199900', '0.00193200', '0.00197600', '557938463.00', 1749571199999, '1094773.86001200', 16239, '257829796.00', '506007.97000200', '0'], [1749571200000, '0.00197700', '0.00198900', '0.00195900', '0.00196000', '169944043.00', 1749574799999, '335299.21462500', 8671, '86030681.00', '169778.78705600', '0'], [1749574800000, '0.00196100', '0.00198200', '0.00195000', '0.00195800', '175445198.00', 1749578399999, '344322.17047600', 6336, '77284964.00', '151648.52378200', '0']]
+2025-06-12 13:50:04 - flask_api - INFO - Recebida requisição para klines de PENGUUSDT
+2025-06-12 13:50:05 - flask_api - INFO - Klines recebidos para PENGUUSDT: [[1749567600000, '0.01130400', '0.01139500', '0.01116500', '0.01136800', '99407533.00000000', 1749571199999, '1123830.28209900', 14313, '45380572.00000000', '513329.63289700', '0'], [1749571200000, '0.01136900', '0.01147800', '0.01127100', '0.01128000', '76048994.00000000', 1749574799999, '865739.12564100', 7780, '40329912.00000000', '459428.82199300', '0'], [1749574800000, '0.01128200', '0.01138700', '0.01128200', '0.01133700', '41840286.00000000', 1749578399999, '474439.55865100', 6910, '26731488.00000000', '303129.96419100', '0']]
+2025-06-12 13:50:05 - flask_api - INFO - Recebida requisição para klines de SPELLUSDT
+2025-06-12 13:50:05 - flask_api - INFO - Klines recebidos para SPELLUSDT: [[1749567600000, '0.00054290', '0.00054780', '0.00053940', '0.00054520', '80755333.00000000', 1749571199999, '43905.73166090', 936, '34550354.00000000', '18800.63012520', '0'], [1749571200000, '0.00054520', '0.00054650', '0.00054030', '0.00054110', '104456576.00000000', 1749574799999, '56681.75008400', 1034, '39077440.00000000', '21235.48409730', '0'], [1749574800000, '0.00054120', '0.00054570', '0.00054060', '0.00054200', '50756289.00000000', 1749578399999, '27538.96339950', 470, '22780080.00000000', '12354.90858280', '0']]
+2025-06-12 13:50:05 - flask_api - INFO - Recebida requisição para klines de 1MBABYDOGEUSDT
+2025-06-12 13:50:05 - flask_api - INFO - Klines recebidos para 1MBABYDOGEUSDT: [[1749567600000, '0.00143540', '0.00144610', '0.00141530', '0.00144330', '136617125.00', 1749571199999, '195559.78352910', 2203, '57797240.00', '82830.06796270', '0'], [1749571200000, '0.00144330', '0.00145010', '0.00142870', '0.00143030', '53725853.00', 1749574799999, '77296.65767540', 908, '27884939.00', '40090.61910000', '0'], [1749574800000, '0.00143080', '0.00144250', '0.00142430', '0.00143030', '43795549.00', 1749578399999, '62650.48681880', 615, '21662681.00', '30990.82009800', '0']]
+2025-06-12 13:50:05 - flask_api - INFO - Recebida requisição para klines de MEMEUSDT
+2025-06-12 13:50:06 - flask_api - INFO - Klines recebidos para MEMEUSDT: [[1749567600000, '0.00194400', '0.00196300', '0.00192000', '0.00194900', '86875392.00000000', 1749571199999, '168721.32230800', 2096, '38083782.00000000', '74029.19847400', '0'], [1749571200000, '0.00195000', '0.00196700', '0.00194100', '0.00194200', '82173025.00000000', 1749574799999, '160740.30544300', 1466, '38421914.00000000', '75151.14381700', '0'], [1749574800000, '0.00194400', '0.00196100', '0.00192800', '0.00193500', '60488435.00000000', 1749578399999, '117543.62872600', 1306, '29146262.00000000', '56690.42535200', '0']]
+2025-06-12 13:50:06 - flask_api - INFO - Recebida requisição para klines de RVNUSDT
+2025-06-12 13:50:06 - flask_api - INFO - Klines recebidos para RVNUSDT: [[1749567600000, '0.01855000', '0.01894000', '0.01838000', '0.01875000', '34545437.60000000', 1749571199999, '645386.77813700', 4508, '17768963.60000000', '332091.51123500', '0'], [1749571200000, '0.01875000', '0.01883000', '0.01826000', '0.01827000', '27481735.80000000', 1749574799999, '510067.88031300', 3784, '11300549.90000000', '209865.27147800', '0'], [1749574800000, '0.01829000', '0.01845000', '0.01819000', '0.01841000', '31952982.10000000', 1749578399999, '585621.97003400', 5237, '17556771.50000000', '321932.29315000', '0']]
+2025-06-12 13:50:06 - flask_api - INFO - Recebida requisição para klines de NOTUSDT
+2025-06-12 13:50:06 - flask_api - INFO - Klines recebidos para NOTUSDT: [[1749567600000, '0.00239300', '0.00242100', '0.00237600', '0.00240800', '93313319.00', 1749571199999, '223662.26144800', 2375, '37757569.00', '90493.96754100', '0'], [1749571200000, '0.00240900', '0.00242700', '0.00239700', '0.00240300', '61684187.00', 1749574799999, '148689.17539200', 1344, '30448646.00', '73410.59670100', '0'], [1749574800000, '0.00240300', '0.00242100', '0.00238700', '0.00239300', '39425321.00', 1749578399999, '94716.62334500', 952, '18838909.00', '45248.25201100', '0']]
+2025-06-12 13:50:07 - flask_api - INFO - Recebida requisição para klines de TURBOUSDT
+2025-06-12 13:50:07 - flask_api - INFO - Klines recebidos para TURBOUSDT: [[1749567600000, '0.00444000', '0.00448800', '0.00438300', '0.00444600', '64641347.00000000', 1749571199999, '286659.65931200', 4401, '28355703.00000000', '125948.25833100', '0'], [1749571200000, '0.00444800', '0.00447800', '0.00440100', '0.00440200', '37859608.00000000', 1749574799999, '168199.08389600', 2772, '14794361.00000000', '65747.18684100', '0'], [1749574800000, '0.00440300', '0.00444300', '0.00438900', '0.00439300', '25100318.00000000', 1749578399999, '110694.28364600', 2076, '12923156.00000000', '57036.23159200', '0']]
+2025-06-12 13:50:07 - flask_api - INFO - Recebida requisição para klines de LEVERUSDT
+2025-06-12 13:50:07 - flask_api - INFO - Klines recebidos para LEVERUSDT: [[1749567600000, '0.00047400', '0.00047800', '0.00046900', '0.00047700', '83188693.00000000', 1749571199999, '39438.00639200', 859, '40222649.00000000', '19088.39871600', '0'], [1749571200000, '0.00047700', '0.00047900', '0.00047300', '0.00047400', '52229268.00000000', 1749574799999, '24870.17486100', 507, '21857454.00000000', '10414.03987900', '0'], [1749574800000, '0.00047500', '0.00047900', '0.00047400', '0.00047600', '42568352.00000000', 1749578399999, '20270.12941700', 418, '19170017.00000000', '9129.41814100', '0']]
+2025-06-12 13:50:07 - flask_api - INFO - Recebida requisição para klines de HOTUSDT
+2025-06-12 13:50:08 - flask_api - INFO - Klines recebidos para HOTUSDT: [[1749567600000, '0.00101700', '0.00102400', '0.00100700', '0.00102400', '79195043.00000000', 1749571199999, '80561.73239400', 515, '45152391.00000000', '45917.32811100', '0'], [1749571200000, '0.00102500', '0.00103000', '0.00101800', '0.00101800', '44963652.00000000', 1749574799999, '46090.49227800', 413, '21297363.00000000', '21849.78072500', '0'], [1749574800000, '0.00101900', '0.00102700', '0.00101700', '0.00102200', '86245609.00000000', 1749578399999, '88048.75633700', 517, '44445795.00000000', '45415.77404500', '0']]
+2025-06-12 13:50:08 - flask_api - INFO - Recebida requisição para klines de USDCUSDT
+2025-06-12 13:50:08 - flask_api - INFO - Klines recebidos para USDCUSDT: [[1749567600000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '55304858.00000000', 1749571199999, '55285079.79930000', 13870, '23437425.00000000', '23430393.77250000', '0'], [1749571200000, '0.99970000', '0.99970000', '0.99960000', '0.99960000', '45352521.00000000', 1749574799999, '45337136.37060000', 11084, '27563790.00000000', '27555520.86300000', '0'], [1749574800000, '0.99960000', '0.99970000', '0.99960000', '0.99970000', '25308973.00000000', 1749578399999, '25300546.00300000', 8119, '16965922.00000000', '16960832.22340000', '0']]
+2025-06-12 13:50:08 - flask_api - INFO - Recebida requisição para klines de DENTUSDT
+2025-06-12 13:50:08 - flask_api - INFO - Klines recebidos para DENTUSDT: [[1749567600000, '0.00076400', '0.00077100', '0.00075700', '0.00076600', '43754835.00000000', 1749571199999, '33470.62705700', 358, '13525220.00000000', '10340.48352500', '0'], [1749571200000, '0.00076500', '0.00077100', '0.00076100', '0.00076100', '23544499.00000000', 1749574799999, '18054.47763300', 238, '11230808.00000000', '8616.27437200', '0'], [1749574800000, '0.00076300', '0.00076800', '0.00076100', '0.00076200', '7368666.00000000', 1749578399999, '5630.95573200', 114, '5867022.00000000', '4483.31959600', '0']]
+2025-06-12 13:50:08 - flask_api - INFO - Recebida requisição para klines de DOGEUSDT
+2025-06-12 13:50:09 - flask_api - INFO - Klines recebidos para DOGEUSDT: [[1749567600000, '0.19061000', '0.19221000', '0.18880000', '0.19110000', '42988301.00000000', 1749571199999, '8190783.94778000', 54040, '17693950.00000000', '3374614.08876000', '0'], [1749571200000, '0.19109000', '0.19184000', '0.18997000', '0.19055000', '20061172.00000000', 1749574799999, '3830419.70055000', 25731, '10414369.00000000', '1988859.35145000', '0'], [1749574800000, '0.19054000', '0.19193000', '0.19053000', '0.19087000', '12465635.00000000', 1749578399999, '2382647.78329000', 16030, '5946374.00000000', '1136341.57221000', '0']]
+2025-06-12 13:50:09 - flask_api - INFO - Recebida requisição para klines de ANIMEUSDT
+2025-06-12 13:50:09 - flask_api - INFO - Klines recebidos para ANIMEUSDT: [[1749567600000, '0.03886000', '0.03920000', '0.03844000', '0.03853000', '12962527.60000000', 1749571199999, '502080.91170200', 5915, '5715876.70000000', '221439.77714300', '0'], [1749571200000, '0.03853000', '0.03867000', '0.03720000', '0.03723000', '28906013.60000000', 1749574799999, '1094580.84910100', 10216, '14453138.00000000', '547388.55495500', '0'], [1749574800000, '0.03722000', '0.03745000', '0.03583000', '0.03585000', '39310551.00000000', 1749578399999, '1440266.42097900', 11049, '15235270.70000000', '557420.86035100', '0']]
+2025-06-12 13:50:09 - flask_api - INFO - Recebida requisição para klines de MBLUSDT
+2025-06-12 13:50:09 - flask_api - INFO - Klines recebidos para MBLUSDT: [[1749567600000, '0.00234000', '0.00235400', '0.00232800', '0.00234600', '44942250.00000000', 1749571199999, '105325.59834000', 3011, '22123496.00000000', '51850.55854300', '0'], [1749571200000, '0.00234600', '0.00235800', '0.00234500', '0.00235200', '39874405.00000000', 1749574799999, '93786.47289800', 2779, '19592347.00000000', '46085.66571300', '0'], [1749574800000, '0.00235100', '0.00236800', '0.00235100', '0.00235400', '31669350.00000000', 1749578399999, '74661.43967000', 2480, '15178358.00000000', '35787.30367000', '0']]
+2025-06-12 13:50:09 - flask_api - INFO - Recebida requisição para klines de FUNUSDT
+2025-06-12 13:50:10 - flask_api - INFO - Klines recebidos para FUNUSDT: [[1749567600000, '0.00381900', '0.00389900', '0.00381700', '0.00387600', '64505816.00000000', 1749571199999, '248988.61941900', 4572, '41334747.00000000', '159454.24589600', '0'], [1749571200000, '0.00387700', '0.00388700', '0.00384000', '0.00385500', '29208351.00000000', 1749574799999, '112791.89152900', 2639, '16428220.00000000', '63425.56084600', '0'], [1749574800000, '0.00385500', '0.00388000', '0.00383100', '0.00384900', '22783796.00000000', 1749578399999, '87774.10745700', 2780, '12151399.00000000', '46819.84973600', '0']]
+2025-06-12 13:50:10 - flask_api - INFO - Recebida requisição para klines de GALAUSDT
+2025-06-12 13:50:10 - flask_api - INFO - Klines recebidos para GALAUSDT: [[1749567600000, '0.01734000', '0.01753000', '0.01714000', '0.01739000', '53918498.00000000', 1749571199999, '934707.28664000', 6396, '28990379.00000000', '502764.86802000', '0'], [1749571200000, '0.01739000', '0.01757000', '0.01737000', '0.01740000', '26664980.00000000', 1749574799999, '466071.55528000', 3910, '14492960.00000000', '253370.45352000', '0'], [1749574800000, '0.01740000', '0.01755000', '0.01736000', '0.01739000', '17057321.00000000', 1749578399999, '297260.57057000', 3279, '9528709.00000000', '165989.43523000', '0']]
+2025-06-12 13:50:10 - flask_api - INFO - Recebida requisição para klines de IOSTUSDT
+2025-06-12 13:50:11 - flask_api - INFO - Klines recebidos para IOSTUSDT: [[1749567600000, '0.00421100', '0.00424800', '0.00416300', '0.00422700', '54153019.00000000', 1749571199999, '227930.12091500', 2463, '23457310.00000000', '98864.55801900', '0'], [1749571200000, '0.00422600', '0.00425200', '0.00420300', '0.00420500', '18859032.00000000', 1749574799999, '79796.27701300', 997, '10066908.00000000', '42604.45852100', '0'], [1749574800000, '0.00420800', '0.00424000', '0.00420300', '0.00422400', '27523472.00000000', 1749578399999, '116135.95488000', 1298, '19575454.00000000', '82588.83869800', '0']]
+2025-06-12 13:50:11 - flask_api - INFO - Recebida requisição para klines de TRXUSDT
+2025-06-12 13:50:11 - flask_api - INFO - Klines recebidos para TRXUSDT: [[1749567600000, '0.29440000', '0.29440000', '0.29130000', '0.29200000', '27643228.70000000', 1749571199999, '8092077.43230000', 10140, '10421023.40000000', '3050834.60868000', '0'], [1749571200000, '0.29200000', '0.29350000', '0.29190000', '0.29280000', '14507557.20000000', 1749574799999, '4248060.52900000', 5874, '8047875.40000000', '2356620.01606000', '0'], [1749574800000, '0.29290000', '0.29360000', '0.29060000', '0.29070000', '14461737.00000000', 1749578399999, '4221542.10172000', 5806, '3497377.20000000', '1021475.00291000', '0']]
+2025-06-12 13:50:11 - flask_api - INFO - Recebida requisição para klines de 1000CHEEMSUSDT
+2025-06-12 13:50:11 - flask_api - INFO - Klines recebidos para 1000CHEEMSUSDT: [[1749567600000, '0.00145200', '0.00145400', '0.00144000', '0.00145200', '11367686.00', 1749571199999, '16454.44614800', 470, '6514553.00', '9436.04401300', '0'], [1749571200000, '0.00145300', '0.00145300', '0.00144500', '0.00145100', '13799674.00', 1749574799999, '20006.91891300', 352, '10465887.00', '15178.81238300', '0'], [1749574800000, '0.00145200', '0.00145900', '0.00145100', '0.00145500', '10515835.00', 1749578399999, '15302.85025800', 313, '6791636.00', '9883.92757500', '0']]
+2025-06-12 13:50:11 - flask_api - INFO - Recebida requisição para klines de SLPUSDT
+2025-06-12 13:50:12 - flask_api - INFO - Klines recebidos para SLPUSDT: [[1749567600000, '0.00153300', '0.00154000', '0.00150600', '0.00153100', '27116446.00000000', 1749571199999, '41327.83872400', 720, '10307279.00000000', '15698.91913900', '0'], [1749571200000, '0.00153200', '0.00154500', '0.00151900', '0.00152300', '40489000.00000000', 1749574799999, '62071.89211000', 839, '15895425.00000000', '24400.68593600', '0'], [1749574800000, '0.00152300', '0.00153500', '0.00151300', '0.00151300', '13881919.00000000', 1749578399999, '21167.38221800', 409, '5266601.00000000', '8030.97547600', '0']]
+2025-06-12 13:50:12 - flask_api - INFO - Recebida requisição para klines de HOMEUSDT
+2025-06-12 13:50:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:50:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:50:12 - flask_api - INFO - Klines recebidos para HOMEUSDT: [[1749740400000, '0.02733000', '0.03632000', '0.02733000', '0.03312000', '385809130.00000000', 1749743999999, '13324324.27659000', 74134, '197473448.00000000', '6828633.57401000', '0'], [1749744000000, '0.03312000', '0.03324000', '0.03097000', '0.03116000', '113959173.00000000', 1749747599999, '3664221.73557000', 19051, '55099221.00000000', '1775156.37212000', '0']]
+2025-06-12 13:50:12 - flask_api - INFO - Recebida requisição para klines de RSRUSDT
+2025-06-12 13:50:12 - flask_api - INFO - Klines recebidos para RSRUSDT: [[1749567600000, '0.00740100', '0.00747500', '0.00730900', '0.00740100', '29906880.40000000', 1749571199999, '220594.41750580', 4671, '12100922.40000000', '89307.61542860', '0'], [1749571200000, '0.00740100', '0.00746500', '0.00738700', '0.00740100', '11918445.70000000', 1749574799999, '88493.38955410', 1712, '5655617.10000000', '41971.35853140', '0'], [1749574800000, '0.00739900', '0.00747100', '0.00736900', '0.00737800', '9604206.00000000', 1749578399999, '71195.13155110', 1287, '5145337.50000000', '38128.55147210', '0']]
+2025-06-12 13:50:12 - flask_api - INFO - Recebida requisição para klines de AMPUSDT
+2025-06-12 13:50:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:50:13 - flask_api - INFO - Klines recebidos para AMPUSDT: [[1749567600000, '0.00403400', '0.00406000', '0.00399900', '0.00402800', '12443010.00000000', 1749571199999, '50167.68543700', 532, '6017856.00000000', '24272.56946400', '0'], [1749571200000, '0.00403800', '0.00405200', '0.00401700', '0.00401800', '9286627.00000000', 1749574799999, '37463.40766600', 383, '4315272.00000000', '17420.85175200', '0'], [1749574800000, '0.00401800', '0.00404000', '0.00400800', '0.00401200', '5781543.00000000', 1749578399999, '23249.11325100', 378, '2384377.00000000', '9589.37827800', '0']]
+2025-06-12 13:50:13 - flask_api - INFO - Recebida requisição para klines de CKBUSDT
+2025-06-12 13:50:13 - flask_api - INFO - Klines recebidos para CKBUSDT: [[1749567600000, '0.00427700', '0.00431300', '0.00423100', '0.00429100', '13081111.00000000', 1749571199999, '55870.82968400', 780, '4985271.00000000', '21296.77777700', '0'], [1749571200000, '0.00429000', '0.00432000', '0.00426200', '0.00426400', '6350952.00000000', 1749574799999, '27291.95343900', 479, '4690463.00000000', '20153.67251600', '0'], [1749574800000, '0.00426400', '0.00429400', '0.00426200', '0.00426800', '5131897.00000000', 1749578399999, '21935.41067700', 387, '2441677.00000000', '10437.63213800', '0']]
+2025-06-12 13:50:13 - flask_api - INFO - Recebida requisição para klines de PEOPLEUSDT
+2025-06-12 13:50:13 - flask_api - INFO - Klines recebidos para PEOPLEUSDT: [[1749567600000, '0.02364000', '0.02406000', '0.02332000', '0.02389000', '28484427.10000000', 1749571199999, '675736.03693600', 5539, '12922358.20000000', '306886.86588300', '0'], [1749571200000, '0.02390000', '0.02402000', '0.02336000', '0.02344000', '19210013.50000000', 1749574799999, '454886.83517200', 2904, '7895602.70000000', '187100.42901900', '0'], [1749574800000, '0.02344000', '0.02359000', '0.02321000', '0.02332000', '8238455.90000000', 1749578399999, '192843.70795500', 1746, '3350167.90000000', '78415.83086500', '0']]
+2025-06-12 13:50:14 - flask_api - INFO - Recebida requisição para klines de BEAMXUSDT
+2025-06-12 13:50:14 - flask_api - INFO - Klines recebidos para BEAMXUSDT: [[1749567600000, '0.00673000', '0.00682000', '0.00669000', '0.00677000', '29808245.00000000', 1749571199999, '201242.23371000', 2381, '15804002.00000000', '106728.77576000', '0'], [1749571200000, '0.00678000', '0.00681000', '0.00672000', '0.00672000', '10857513.00000000', 1749574799999, '73446.12094000', 1488, '3955588.00000000', '26757.58592000', '0'], [1749574800000, '0.00672000', '0.00678000', '0.00671000', '0.00672000', '7652470.00000000', 1749578399999, '51573.81120000', 1022, '2197272.00000000', '14822.84780000', '0']]
+2025-06-12 13:50:14 - flask_api - INFO - Recebida requisição para klines de XVGUSDT
+2025-06-12 13:50:14 - flask_api - INFO - Klines recebidos para XVGUSDT: [[1749567600000, '0.00626100', '0.00630900', '0.00617300', '0.00624400', '21935841.00000000', 1749571199999, '136495.26164000', 723, '12583073.00000000', '78310.75541200', '0'], [1749571200000, '0.00625400', '0.00629000', '0.00621000', '0.00626500', '11083375.00000000', 1749574799999, '69410.18315400', 470, '6565655.00000000', '41147.15034100', '0'], [1749574800000, '0.00625400', '0.00631500', '0.00621400', '0.00622700', '4950191.00000000', 1749578399999, '31009.89824800', 319, '2037531.00000000', '12785.57734900', '0']]
+2025-06-12 13:50:14 - flask_api - INFO - Recebida requisição para klines de JASMYUSDT
+2025-06-12 13:50:15 - flask_api - INFO - Klines recebidos para JASMYUSDT: [[1749567600000, '0.01508000', '0.01526000', '0.01499000', '0.01519000', '13829160.80000000', 1749571199999, '209282.04285300', 1146, '6362537.20000000', '96241.53911300', '0'], [1749571200000, '0.01519000', '0.01526000', '0.01513000', '0.01513000', '6341398.80000000', 1749574799999, '96336.64082600', 574, '3283759.20000000', '49883.31617800', '0'], [1749574800000, '0.01513000', '0.01524000', '0.01512000', '0.01513000', '7302882.80000000', 1749578399999, '110681.19485300', 583, '3357524.20000000', '50876.49759900', '0']]
+2025-06-12 13:50:15 - flask_api - INFO - Recebida requisição para klines de VTHOUSDT
+2025-06-12 13:50:15 - flask_api - INFO - Klines recebidos para VTHOUSDT: [[1749567600000, '0.00216700', '0.00218200', '0.00215300', '0.00217900', '17088446.00000000', 1749571199999, '37063.85833800', 661, '8335278.00000000', '18063.30291400', '0'], [1749571200000, '0.00218000', '0.00218800', '0.00216700', '0.00217200', '9643133.00000000', 1749574799999, '21002.46792600', 550, '5311640.00000000', '11572.10274900', '0'], [1749574800000, '0.00217200', '0.00218800', '0.00217200', '0.00217500', '7154530.00000000', 1749578399999, '15576.29137200', 522, '4271643.00000000', '9299.20278800', '0']]
+2025-06-12 13:50:15 - flask_api - INFO - Recebida requisição para klines de MUBARAKUSDT
+2025-06-12 13:50:15 - flask_api - INFO - Klines recebidos para MUBARAKUSDT: [[1749567600000, '0.04210000', '0.04240000', '0.04130000', '0.04220000', '17738038.90000000', 1749571199999, '742576.11323000', 3412, '9955013.80000000', '417175.43408000', '0'], [1749571200000, '0.04230000', '0.04260000', '0.04150000', '0.04170000', '15121873.20000000', 1749574799999, '637979.41878000', 3092, '7801097.10000000', '329466.57184000', '0'], [1749574800000, '0.04160000', '0.04200000', '0.04120000', '0.04130000', '10881111.50000000', 1749578399999, '452458.00246000', 2135, '4822008.30000000', '200556.95276000', '0']]
+2025-06-12 13:50:15 - flask_api - INFO - Recebida requisição para klines de VETUSDT
+2025-06-12 13:50:16 - flask_api - INFO - Klines recebidos para VETUSDT: [[1749567600000, '0.02547000', '0.02569000', '0.02520000', '0.02550000', '18815789.70000000', 1749571199999, '478069.76801500', 3943, '7032919.90000000', '178899.07240800', '0'], [1749571200000, '0.02551000', '0.02564000', '0.02538000', '0.02539000', '16401275.20000000', 1749574799999, '419107.14871500', 2681, '7542081.00000000', '192860.96673200', '0'], [1749574800000, '0.02538000', '0.02563000', '0.02538000', '0.02549000', '5106074.10000000', 1749578399999, '130228.23314400', 991, '2990451.70000000', '76262.57584700', '0']]
+2025-06-12 13:50:16 - flask_api - INFO - Recebida requisição para klines de FDUSDUSDT
+2025-06-12 13:50:16 - flask_api - INFO - Klines recebidos para FDUSDUSDT: [[1749567600000, '0.99840000', '0.99850000', '0.99830000', '0.99840000', '18108267.00000000', 1749571199999, '18080035.11320000', 11804, '9114396.00000000', '9100570.01220000', '0'], [1749571200000, '0.99840000', '0.99850000', '0.99840000', '0.99840000', '9843173.00000000', 1749574799999, '9827795.23470000', 8575, '3713115.00000000', '3707545.32750000', '0'], [1749574800000, '0.99840000', '0.99850000', '0.99840000', '0.99850000', '5976813.00000000', 1749578399999, '5967654.32030000', 3710, '4042211.00000000', '4036147.68350000', '0']]
+2025-06-12 13:50:16 - flask_api - INFO - Recebida requisição para klines de 1000CATUSDT
+2025-06-12 13:50:17 - flask_api - INFO - Klines recebidos para 1000CATUSDT: [[1749567600000, '0.00747000', '0.00757000', '0.00740000', '0.00754000', '14178823.00000000', 1749571199999, '106170.43756100', 782, '6258463.50000000', '46872.96671200', '0'], [1749571200000, '0.00755000', '0.00758000', '0.00749000', '0.00750000', '8232645.70000000', 1749574799999, '61956.85223000', 548, '3548735.00000000', '26718.71315900', '0'], [1749574800000, '0.00751000', '0.00757000', '0.00746000', '0.00749000', '6290669.80000000', 1749578399999, '47242.21946900', 332, '3082304.10000000', '23147.25898500', '0']]
+2025-06-12 13:50:17 - flask_api - INFO - Recebida requisição para klines de TLMUSDT
+2025-06-12 13:50:17 - flask_api - INFO - Klines recebidos para TLMUSDT: [[1749567600000, '0.00512000', '0.00517000', '0.00507000', '0.00513000', '15582949.00000000', 1749571199999, '79669.35172000', 846, '7352272.00000000', '37631.72985000', '0'], [1749571200000, '0.00513000', '0.00516000', '0.00511000', '0.00511000', '5844636.00000000', 1749574799999, '29992.48430000', 311, '3194745.00000000', '16403.25582000', '0'], [1749574800000, '0.00511000', '0.00515000', '0.00509000', '0.00510000', '6046186.00000000', 1749578399999, '30893.17702000', 450, '1785156.00000000', '9124.32786000', '0']]
+2025-06-12 13:50:17 - flask_api - INFO - Recebida requisição para klines de HUMAUSDT
+2025-06-12 13:50:18 - flask_api - INFO - Klines recebidos para HUMAUSDT: [[1749567600000, '0.05093000', '0.05123000', '0.05010000', '0.05049000', '25244037.00000000', 1749571199999, '1278152.46774000', 8433, '11333364.00000000', '574332.58030000', '0'], [1749571200000, '0.05048000', '0.05080000', '0.05003000', '0.05008000', '16526100.00000000', 1749574799999, '831505.16726000', 5581, '7711590.00000000', '388335.86026000', '0'], [1749574800000, '0.05009000', '0.05022000', '0.04930000', '0.04967000', '16154441.00000000', 1749578399999, '803478.94898000', 5306, '6197783.00000000', '308128.50540000', '0']]
+2025-06-12 13:50:18 - flask_api - INFO - Recebida requisição para klines de GUNUSDT
+2025-06-12 13:50:18 - flask_api - INFO - Klines recebidos para GUNUSDT: [[1749567600000, '0.03407000', '0.03443000', '0.03384000', '0.03440000', '6538038.00000000', 1749571199999, '223654.61672000', 2539, '3945072.00000000', '135026.25955000', '0'], [1749571200000, '0.03442000', '0.03459000', '0.03404000', '0.03406000', '2428889.00000000', 1749574799999, '83491.88990000', 1230, '826744.00000000', '28430.20992000', '0'], [1749574800000, '0.03406000', '0.03429000', '0.03397000', '0.03413000', '3263951.00000000', 1749578399999, '111311.53553000', 1267, '2106102.00000000', '71818.13315000', '0']]
+2025-06-12 13:50:18 - flask_api - INFO - Recebida requisição para klines de ONEUSDT
+2025-06-12 13:50:19 - flask_api - INFO - Klines recebidos para ONEUSDT: [[1749567600000, '0.01259000', '0.01270000', '0.01242000', '0.01264000', '7492476.90000000', 1749571199999, '94067.32710200', 786, '3227788.50000000', '40617.48525400', '0'], [1749571200000, '0.01265000', '0.01271000', '0.01257000', '0.01257000', '4174959.30000000', 1749574799999, '52758.14603900', 463, '1950137.00000000', '24645.87420300', '0'], [1749574800000, '0.01258000', '0.01274000', '0.01257000', '0.01258000', '6304128.60000000', 1749578399999, '79838.87465000', 580, '3805921.60000000', '48230.85358900', '0']]
+2025-06-12 13:50:19 - flask_api - INFO - Recebida solicitação para iniciar bot para PEPEUSDT
+2025-06-12 13:50:19 - flask_api - INFO - Iniciando bot para PEPEUSDT em uma nova thread...
+2025-06-12 13:50:20 - flask_api - INFO - Recebida solicitação para iniciar bot para BONKUSDT
+2025-06-12 13:50:20 - flask_api - INFO - Iniciando bot para BONKUSDT em uma nova thread...
+2025-06-12 13:50:20 - flask_api - INFO - Recebida solicitação para iniciar bot para 1000SATSUSDT
+2025-06-12 13:50:20 - flask_api - INFO - Iniciando bot para 1000SATSUSDT em uma nova thread...
+2025-06-12 13:50:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:50:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:50:20 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:20 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:50:20 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:20 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:50:21 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:21 - capital_management - INFO - Checking for BRL balance to convert to USDT...
+2025-06-12 13:50:21 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:50:21 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:22 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:22 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:23 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:23 - capital_management - INFO - Market decision for 1000SATSUSDT: futures (More capital available in futures)
+2025-06-12 13:50:23 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:50:23 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:50:23 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:50:23 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:50:23 - flask_api - INFO - [1000SATSUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:50:23 - grid_logic - INFO - [1000SATSUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:50:23 - grid_logic - INFO - [1000SATSUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:50:23 - grid_logic - INFO - [1000SATSUSDT] Tick: 1E-7, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-12 13:50:23 - grid_logic - INFO - [1000SATSUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-12 13:50:24 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens FUTURES
+2025-06-12 13:50:24 - grid_logic - INFO - [1000SATSUSDT] Encontradas 0 ordens SPOT
+2025-06-12 13:50:24 - grid_logic - INFO - [1000SATSUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-12 13:50:24 - risk_management - INFO - [1000SATSUSDT] RiskManager inicializado para mercado SPOT. Max Drawdown: 10.0%, Use ATR SL: False, Check Reversal Patterns: False, Sentiment Risk Adj: True
+2025-06-12 13:50:24 - risk_management - WARNING - [1000SATSUSDT] Ajuste de risco por sentimento habilitado, mas nenhuma função de score de sentimento fornecida. Recurso desabilitado.
+2025-06-12 13:50:24 - flask_api - ERROR - Erro crítico no loop do bot 1000SATSUSDT: 'bool' object is not callable
+2025-06-12 13:50:24 - flask_api - INFO - Thread do bot para 1000SATSUSDT finalizada.
+2025-06-12 13:50:24 - grid_logic - INFO - [1000SATSUSDT] Parando bot de grid trading...
+2025-06-12 13:50:24 - grid_logic - INFO - [1000SATSUSDT] Bot parado com sucesso
+2025-06-12 13:50:39 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:39 - capital_management - INFO - Market decision for PEPEUSDT: futures (More capital available in futures)
+2025-06-12 13:50:39 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:50:39 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:50:39 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:50:39 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:50:39 - flask_api - INFO - [PEPEUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:50:39 - grid_logic - INFO - [PEPEUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:50:39 - grid_logic - INFO - [PEPEUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:50:39 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $100.29, Total: $100.29
+2025-06-12 13:50:39 - capital_management - INFO - Market decision for BONKUSDT: futures (More capital available in futures)
+2025-06-12 13:50:39 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-12 13:50:39 - capital_management - INFO - Capital per pair: $30.09, Total allocated: $30.09
+2025-06-12 13:50:39 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($30.09)
+2025-06-12 13:50:39 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-12 13:50:39 - flask_api - INFO - [BONKUSDT] Capital allocated: $30.09 (futures, 10 levels)
+2025-06-12 13:50:39 - grid_logic - INFO - [BONKUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 13:50:39 - grid_logic - INFO - [BONKUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 13:50:39 - grid_logic - ERROR - [PEPEUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:50:39 - flask_api - ERROR - Erro na thread do bot para PEPEUSDT: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [PEPEUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:50:39 - flask_api - INFO - Thread do bot para PEPEUSDT finalizada.
+2025-06-12 13:50:39 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot PEPEUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:50:40 - grid_logic - ERROR - [BONKUSDT] Informações do símbolo não encontradas nas informações de exchange.
+2025-06-12 13:50:40 - flask_api - ERROR - Erro na thread do bot para BONKUSDT: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/main.py", line 290, in run_bot_thread
+    bot = GridLogic(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 123, in __init__
+    raise ValueError(
+ValueError: [BONKUSDT] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic.
+2025-06-12 13:50:40 - flask_api - INFO - Thread do bot para BONKUSDT finalizada.
+2025-06-12 13:50:40 - flask_api - ERROR - Erro ao cancelar ordens ao parar bot BONKUSDT: local variable 'bot' referenced before assignment
+2025-06-12 13:50:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:50:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:50:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:50:50 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:50:50 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:50:51 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:51:11 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:51:11 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:51:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:51:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:51:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:51:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:52:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:52:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:52:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:52:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:52:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:52:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:53:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:53:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:53:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:53:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:53:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:53:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:54:11 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:54:11 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:54:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:54:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:54:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:54:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:55:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:55:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:55:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:55:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:55:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:55:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:56:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:56:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:56:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:56:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:56:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:56:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:57:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:57:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:57:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:57:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:57:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:57:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:58:08 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 13:58:08 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 13:58:08 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 13:58:10 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 13:58:11 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:58:11 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 13:58:13 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 13:58:13 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 13:58:13 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 13:58:13 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 13:58:14 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 13:58:14 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 13:58:14 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 13:58:14 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 13:58:15 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 13:58:15 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 13:58:15 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:58:15 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:58:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:58:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:58:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 13:59:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 13:59:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 13:59:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:01:15 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:01:15 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:01:19 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:01:19 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:01:19 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:01:22 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:01:22 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:01:22 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:01:40 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:01:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:01:40 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:01:42 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:01:42 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:01:42 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:01:42 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:01:43 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:01:43 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:01:43 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:01:43 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:01:43 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:01:43 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:01:43 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:01:43 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:02:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:02:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:02:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:02:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:02:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:02:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:03:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:03:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:03:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:03:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:03:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:03:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:04:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:04:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:04:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:04:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:04:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:04:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:05:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:05:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:05:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:05:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:05:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:05:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:06:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:06:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:06:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:06:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:06:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:06:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:07:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:07:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:07:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:07:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:07:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:07:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:08:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:08:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:08:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:08:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:08:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:08:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:09:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:09:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:09:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:09:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:09:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:09:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:10:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:10:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:10:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:10:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:10:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:10:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:10:58 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:10:58 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:10:58 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:11:10 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:11:11 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:11:11 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:11:12 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:11:12 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:11:12 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:11:12 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:11:13 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:11:13 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:11:13 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:11:13 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:11:13 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:11:13 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:11:13 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:11:14 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:11:22 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:11:22 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:11:22 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:11:40 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:11:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:11:40 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:11:42 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:11:42 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:11:42 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:11:42 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:11:43 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:11:43 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:11:43 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:11:43 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:11:43 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:11:43 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:11:43 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:11:44 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:12:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:12:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:12:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:12:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:12:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:12:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:13:10 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:13:10 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:13:11 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:13:40 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:13:40 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:13:41 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:17:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:17:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:17:52 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:17:52 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:17:52 - flask_api - INFO - Tickers com volume obtidos: 1
+2025-06-12 14:17:52 - flask_api - ERROR - Erro ao buscar dados de mercado: 'NoneType' object is not subscriptable
+2025-06-12 14:17:53 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:18:12 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:18:12 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:18:13 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:31:29 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:31:29 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:31:34 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:31:34 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:31:34 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:31:37 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:31:37 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:31:37 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:32:19 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:32:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:32:19 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:32:20 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:32:20 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:32:20 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:32:20 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:32:21 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:32:21 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:32:21 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:32:22 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:32:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:32:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:45:38 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:45:38 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:45:42 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:45:42 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:45:42 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:45:45 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 14:45:45 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 14:45:45 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 14:46:19 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:46:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:46:19 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 14:46:21 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:46:21 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:46:21 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 14:46:21 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 14:46:22 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:46:22 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 14:46:22 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:46:22 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 14:46:22 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:46:22 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 14:46:22 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:46:22 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:47:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:47:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:47:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:48:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:48:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:48:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:49:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:49:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:49:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:50:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:50:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:50:19 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 14:51:19 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 14:51:19 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 14:51:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:18:44 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 15:18:44 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 15:18:48 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 15:18:48 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 15:18:48 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 15:18:51 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 15:18:51 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 15:18:51 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 15:19:20 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 15:19:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:19:20 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 15:19:22 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 15:19:22 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 15:19:22 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 15:19:22 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 15:19:24 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 15:19:24 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 15:19:24 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 15:19:24 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 15:19:24 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 15:19:24 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 15:19:24 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:19:25 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:20:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:20:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:20:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:21:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:21:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:21:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:22:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:22:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:22:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:23:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:23:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:23:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:24:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:24:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:24:21 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:25:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:25:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:25:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:26:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 15:26:20 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 15:26:20 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 15:31:02 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 15:31:05 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 15:31:05 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 15:31:05 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-12 15:31:08 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-12 15:39:30 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-12 15:40:16 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-12 15:40:16 - ai_agent - INFO - Starting AI Agent...
+2025-06-12 15:40:16 - ai_agent - INFO - Local AI is available and responding
+2025-06-12 15:40:16 - ai_agent - INFO - AI Agent fully operational with local AI (Model: None)
+2025-06-12 15:40:16 - ai_agent - INFO - AI Agent started successfully with model monitoring
+2025-06-12 15:40:16 - ai_agent - INFO - Local AI is available and responding
+2025-06-12 15:40:47 - ai_agent - INFO - Stopping AI Agent...
+2025-06-12 15:40:47 - ai_agent - INFO - AI Agent stopped
+2025-06-12 15:54:58 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-12 15:55:02 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 15:55:04 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-12 15:55:04 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-12 15:55:05 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-12 15:55:06 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-12 15:55:06 - ai_trading_integration - INFO - SmartTradingDecisionEngine initialized with AI + DynamicOrderSizer
+2025-06-12 18:22:24 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 18:22:24 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 18:22:29 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 18:22:29 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 18:22:29 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 18:22:32 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-12 18:22:32 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-12 18:22:32 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-12 18:22:35 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 18:22:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:22:35 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-12 18:22:36 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 18:22:36 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 18:22:36 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-12 18:22:36 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-12 18:22:37 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 18:22:37 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 18:22:37 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-12 18:22:37 - flask_api - INFO - Inicializando Alerter do Telegram...
+2025-06-12 18:22:37 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 18:22:37 - flask_api - INFO - Alerter do Telegram inicializado.
+2025-06-12 18:22:37 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:22:37 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:23:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:23:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:23:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:24:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:24:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:24:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:25:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:25:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:25:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:26:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:26:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:26:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:27:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:27:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:27:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:28:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:28:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:28:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:29:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:29:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:29:35 - flask_api - INFO - Tickers com volume obtidos: 3143
+2025-06-12 18:30:35 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-12 18:30:35 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-12 18:30:35 - flask_api - INFO - Tickers com volume obtidos: 3143

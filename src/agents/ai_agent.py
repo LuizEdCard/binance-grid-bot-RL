@@ -403,18 +403,24 @@ class LocalAIClient:
                         log.info(f"Detected active model: {active_model}")
                         return active_model
             
-            # If no model is running, try to detect from recent chat
-            # Send a small test request to see which model responds
-            log.debug("No model currently loaded, attempting to detect default model...")
+            # If no model is running, get all available models
+            log.debug("No model currently loaded, scanning all available models...")
             
-            # Try a simple test with the most common models
-            test_models = ["qwen3:1.7b", "deepseek-r1:1.5b", "qwen3:4b", "gemma3:4b", "qwen3:0.6b", "gemma3:1b"]
+            # Get all available models dynamically
+            available_models = await self.get_available_models()
+            if not available_models:
+                log.warning("No models available in Ollama")
+                return None
             
-            for test_model in test_models:
+            log.info(f"Found {len(available_models)} available models: {[m[:20] for m in available_models[:5]]}")
+            
+            # Try models in order (smallest/fastest first for detection)
+            for test_model in available_models:
                 try:
+                    # Quick test to see if model responds
                     test_payload = {
                         "model": test_model,
-                        "prompt": "Hello",
+                        "prompt": "Hi",
                         "stream": False,
                         "options": {"num_predict": 1}
                     }
@@ -422,20 +428,55 @@ class LocalAIClient:
                     async with self.session.post(
                         f"{self.base_url}/api/generate",
                         json=test_payload,
-                        timeout=aiohttp.ClientTimeout(total=5)
+                        timeout=aiohttp.ClientTimeout(total=10)
                     ) as test_response:
                         if test_response.status == 200:
-                            log.info(f"Auto-detected available model: {test_model}")
+                            log.info(f"Auto-detected working model: {test_model}")
                             return test_model
-                except:
+                except Exception as model_error:
+                    log.debug(f"Model {test_model} not responding: {model_error}")
                     continue
                     
-            # Final fallback: get any available model
-            return await self._get_best_available_model()
+            log.warning("No models are responding to test requests")
+            return None
                     
         except Exception as e:
             log.debug(f"Error detecting running model: {e}")
             return None
+
+    async def get_available_models(self) -> List[str]:
+        """Get all available models from Ollama, sorted by size (smallest first)."""
+        try:
+            if not self.session:
+                await self.start_session()
+                
+            async with self.session.get(f"{self.base_url}/api/tags") as response:
+                if response.status == 200:
+                    result = await response.json()
+                    models = result.get("models", [])
+                    
+                    if not models:
+                        return []
+                    
+                    # Extract model names and sort by size (smaller models first for faster detection)
+                    model_list = []
+                    for model in models:
+                        name = model.get("name", "")
+                        size = model.get("size", 0)
+                        if name:
+                            model_list.append((name, size))
+                    
+                    # Sort by size (ascending) for faster detection
+                    model_list.sort(key=lambda x: x[1])
+                    model_names = [name for name, _ in model_list]
+                    
+                    log.debug(f"Available models (sorted by size): {model_names}")
+                    return model_names
+                    
+        except Exception as e:
+            log.debug(f"Error getting available models: {e}")
+            
+        return []
 
     async def _get_best_available_model(self) -> str | None:
         """Get the best available model from Ollama when none is running."""
@@ -1105,9 +1146,17 @@ class AIAgent:
         self.analysis_cache = {}
         self.analysis_history = deque(maxlen=100)
         
+        # Model monitoring
+        self.current_model = None
+        self.available_models = []
+        self.last_model_check = 0
+        self.model_check_interval = 30  # Check for model changes every 30 seconds
+        self.model_change_detected = False
+        
         # Threading
         self.stop_event = threading.Event()
         self.health_check_thread = None
+        self.model_monitor_thread = None
         
         # Callbacks
         self.analysis_callbacks = []
@@ -1119,7 +1168,9 @@ class AIAgent:
             "decisions_explained": 0,
             "reports_generated": 0,
             "avg_analysis_time": 0.0,
-            "cache_hits": 0
+            "cache_hits": 0,
+            "model_changes_detected": 0,
+            "auto_reconnections": 0
         }
         
         log.info(f"AIAgent initialized for {ai_base_url}")
@@ -1128,18 +1179,21 @@ class AIAgent:
         """Start the AI agent."""
         log.info("Starting AI Agent...")
         
-        # Check if AI is available
+        # Check if AI is available and detect current model
         await self._check_ai_availability()
+        await self._detect_and_set_model()
         
         if not self.is_available:
             log.warning("Local AI not available. AI Agent will run in limited mode (no functionality).")
             log.info("Bot will continue operating normally without AI assistance.")
-            # Don't return, continue to start health check thread
+            # Don't return, continue to start monitoring threads
         else:
-            log.info("AI Agent fully operational with local AI")
+            log.info(f"AI Agent fully operational with local AI (Model: {self.current_model})")
         
-        # Start health check thread
+        # Start monitoring threads
         self.stop_event.clear()
+        
+        # Health check thread
         self.health_check_thread = threading.Thread(
             target=self._health_check_loop,
             daemon=True,
@@ -1147,15 +1201,28 @@ class AIAgent:
         )
         self.health_check_thread.start()
         
-        log.info("AI Agent started successfully")
+        # Model monitoring thread
+        self.model_monitor_thread = threading.Thread(
+            target=self._model_monitor_loop,
+            daemon=True,
+            name="AIAgent-ModelMonitor"
+        )
+        self.model_monitor_thread.start()
+        
+        log.info("AI Agent started successfully with model monitoring")
     
     def stop(self) -> None:
         """Stop the AI agent."""
         log.info("Stopping AI Agent...")
         self.stop_event.set()
         
+        # Stop health check thread
         if self.health_check_thread and self.health_check_thread.is_alive():
             self.health_check_thread.join(timeout=5)
+        
+        # Stop model monitor thread
+        if self.model_monitor_thread and self.model_monitor_thread.is_alive():
+            self.model_monitor_thread.join(timeout=5)
         
         log.info("AI Agent stopped")
     
@@ -1187,6 +1254,108 @@ class AIAgent:
                 log.error(f"Error in health check loop: {e}")
             
             self.stop_event.wait(check_interval)
+
+    def _model_monitor_loop(self) -> None:
+        """Background model monitoring loop."""
+        while not self.stop_event.is_set():
+            try:
+                current_time = time.time()
+                
+                # Check for model changes periodically
+                if current_time - self.last_model_check > self.model_check_interval:
+                    asyncio.run(self._check_for_model_changes())
+                    self.last_model_check = current_time
+                
+            except Exception as e:
+                log.error(f"Error in model monitor loop: {e}")
+            
+            self.stop_event.wait(10)  # Check every 10 seconds
+
+    async def _detect_and_set_model(self) -> None:
+        """Detect and set the current active model."""
+        try:
+            if not self.is_available:
+                return
+                
+            # Get running model
+            running_model = await self.ai_client.get_running_model()
+            if running_model:
+                if running_model != self.current_model:
+                    old_model = self.current_model
+                    self.current_model = running_model
+                    self.model_name = running_model  # Update model_name for compatibility
+                    
+                    if old_model:
+                        log.info(f"Model changed: {old_model} → {self.current_model}")
+                        self.stats["model_changes_detected"] += 1
+                        self.model_change_detected = True
+                        
+                        # Clear cache when model changes
+                        self.analysis_cache.clear()
+                        log.info("Analysis cache cleared due to model change")
+                    else:
+                        log.info(f"Initial model detected: {self.current_model}")
+            
+            # Update available models list
+            self.available_models = await self.ai_client.get_available_models()
+            log.debug(f"Available models: {len(self.available_models)} total")
+            
+        except Exception as e:
+            log.error(f"Error detecting model: {e}")
+
+    async def _check_for_model_changes(self) -> None:
+        """Check if the active model has changed."""
+        try:
+            if not self.is_available:
+                # Try to reconnect if AI becomes available
+                await self._check_ai_availability()
+                if self.is_available:
+                    log.info("AI reconnected! Detecting model...")
+                    await self._detect_and_set_model()
+                    self.stats["auto_reconnections"] += 1
+                return
+                
+            # Get current running model
+            running_model = await self.ai_client.get_running_model()
+            
+            if running_model != self.current_model:
+                old_model = self.current_model
+                await self._detect_and_set_model()
+                
+                if self.current_model != old_model:
+                    log.info(f"🔄 Model switch detected: {old_model or 'None'} → {self.current_model}")
+                    
+                    # Notify that model changed
+                    self.model_change_detected = True
+                    
+                    # Update components with new model
+                    await self._update_components_model()
+            
+            # Also refresh available models periodically
+            new_models = await self.ai_client.get_available_models()
+            if len(new_models) != len(self.available_models):
+                log.info(f"Available models changed: {len(self.available_models)} → {len(new_models)}")
+                self.available_models = new_models
+                
+        except Exception as e:
+            log.debug(f"Error checking for model changes: {e}")
+
+    async def _update_components_model(self) -> None:
+        """Update all AI components when model changes."""
+        try:
+            if self.current_model:
+                # Update market analysis component
+                if hasattr(self.market_analysis, 'model_name'):
+                    self.market_analysis.model_name = self.current_model
+                
+                # Update decision support component  
+                if hasattr(self.decision_support, 'model_name'):
+                    self.decision_support.model_name = self.current_model
+                
+                log.debug(f"AI components updated with new model: {self.current_model}")
+                
+        except Exception as e:
+            log.error(f"Error updating components with new model: {e}")
     
     async def analyze_market(self, market_data: Dict, force_refresh: bool = False) -> Optional[Dict]:
         """Perform AI-powered market analysis."""
@@ -1381,8 +1550,13 @@ class AIAgent:
         
         return {
             "is_available": self.is_available,
+            "current_model": self.current_model,
+            "available_models": self.available_models,
+            "total_models": len(self.available_models),
+            "model_change_detected": self.model_change_detected,
             "ai_base_url": self.ai_base_url,
             "last_health_check": self.last_health_check,
+            "last_model_check": self.last_model_check,
             "cached_analyses": len(self.analysis_cache),
             "analysis_history_size": len(self.analysis_history),
             "ai_client_stats": ai_stats,
@@ -1392,3 +1566,60 @@ class AIAgent:
     def get_recent_analyses(self, limit: int = 10) -> List[Dict]:
         """Get recent analysis history."""
         return list(self.analysis_history)[-limit:]
+
+    def get_model_info(self) -> Dict:
+        """Get detailed information about current and available models."""
+        return {
+            "current_model": self.current_model,
+            "available_models": self.available_models,
+            "total_models": len(self.available_models),
+            "model_changes_detected": self.stats["model_changes_detected"],
+            "auto_reconnections": self.stats["auto_reconnections"],
+            "last_model_check": self.last_model_check,
+            "model_check_interval": self.model_check_interval,
+            "is_monitoring": self.model_monitor_thread and self.model_monitor_thread.is_alive(),
+            "monitoring_status": "active" if not self.stop_event.is_set() else "stopped"
+        }
+
+    def reset_model_change_flag(self) -> None:
+        """Reset the model change detection flag."""
+        self.model_change_detected = False
+
+    async def force_model_check(self) -> Dict:
+        """Force an immediate model check and return current status."""
+        try:
+            await self._check_for_model_changes()
+            return {
+                "success": True,
+                "current_model": self.current_model,
+                "available_models": self.available_models,
+                "is_available": self.is_available
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "current_model": self.current_model
+            }
+
+    async def analyze_market_text(self, prompt: str) -> Optional[Dict]:
+        """Analyze market using text prompt - compatibility method for SmartTradingDecisionEngine."""
+        if not self.is_available:
+            log.debug("AI not available, skipping text analysis")
+            return None
+        
+        try:
+            async with self.ai_client:
+                # Use the market analysis component with a text prompt
+                response = await self.market_analysis.analyze_market_text(prompt)
+                
+                if response:
+                    self.stats["analyses_performed"] += 1
+                    return response
+                else:
+                    log.warning("No response from AI text analysis")
+                    return None
+                    
+        except Exception as e:
+            log.error(f"Error in AI text analysis: {e}")
+            return None

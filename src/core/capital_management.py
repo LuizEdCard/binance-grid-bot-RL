@@ -439,8 +439,30 @@ class CapitalManager:
         """Obtém alocação de capital para um símbolo específico."""
         return self.current_allocations.get(symbol)
     
-    def can_trade_symbol(self, symbol: str, required_capital: float = None) -> bool:
-        """Verifica se há capital suficiente para operar um símbolo."""
+    def symbol_exists_on_market(self, symbol: str, market_type: str = "spot") -> bool:
+        """Verifica se o símbolo existe no mercado (Spot ou Futures) na Binance."""
+        try:
+            if market_type == "spot":
+                exchange_info = self.api_client.get_spot_exchange_info()
+            else:
+                exchange_info = self.api_client.get_exchange_info()
+            if not exchange_info:
+                log.error(f"Não foi possível obter exchange_info para {market_type}.")
+                return False
+            for item in exchange_info.get("symbols", []):
+                if item["symbol"] == symbol:
+                    return True
+            log.warning(f"Símbolo {symbol} não encontrado no mercado {market_type}.")
+            return False
+        except Exception as e:
+            log.error(f"Erro ao checar existência do símbolo {symbol} no mercado {market_type}: {e}")
+            return False
+
+    def can_trade_symbol(self, symbol: str, required_capital: float = None, market_type: str = "spot") -> bool:
+        """Verifica se há capital suficiente e se o símbolo existe para operar."""
+        if not self.symbol_exists_on_market(symbol, market_type):
+            log.warning(f"Não é possível operar {symbol}: símbolo não existe no mercado {market_type}.")
+            return False
         if required_capital is None:
             required_capital = self.min_capital_per_pair_usd
             
@@ -658,3 +680,224 @@ def adapt_grid_to_capital(grid_config: dict, allocated_capital: float) -> dict:
         "initial_spacing_perc": str(params["spacing_percentage"]),
         "max_position_size_usd": params["max_position_size"]
     }
+
+
+class DynamicOrderSizer:
+    """
+    Ajusta dinamicamente tamanhos de ordem baseado no saldo atual e limites da Binance.
+    Evita erros de notional insuficiente e otimiza uso do capital.
+    """
+    
+    def __init__(self, api_client: APIClient, config: dict):
+        self.api_client = api_client
+        self.config = config
+        
+        # Limites mínimos por mercado (valores conservadores)
+        self.min_notional_limits = {
+            "spot": 10.0,      # $10 USD mínimo para spot
+            "futures": 5.0     # $5 USD mínimo para futures
+        }
+        
+        # Cache de informações de símbolos para evitar múltiplas consultas
+        self._symbol_info_cache = {}
+        self._cache_expiry = 300  # 5 minutos
+        self._last_cache_update = 0
+    
+    def get_optimized_order_size(self, symbol: str, market_type: str, 
+                                available_balance: float, price: float,
+                                target_percentage: float = 0.1) -> dict:
+        """
+        Calcula tamanho otimizado de ordem baseado no saldo e limites.
+        
+        Args:
+            symbol: Par de trading (ex: BTCUSDT)
+            market_type: 'spot' ou 'futures'
+            available_balance: Saldo disponível em USDT
+            price: Preço atual do ativo
+            target_percentage: % do saldo a usar (padrão 10%)
+        
+        Returns:
+            dict com quantidade, valor notional e se é válida
+        """
+        try:
+            # Obter informações do símbolo
+            symbol_info = self._get_symbol_info(symbol, market_type)
+            if not symbol_info:
+                return self._create_error_result("Symbol info not available")
+            
+            # Calcular tamanho base da ordem
+            target_value = available_balance * target_percentage
+            base_quantity = target_value / price
+            
+            # Aplicar limites do símbolo
+            min_qty = float(symbol_info.get("minQty", 0))
+            max_qty = float(symbol_info.get("maxQty", float('inf')))
+            step_size = float(symbol_info.get("stepSize", 0.00001))
+            min_notional = float(symbol_info.get("minNotional", 
+                                               self.min_notional_limits[market_type]))
+            
+            # Ajustar quantidade para step size
+            if step_size > 0:
+                quantity = math.floor(base_quantity / step_size) * step_size
+            else:
+                quantity = base_quantity
+            
+            # Verificar limites
+            quantity = max(min_qty, min(quantity, max_qty))
+            notional_value = quantity * price
+            
+            # Verificar notional mínimo
+            if notional_value < min_notional:
+                # Ajustar para atingir notional mínimo
+                required_qty = min_notional / price
+                quantity = math.ceil(required_qty / step_size) * step_size
+                notional_value = quantity * price
+                
+                # Verificar se ainda está dentro dos limites
+                if quantity > max_qty or notional_value > available_balance:
+                    return self._create_error_result(
+                        f"Cannot meet min notional {min_notional} with available balance"
+                    )
+            
+            # Verificar se o valor não excede saldo disponível
+            if notional_value > available_balance:
+                # Reduzir quantidade para caber no saldo
+                max_affordable_qty = available_balance / price
+                quantity = math.floor(max_affordable_qty / step_size) * step_size
+                notional_value = quantity * price
+            
+            # Validação final
+            is_valid = (
+                quantity >= min_qty and 
+                quantity <= max_qty and
+                notional_value >= min_notional and
+                notional_value <= available_balance
+            )
+            
+            result = {
+                "quantity": quantity,
+                "notional_value": notional_value,
+                "is_valid": is_valid,
+                "price_used": price,
+                "symbol": symbol,
+                "market_type": market_type,
+                "limits": {
+                    "min_qty": min_qty,
+                    "max_qty": max_qty,
+                    "step_size": step_size,
+                    "min_notional": min_notional
+                }
+            }
+            
+            if not is_valid:
+                result["error"] = "Order size validation failed"
+            
+            log.debug(f"[{symbol}] Order size calculation: {result}")
+            return result
+            
+        except Exception as e:
+            log.error(f"Error calculating order size for {symbol}: {e}")
+            return self._create_error_result(str(e))
+    
+    def _get_symbol_info(self, symbol: str, market_type: str) -> dict:
+        """Obtém informações do símbolo com cache."""
+        cache_key = f"{symbol}_{market_type}"
+        current_time = time.time()
+        
+        # Verificar cache
+        if (cache_key in self._symbol_info_cache and 
+            current_time - self._last_cache_update < self._cache_expiry):
+            return self._symbol_info_cache[cache_key]
+        
+        try:
+            if market_type == "futures":
+                exchange_info = self.api_client.futures_exchange_info()
+            else:
+                exchange_info = self.api_client.spot_exchange_info()
+            
+            if not exchange_info or "symbols" not in exchange_info:
+                return None
+            
+            # Encontrar informações do símbolo
+            symbol_data = None
+            for sym_info in exchange_info["symbols"]:
+                if sym_info["symbol"] == symbol:
+                    symbol_data = sym_info
+                    break
+            
+            if not symbol_data:
+                return None
+            
+            # Extrair filtros relevantes
+            filters = {}
+            for filter_info in symbol_data.get("filters", []):
+                if filter_info["filterType"] == "LOT_SIZE":
+                    filters.update({
+                        "minQty": filter_info["minQty"],
+                        "maxQty": filter_info["maxQty"],
+                        "stepSize": filter_info["stepSize"]
+                    })
+                elif filter_info["filterType"] == "MIN_NOTIONAL":
+                    filters["minNotional"] = filter_info["minNotional"]
+                elif filter_info["filterType"] == "NOTIONAL":
+                    filters["minNotional"] = filter_info.get("minNotional", 
+                                                           filters.get("minNotional"))
+            
+            # Cache resultado
+            self._symbol_info_cache[cache_key] = filters
+            self._last_cache_update = current_time
+            
+            return filters
+            
+        except Exception as e:
+            log.error(f"Error fetching symbol info for {symbol}: {e}")
+            return None
+    
+    def _create_error_result(self, error_msg: str) -> dict:
+        """Cria resultado de erro padronizado."""
+        return {
+            "quantity": 0,
+            "notional_value": 0,
+            "is_valid": False,
+            "error": error_msg
+        }
+    
+    def adjust_grid_quantities_to_balance(self, symbol: str, market_type: str,
+                                        grid_levels: int, total_allocation: float,
+                                        current_price: float) -> List[dict]:
+        """
+        Ajusta quantidades do grid para se adequar ao saldo disponível.
+        
+        Returns:
+            Lista de ordens com quantidades ajustadas
+        """
+        try:
+            # Dividir alocação total entre níveis do grid
+            allocation_per_level = total_allocation / grid_levels
+            
+            orders = []
+            for i in range(grid_levels):
+                # Calcular preço do nível (simplificado)
+                level_price = current_price * (1 + (i - grid_levels/2) * 0.005)
+                
+                # Calcular tamanho otimizado para este nível
+                order_info = self.get_optimized_order_size(
+                    symbol, market_type, allocation_per_level, level_price
+                )
+                
+                if order_info["is_valid"]:
+                    orders.append({
+                        "level": i,
+                        "price": level_price,
+                        "quantity": order_info["quantity"],
+                        "side": "buy" if i < grid_levels/2 else "sell",
+                        "notional": order_info["notional_value"]
+                    })
+                else:
+                    log.warning(f"[{symbol}] Invalid order for level {i}: {order_info.get('error')}")
+            
+            return orders
+            
+        except Exception as e:
+            log.error(f"Error adjusting grid quantities for {symbol}: {e}")
+            return []

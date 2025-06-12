@@ -1,7 +1,7 @@
 # Main entry point for the Grid Trading RL Bot
 
 from utils.social_listener import SocialListener
-from utils.sentiment_analyzer import SentimentAnalyzer
+from utils.hybrid_sentiment_analyzer import HybridSentimentAnalyzer
 from utils.logger import log, setup_logger
 from utils.api_client import APIClient
 from utils.alerter import Alerter
@@ -175,7 +175,7 @@ def trading_pair_worker(
     global_trade_counter: multiprocessing.Value,
 ):
     """Function executed by each process to manage a single trading pair."""
-    setup_logger(f"{symbol}_worker")
+    worker_log = setup_logger(f"{symbol}_worker")
     log.info(f"[{symbol}] Worker process started (PID: {os.getpid()}).")
 
     operation_mode = config.get("operation_mode", "Shadow").lower()
@@ -450,11 +450,11 @@ def sentiment_analysis_worker(config: dict, stop_event: threading.Event):
     time_filter = reddit_config.get("time_filter", "day")
 
     try:
-        analyzer = SentimentAnalyzer()  # Initialize ONNX analyzer
+        analyzer = HybridSentimentAnalyzer()  # Initialize Hybrid analyzer
         listener = SocialListener()  # Initialize Reddit listener
         alerter = Alerter()  # Initialize Alerter for sentiment alerts
 
-        if not analyzer.session:
+        if not analyzer.gemma3_analyzer:
             log.error(
                 "[Sentiment] Failed to initialize Sentiment Analyzer model. Thread exiting."
             )

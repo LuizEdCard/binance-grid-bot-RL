@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from utils.logger import setup_logger
-from utils.sentiment_analyzer import SentimentAnalyzer
+from utils.hybrid_sentiment_analyzer import HybridSentimentAnalyzer
 from utils.social_listener import SocialListener
 
 log = setup_logger("sentiment_agent")
@@ -287,7 +287,14 @@ class SentimentAgent:
         self.sentiment_config = config.get("sentiment_analysis", {})
         
         # Initialize components
-        self.analyzer = SentimentAnalyzer()
+        try:
+            from utils.hybrid_sentiment_analyzer import HybridSentimentAnalyzer
+            self.analyzer = HybridSentimentAnalyzer(prefer_gemma3=True)
+            log.info("Using Hybrid Sentiment Analyzer (Gemma-3 + ONNX fallback)")
+        except ImportError:
+            log.warning("Hybrid Sentiment Analyzer not available, using fallback")
+            self.analyzer = None
+        
         self.aggregator = SentimentAggregator(self.sentiment_config)
         
         # Initialize sources
@@ -330,7 +337,16 @@ class SentimentAgent:
             log.info("Sentiment analysis disabled in config")
             return
         
-        if not self.analyzer.session:
+        # Check if analyzer is available (works with both ONNX and Hybrid analyzers)
+        analyzer_available = False
+        if hasattr(self.analyzer, 'session') and self.analyzer.session:
+            analyzer_available = True  # ONNX analyzer
+        elif hasattr(self.analyzer, 'gemma3_analyzer') and self.analyzer.gemma3_analyzer:
+            analyzer_available = True  # Hybrid analyzer with Gemma-3
+        elif hasattr(self.analyzer, 'onnx_analyzer') and self.analyzer.onnx_analyzer:
+            analyzer_available = True  # Hybrid analyzer with ONNX fallback
+        
+        if not analyzer_available:
             log.error("Sentiment analyzer not loaded, cannot start agent")
             return
         

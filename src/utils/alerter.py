@@ -89,7 +89,7 @@ class Alerter:
         self.api_client = api_client  # Needed for precision info
         if TELEGRAM_ENABLED:
             if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
-                log.error(
+                log.warning(
                     "Telegram alerts enabled, but TOKEN or CHAT_ID not found in .env. Disabling Telegram."
                 )
                 self.enabled = False
@@ -102,7 +102,7 @@ class Alerter:
                         # Fetch info immediately if client provided
                         fetch_and_cache_symbol_info(self.api_client)
                 except Exception as e:
-                    log.error(f"Failed to initialize Telegram bot: {e}")
+                    log.warning(f"Failed to initialize Telegram bot: {e}")
                     self.enabled = False
         else:
             self.enabled = False
@@ -159,9 +159,8 @@ class Alerter:
         try:
             # If using MarkdownV2, ensure proper escaping for simple text
             if parse_mode == "MarkdownV2":
-                # Don't escape if text already contains markdown formatting
-                if not any(marker in text for marker in ['*', '_', '`', '[']):
-                    text = self.escape_markdown_v2(text)
+                # Always escape special characters to prevent BadRequest errors
+                text = self.escape_markdown_v2(text)
             
             if photo:
                 await self.bot.send_photo(
@@ -178,7 +177,7 @@ class Alerter:
                 log.info(f"Sent Telegram text message to {TELEGRAM_CHAT_ID}.")
             return True
         except telegram.error.BadRequest as e:
-            log.error(f"Telegram BadRequest Error: {e}. Message: {text}")
+            log.warning(f"Telegram BadRequest Error: {e}. Message: {text}")
             if parse_mode == "MarkdownV2":
                 log.warning("Retrying Telegram message with HTML parse mode.")
                 try:
@@ -193,7 +192,7 @@ class Alerter:
                         await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=html_text, parse_mode="HTML")
                     return True
                 except Exception as retry_e:
-                    log.error(f"Telegram HTML retry failed: {retry_e}")
+                    log.warning(f"Telegram HTML retry failed: {retry_e}")
                     # Final fallback - no parse mode
                     try:
                         plain_text = text.replace('\\', '').replace('*', '').replace('_', '').replace('`', '')
@@ -203,11 +202,11 @@ class Alerter:
                             await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=plain_text)
                         return True
                     except Exception as final_e:
-                        log.error(f"Telegram final retry failed: {final_e}")
+                        log.warning(f"Telegram final retry failed: {final_e}")
                         return False
             return False
         except Exception as e:
-            log.error(f"Failed to send Telegram message: {e}")
+            log.warning(f"Failed to send Telegram message: {e}")
             return False
 
     def send_message(self, text: str, parse_mode="MarkdownV2", photo: bytes = None):
@@ -236,7 +235,7 @@ class Alerter:
                 return asyncio.run(self.send_message_async(text, parse_mode, photo))
                 
         except Exception as e:
-            log.error(f"Error sending Telegram message: {e}")
+            log.warning(f"Error sending Telegram message: {e}")
             # Try simple non-async approach as fallback
             try:
                 import requests
@@ -251,10 +250,10 @@ class Alerter:
                     log.info("Message sent via fallback method")
                     return True
                 else:
-                    log.error(f"Fallback method failed: {response.status_code}")
+                    log.warning(f"Fallback method failed: {response.status_code}")
                     return False
             except Exception as fallback_error:
-                log.error(f"Fallback method also failed: {fallback_error}")
+                log.warning(f"Fallback method also failed: {fallback_error}")
                 return False
 
     def _generate_chart(

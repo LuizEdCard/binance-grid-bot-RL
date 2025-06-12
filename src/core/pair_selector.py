@@ -404,3 +404,124 @@ class PairSelector:
                 log.warning(f"Keeping previously selected pairs: {self.selected_pairs}")
 
         return self.selected_pairs
+
+    def get_market_summary(self) -> dict:
+        """
+        Gera resumo agregado do mercado para análise eficiente da IA.
+        Evita analisar 471 pares individualmente.
+        """
+        try:
+            log.info("Generating market summary for AI analysis...")
+            
+            tickers, kline_data = self._fetch_market_data()
+            if not tickers or not kline_data:
+                log.warning("Could not fetch market data for summary")
+                return self._get_fallback_market_summary()
+            
+            metrics = self._calculate_metrics(tickers, kline_data)
+            if not metrics:
+                log.warning("No metrics calculated for market summary")
+                return self._get_fallback_market_summary()
+            
+            # Calcular estatísticas agregadas
+            volumes = [float(m["volume"]) for m in metrics.values()]
+            atr_percentages = [float(m["atr_perc"]) * 100 for m in metrics.values()]
+            adx_values = [float(m["adx"]) for m in metrics.values()]
+            prices = [float(m["last_price"]) for m in metrics.values()]
+            
+            # Identificar pares de alto volume (top 10%)
+            volume_threshold = sorted(volumes, reverse=True)[int(len(volumes) * 0.1)]
+            high_volume_pairs = [
+                symbol for symbol, m in metrics.items() 
+                if float(m["volume"]) >= volume_threshold
+            ][:10]  # Top 10 para evitar lista muito longa
+            
+            # Determinar tendência predominante do mercado
+            bullish_count = 0
+            bearish_count = 0
+            for symbol, m in metrics.items():
+                if float(m["atr_perc"]) > 0.03:  # Alta volatilidade
+                    if float(m["adx"]) < 25:  # Baixo ADX = bom para grid
+                        bullish_count += 1
+                    else:
+                        bearish_count += 1
+            
+            if bullish_count > bearish_count * 1.2:
+                market_trend = "bullish"
+            elif bearish_count > bullish_count * 1.2:
+                market_trend = "bearish" 
+            else:
+                market_trend = "neutral"
+            
+            # Calcular distribuição de volatilidade
+            low_vol_count = sum(1 for atr in atr_percentages if atr < 2.0)
+            medium_vol_count = sum(1 for atr in atr_percentages if 2.0 <= atr <= 4.0)
+            high_vol_count = sum(1 for atr in atr_percentages if atr > 4.0)
+            
+            summary = {
+                "total_pairs": len(metrics),
+                "avg_volume": sum(volumes) / len(volumes) if volumes else 0,
+                "median_volume": sorted(volumes)[len(volumes)//2] if volumes else 0,
+                "high_volume_pairs": high_volume_pairs,
+                "market_trend": market_trend,
+                "avg_volatility": sum(atr_percentages) / len(atr_percentages) if atr_percentages else 0,
+                "volatility_distribution": {
+                    "low": low_vol_count,
+                    "medium": medium_vol_count, 
+                    "high": high_vol_count
+                },
+                "avg_adx": sum(adx_values) / len(adx_values) if adx_values else 50,
+                "price_range": {
+                    "min": min(prices) if prices else 0,
+                    "max": max(prices) if prices else 0,
+                    "avg": sum(prices) / len(prices) if prices else 0
+                },
+                "market_conditions": self._assess_market_conditions(atr_percentages, adx_values),
+                "timestamp": time.time()
+            }
+            
+            log.info(f"Market summary generated: {summary['total_pairs']} pairs, "
+                    f"trend: {summary['market_trend']}, "
+                    f"avg_volume: {summary['avg_volume']:,.0f}")
+            
+            return summary
+            
+        except Exception as e:
+            log.error(f"Error generating market summary: {e}")
+            return self._get_fallback_market_summary()
+    
+    def _assess_market_conditions(self, atr_percentages: list, adx_values: list) -> str:
+        """Avalia condições gerais do mercado baseado em volatilidade e tendência."""
+        try:
+            avg_atr = sum(atr_percentages) / len(atr_percentages) if atr_percentages else 0
+            avg_adx = sum(adx_values) / len(adx_values) if adx_values else 50
+            
+            if avg_atr > 3.5 and avg_adx < 25:
+                return "excellent_for_grid"  # Alta volatilidade, baixa tendência
+            elif avg_atr > 2.5 and avg_adx < 30:
+                return "good_for_grid"
+            elif avg_atr < 1.5 or avg_adx > 40:
+                return "poor_for_grid"  # Baixa volatilidade ou alta tendência
+            else:
+                return "moderate_for_grid"
+                
+        except Exception as e:
+            log.warning(f"Error assessing market conditions: {e}")
+            return "unknown"
+    
+    def _get_fallback_market_summary(self) -> dict:
+        """Resumo de fallback quando não consegue obter dados reais."""
+        return {
+            "total_pairs": 471,
+            "avg_volume": 5000000,
+            "median_volume": 2000000,
+            "high_volume_pairs": ["BTCUSDT", "ETHUSDT", "BNBUSDT"],
+            "market_trend": "neutral",
+            "avg_volatility": 2.5,
+            "volatility_distribution": {"low": 150, "medium": 200, "high": 121},
+            "avg_adx": 30,
+            "price_range": {"min": 0.001, "max": 100000, "avg": 10},
+            "market_conditions": "moderate_for_grid",
+            "timestamp": time.time(),
+            "fallback": True
+        }
