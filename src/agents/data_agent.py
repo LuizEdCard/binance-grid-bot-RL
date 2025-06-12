@@ -71,10 +71,10 @@ class DataAgent:
         self.api_client = api_client
         
         # Cache configurations
-        self.ticker_cache = DataCache(ttl_seconds=30)  # Tickers updated frequently
-        self.kline_cache = DataCache(ttl_seconds=60)   # Klines less frequent
-        self.position_cache = DataCache(ttl_seconds=10) # Positions very frequent
-        self.balance_cache = DataCache(ttl_seconds=30)  # Balance moderate
+        self.ticker_cache = DataCache(default_ttl_seconds=30)  # Tickers updated frequently
+        self.kline_cache = DataCache(default_ttl_seconds=60)   # Klines less frequent
+        self.position_cache = DataCache(default_ttl_seconds=10) # Positions very frequent
+        self.balance_cache = DataCache(default_ttl_seconds=30)  # Balance moderate
         
         # Data aggregation
         self.subscribers = defaultdict(list)  # symbol -> [callback_functions]

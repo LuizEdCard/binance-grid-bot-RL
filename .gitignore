@@ -33,6 +33,13 @@ env.bak/
 venv.bak/
 .conda/
 
+# Secrets and sensitive files
+secrets/
+*.key
+*.pem
+*.p12
+credentials.json
+
 # Logs
 *.log
 logs/

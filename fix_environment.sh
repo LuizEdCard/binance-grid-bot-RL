@@ -1,10 +1,20 @@
 #!/bin/bash
 
-echo "🔧 CORRIGINDO AMBIENTES CONDA CONFLITANTES"
-echo "=========================================="
+# DEPRECATED: Este script era para correção de problemas do Conda
+# Agora usando venv
 
-echo "Problema detectado: (trading-bot) (base) - dupla ativação"
+echo "⚠️  SCRIPT DESCONTINUADO - PROBLEMAS CONDA RESOLVIDOS COM VENV"
+echo "=============================================================="
 echo ""
+echo "Este script foi criado para resolver conflitos do Conda."
+echo "O projeto agora usa venv, eliminando esses problemas."
+echo ""
+echo "🔧 SE ENCONTRAR PROBLEMAS COM VENV:"
+echo "   1. deactivate"
+echo "   2. source venv/bin/activate"
+echo "   3. pip list  # verificar dependências"
+echo ""
+exit 1
 
 # 1. LIMPAR COMPLETAMENTE O SHELL
 echo "🧹 Limpando configurações do shell..."

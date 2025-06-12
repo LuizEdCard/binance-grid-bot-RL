@@ -1,3 +1,1773 @@
 2025-05-28 13:13:37 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
 2025-05-28 13:14:11 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
 2025-05-28 13:14:23 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-09 16:57:34 - grid_logic - WARNING - Biblioteca TA-Lib não encontrada para GridLogic. Algumas funcionalidades avançadas (espaçamento dinâmico baseado em ATR, verificações de padrões) estarão indisponíveis. Por favor, instale TA-Lib para funcionalidade completa (veja talib_installation_guide.md).
+2025-06-09 16:58:45 - grid_logic - WARNING - Biblioteca TA-Lib não encontrada para GridLogic. Algumas funcionalidades avançadas (espaçamento dinâmico baseado em ATR, verificações de padrões) estarão indisponíveis. Por favor, instale TA-Lib para funcionalidade completa (veja talib_installation_guide.md).
+2025-06-09 16:58:53 - pair_selector - WARNING - TA-Lib library not found for PairSelector. Candlestick pattern filtering will be unavailable. Please install TA-Lib for full functionality (see talib_installation_guide.md).
+2025-06-09 16:58:53 - pair_selector - ERROR - pandas_ta library not found either! Indicator calculations might fail.
+2025-06-09 17:03:49 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-09 17:03:49 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-11 17:19:21 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 17:19:21 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-11 17:19:23 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-11 17:19:23 - grid_bot - INFO - Configuration loaded from /home/luiz/PycharmProjects/binance-grid-bot-RL/src/config/config.yaml
+2025-06-11 17:19:25 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-11 17:19:25 - grid_bot - INFO - Cache prefetch callbacks registered
+2025-06-11 17:19:25 - grid_bot - INFO - MultiAgentTradingBot initialized in PRODUCTION mode
+2025-06-11 17:19:25 - grid_bot - INFO - Starting Multi-Agent Trading System...
+2025-06-11 17:19:25 - grid_bot - INFO - Initializing specialized agents...
+2025-06-11 17:19:25 - coordinator_agent - INFO - CoordinatorAgent initialized
+2025-06-11 17:19:25 - coordinator_agent - INFO - Initializing specialized agents...
+2025-06-11 17:19:25 - data_agent - INFO - DataAgent initialized with intelligent caching
+2025-06-11 17:19:25 - coordinator_agent - INFO - Data Agent initialized
+2025-06-11 17:19:25 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 17:19:25 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 17:19:25 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 47, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 17:19:25 - grid_bot - ERROR - Reddit API credentials not found. Cannot authenticate.
+2025-06-11 17:19:25 - sentiment_agent - INFO - SentimentAgent initialized with distributed analysis
+2025-06-11 17:19:25 - coordinator_agent - INFO - Sentiment Agent initialized
+2025-06-11 17:19:25 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:1234
+2025-06-11 17:19:25 - coordinator_agent - INFO - AI Agent initialized (will check availability on start)
+2025-06-11 17:19:25 - coordinator_agent - INFO - Inter-agent communication channels established
+2025-06-11 17:19:25 - coordinator_agent - INFO - All agents initialized successfully
+2025-06-11 17:19:25 - risk_agent - INFO - RiskAgent initialized
+2025-06-11 17:19:25 - ai_trading_integration - INFO - AI Trading Integration initialized
+2025-06-11 17:19:25 - grid_bot - INFO - AI Trading Integration initialized
+2025-06-11 17:19:25 - pair_selector - INFO - PairSelector initialized. Min Vol: 100000000 USD, Min ATR: 2.00%, Max Spread: 0.100%, Max ADX: 25, Use Candlestick Filter: False, Sentiment Filter: True (Min Score: -0.3)
+2025-06-11 17:19:25 - grid_bot - INFO - All agents initialized successfully
+2025-06-11 17:19:25 - coordinator_agent - INFO - Starting coordination system...
+2025-06-11 17:19:25 - coordinator_agent - INFO - Starting data agent...
+2025-06-11 17:19:25 - data_agent - INFO - DataAgent started with background processes
+2025-06-11 17:19:25 - coordinator_agent - INFO - data agent started successfully
+2025-06-11 17:19:25 - coordinator_agent - INFO - Starting sentiment agent...
+2025-06-11 17:19:25 - sentiment_agent - ERROR - Sentiment analyzer not loaded, cannot start agent
+2025-06-11 17:19:25 - coordinator_agent - INFO - sentiment agent started successfully
+2025-06-11 17:19:25 - coordinator_agent - INFO - Starting ai agent...
+2025-06-11 17:19:25 - ai_agent - INFO - Starting AI Agent...
+2025-06-11 17:19:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:19:25 - ai_agent - WARNING - Local AI not available. AI Agent will run in limited mode (no functionality).
+2025-06-11 17:19:25 - ai_agent - INFO - Bot will continue operating normally without AI assistance.
+2025-06-11 17:19:25 - ai_agent - INFO - AI Agent started successfully
+2025-06-11 17:19:25 - coordinator_agent - INFO - ai agent started successfully
+2025-06-11 17:19:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.00']
+2025-06-11 17:19:25 - coordinator_agent - INFO - Coordination system started
+2025-06-11 17:19:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:19:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:19:25 - risk_agent - INFO - RiskAgent started
+2025-06-11 17:19:25 - grid_bot - INFO - Updating trading pairs...
+2025-06-11 17:19:25 - pair_selector - INFO - Updating pair selection (Force update: True, Time elapsed: 486020.32h)
+2025-06-11 17:19:25 - pair_selector - INFO - Fetching market data for pair selection...
+2025-06-11 17:19:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:19:27 - pair_selector - INFO - Found 471 potential USDT pairs.
+2025-06-11 17:19:34 - pair_selector - WARNING - Could not fetch sufficient kline data (9/30) for TAIKOUSDT. Excluding from this cycle.
+2025-06-11 17:19:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:19:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.33']
+2025-06-11 17:19:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:20:15 - pair_selector - WARNING - Could not fetch sufficient kline data (9/30) for SQDUSDT. Excluding from this cycle.
+2025-06-11 17:20:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.29']
+2025-06-11 17:20:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:20:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:20:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:20:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:20:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:20:56 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:21:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.31']
+2025-06-11 17:21:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:21:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:21:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:21:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:21:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 17:21:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:22:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 17:22:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:22:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:22:26 - pair_selector - WARNING - Could not fetch sufficient kline data (0/30) for NTRNUSDT. Excluding from this cycle.
+2025-06-11 17:22:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:22:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:22:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 17:22:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:23:23 - pair_selector - INFO - Fetched kline data for 468 pairs.
+2025-06-11 17:23:23 - pair_selector - INFO - Applying sentiment filter. Current score: 0.0000, Minimum required: -0.3
+2025-06-11 17:23:23 - pair_selector - INFO - Found 5 pairs after filtering (including sentiment if enabled).
+2025-06-11 17:23:23 - pair_selector - INFO - Ranked pairs: ['MOODENGUSDT', 'PNUTUSDT', 'EIGENUSDT']
+2025-06-11 17:23:23 - pair_selector - INFO - Pair selection updated. Selected pairs: ['MOODENGUSDT', 'PNUTUSDT', 'EIGENUSDT']
+2025-06-11 17:23:23 - grid_bot - INFO - Selected pairs for trading: ['MOODENGUSDT', 'PNUTUSDT', 'EIGENUSDT']
+2025-06-11 17:23:23 - grid_bot - INFO - Starting trading worker for MOODENGUSDT
+2025-06-11 17:23:23 - grid_bot - INFO - Trading worker for MOODENGUSDT started (PID: 370940)
+2025-06-11 17:23:23 - grid_bot - INFO - Starting trading worker for PNUTUSDT
+2025-06-11 17:23:23 - grid_bot - INFO - [MOODENGUSDT] Trading worker started (PID: 370940)
+2025-06-11 17:23:23 - grid_bot - INFO - Trading worker for PNUTUSDT started (PID: 370944)
+2025-06-11 17:23:23 - grid_bot - INFO - Starting trading worker for EIGENUSDT
+2025-06-11 17:23:23 - grid_bot - INFO - [PNUTUSDT] Trading worker started (PID: 370944)
+2025-06-11 17:23:23 - grid_bot - INFO - Trading worker for EIGENUSDT started (PID: 370956)
+2025-06-11 17:23:23 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 3, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 17:23:23 - grid_bot - INFO - [EIGENUSDT] Trading worker started (PID: 370956)
+2025-06-11 17:23:25 - grid_logic - INFO - [EIGENUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:23:25 - grid_logic - INFO - [MOODENGUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:23:25 - grid_logic - INFO - [EIGENUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:23:25 - grid_logic - INFO - [MOODENGUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:23:25 - grid_logic - INFO - [MOODENGUSDT] Tick: 0.0000100, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 17:23:25 - rl_agent - INFO - [MOODENGUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:23:25 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:23:25 - rl_agent - INFO - [MOODENGUSDT] Creating new RLTrading agent
+2025-06-11 17:23:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:23:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:23:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:23:25 - grid_bot - INFO - [MOODENGUSDT] Starting trading cycle...
+2025-06-11 17:23:25 - grid_logic - INFO - [PNUTUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:23:25 - grid_logic - INFO - [PNUTUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:23:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:26 - grid_logic - INFO - [EIGENUSDT] Tick: 0.0001000, Step: 0.1, MinNotional: 5, PricePrec: 7, QtyPrec: 1 (Mercado: FUTURES)
+2025-06-11 17:23:26 - rl_agent - INFO - [EIGENUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:23:26 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:23:26 - rl_agent - INFO - [EIGENUSDT] Creating new RLTrading agent
+2025-06-11 17:23:26 - grid_bot - INFO - [EIGENUSDT] Starting trading cycle...
+2025-06-11 17:23:26 - rl_agent - ERROR - [MOODENGUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 17:23:26 - grid_logic - INFO - [MOODENGUSDT] Running grid cycle...
+2025-06-11 17:23:26 - grid_logic - INFO - [MOODENGUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 17:23:26 - grid_logic - INFO - [MOODENGUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 17:23:26 - grid_logic - INFO - [PNUTUSDT] Tick: 0.0000100, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 17:23:26 - rl_agent - INFO - [PNUTUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:23:26 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:23:26 - rl_agent - INFO - [PNUTUSDT] Creating new RLTrading agent
+2025-06-11 17:23:26 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 17:23:27 - rl_agent - ERROR - [EIGENUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 17:23:27 - grid_logic - INFO - [EIGENUSDT] Running grid cycle...
+2025-06-11 17:23:27 - grid_logic - INFO - [EIGENUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 17:23:27 - grid_logic - INFO - [EIGENUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 17:23:27 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 17:23:27 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 17:23:27 - grid_logic - INFO - [PNUTUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 17:23:27 - grid_logic - INFO - [PNUTUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 17:23:43 - grid_logic - INFO - [MOODENGUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 17:23:44 - grid_logic - INFO - [EIGENUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 17:23:44 - grid_logic - INFO - [PNUTUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 17:23:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 17:23:55 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 10
+2025-06-11 17:23:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:55 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:55 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:55 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:23:56 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:23:56 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 36.7%, API Calls Saved: 0, Data Updates: 10
+2025-06-11 17:24:00 - grid_logic - INFO - [MOODENGUSDT] Encontradas 0 ordens SPOT
+2025-06-11 17:24:00 - grid_logic - INFO - [MOODENGUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 17:24:00 - grid_logic - INFO - [MOODENGUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 17:24:00 - grid_logic - INFO - [EIGENUSDT] Encontradas 0 ordens SPOT
+2025-06-11 17:24:00 - grid_logic - INFO - [EIGENUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 17:24:00 - grid_logic - INFO - [EIGENUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 17:24:01 - grid_logic - INFO - [PNUTUSDT] Encontradas 0 ordens SPOT
+2025-06-11 17:24:01 - grid_logic - INFO - [PNUTUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 17:24:01 - grid_logic - INFO - [PNUTUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 17:24:07 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:24:07 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:24:07 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:24:07 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:24:07 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 17:24:07 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 17:24:07 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 17:24:07 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 17:24:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.35']
+2025-06-11 17:24:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:24:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:24:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 17:24:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:24:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:25:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 17:25:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:25:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:25:27 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.35']
+2025-06-11 17:25:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:55 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:55 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:55 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:25:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:25:56 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 17:26:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:26:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:26:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 17:26:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:55 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:55 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:55 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:26:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:26:56 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:09 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:27:09 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:27:09 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:27:09 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:27:09 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:27:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.35']
+2025-06-11 17:27:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:27:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:27:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 17:27:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:27:55 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:28:25 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:28:25 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:25 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:25 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:25 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:25 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:28:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:28:26 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:41 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:28:41 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:28:41 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:28:41 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:31:31 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:31 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:31 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:31 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:31:34 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:34 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:34 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:28:55 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:29:25 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:28:55 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:55 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 17:31:34 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 36.7%, API Calls Saved: 0, Data Updates: 20
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 20
+2025-06-11 17:31:34 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:31:34 - risk_agent - INFO - RiskAgent Status - Checks: 20, Positions: 0, Alerts: 0, Avg Check Time: 7.93s
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:28:41 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:31:34 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:31:35 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:32:04 - risk_agent - ERROR - Error monitoring individual risk for MOODENGUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - risk_agent - ERROR - Error monitoring individual risk for PNUTUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - risk_agent - ERROR - Error monitoring individual risk for EIGENUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - risk_agent - ERROR - Error monitoring portfolio risks: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:32:04 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:33:49 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 17:33:49 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-11 17:33:51 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-11 17:33:51 - grid_bot - INFO - Configuration loaded from /home/luiz/PycharmProjects/binance-grid-bot-RL/src/config/config.yaml
+2025-06-11 17:33:53 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-11 17:33:53 - grid_bot - INFO - Cache prefetch callbacks registered
+2025-06-11 17:33:53 - grid_bot - INFO - MultiAgentTradingBot initialized in PRODUCTION mode
+2025-06-11 17:33:53 - grid_bot - INFO - Starting Multi-Agent Trading System...
+2025-06-11 17:33:53 - grid_bot - INFO - Initializing specialized agents...
+2025-06-11 17:33:53 - coordinator_agent - INFO - CoordinatorAgent initialized
+2025-06-11 17:33:53 - coordinator_agent - INFO - Initializing specialized agents...
+2025-06-11 17:33:53 - data_agent - INFO - DataAgent initialized with intelligent caching
+2025-06-11 17:33:53 - coordinator_agent - INFO - Data Agent initialized
+2025-06-11 17:33:53 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 17:33:53 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 17:33:53 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 47, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 17:33:53 - grid_bot - ERROR - Reddit API credentials not found. Cannot authenticate.
+2025-06-11 17:33:53 - sentiment_agent - INFO - SentimentAgent initialized with distributed analysis
+2025-06-11 17:33:53 - coordinator_agent - INFO - Sentiment Agent initialized
+2025-06-11 17:33:53 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:1234
+2025-06-11 17:33:53 - coordinator_agent - INFO - AI Agent initialized (will check availability on start)
+2025-06-11 17:33:53 - coordinator_agent - INFO - Inter-agent communication channels established
+2025-06-11 17:33:53 - coordinator_agent - INFO - All agents initialized successfully
+2025-06-11 17:33:53 - risk_agent - INFO - RiskAgent initialized
+2025-06-11 17:33:53 - ai_trading_integration - INFO - AI Trading Integration initialized
+2025-06-11 17:33:53 - grid_bot - INFO - AI Trading Integration initialized
+2025-06-11 17:33:53 - pair_selector - INFO - PairSelector initialized. Min Vol: 100000000 USD, Min ATR: 2.00%, Max Spread: 0.100%, Max ADX: 25, Use Candlestick Filter: False, Sentiment Filter: True (Min Score: -0.3)
+2025-06-11 17:33:53 - grid_bot - INFO - All agents initialized successfully
+2025-06-11 17:33:53 - coordinator_agent - INFO - Starting coordination system...
+2025-06-11 17:33:53 - coordinator_agent - INFO - Starting data agent...
+2025-06-11 17:33:53 - data_agent - INFO - DataAgent started with background processes
+2025-06-11 17:33:53 - coordinator_agent - INFO - data agent started successfully
+2025-06-11 17:33:53 - coordinator_agent - INFO - Starting sentiment agent...
+2025-06-11 17:33:53 - sentiment_agent - ERROR - Sentiment analyzer not loaded, cannot start agent
+2025-06-11 17:33:53 - coordinator_agent - INFO - sentiment agent started successfully
+2025-06-11 17:33:53 - coordinator_agent - INFO - Starting ai agent...
+2025-06-11 17:33:53 - ai_agent - INFO - Starting AI Agent...
+2025-06-11 17:33:53 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:33:53 - ai_agent - WARNING - Local AI not available. AI Agent will run in limited mode (no functionality).
+2025-06-11 17:33:53 - ai_agent - INFO - Bot will continue operating normally without AI assistance.
+2025-06-11 17:33:53 - ai_agent - INFO - AI Agent started successfully
+2025-06-11 17:33:53 - coordinator_agent - INFO - ai agent started successfully
+2025-06-11 17:33:53 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.00']
+2025-06-11 17:33:53 - coordinator_agent - INFO - Coordination system started
+2025-06-11 17:33:53 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:33:53 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:33:53 - risk_agent - INFO - RiskAgent started
+2025-06-11 17:33:53 - grid_bot - INFO - Updating trading pairs...
+2025-06-11 17:33:53 - pair_selector - INFO - Updating pair selection (Force update: True, Time elapsed: 486020.56h)
+2025-06-11 17:33:53 - pair_selector - INFO - Fetching market data for pair selection...
+2025-06-11 17:33:54 - pair_selector - INFO - Found 471 potential USDT pairs.
+2025-06-11 17:33:54 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:34:23 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:34:23 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.33']
+2025-06-11 17:34:23 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:34:53 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.29']
+2025-06-11 17:34:53 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:34:53 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:34:54 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:35:23 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 17:35:23 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:35:24 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:35:43 - pair_selector - WARNING - Could not fetch sufficient kline data (9/30) for TAIKOUSDT. Excluding from this cycle.
+2025-06-11 17:35:53 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.31']
+2025-06-11 17:35:53 - risk_agent - ERROR - Error monitoring system risks: 'APIClient' object has no attribute 'get_futures_balance'
+2025-06-11 17:35:53 - ai_agent - WARNING - Local AI is not responding
+2025-06-11 17:35:54 - data_agent - ERROR - Error fetching position data for BTCUSDT: 'APIClient' object has no attribute 'get_futures_position'
+2025-06-11 17:36:07 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:36:07 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 17:36:07 - grid_bot - INFO - Stopping trading workers...
+2025-06-11 17:36:07 - risk_agent - INFO - Stopping RiskAgent...
+2025-06-11 17:36:07 - risk_agent - INFO - RiskAgent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - Stopping coordination system...
+2025-06-11 17:36:07 - coordinator_agent - INFO - Stopping data agent...
+2025-06-11 17:36:07 - data_agent - INFO - Stopping DataAgent...
+2025-06-11 17:36:07 - data_agent - INFO - DataAgent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - data agent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - Stopping sentiment agent...
+2025-06-11 17:36:07 - sentiment_agent - INFO - Stopping SentimentAgent...
+2025-06-11 17:36:07 - sentiment_agent - INFO - SentimentAgent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - sentiment agent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - Stopping ai agent...
+2025-06-11 17:36:07 - ai_agent - INFO - Stopping AI Agent...
+2025-06-11 17:36:07 - ai_agent - INFO - AI Agent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - ai agent stopped
+2025-06-11 17:36:07 - coordinator_agent - INFO - Coordination system stopped
+2025-06-11 17:36:07 - intelligent_cache - INFO - Shutting down IntelligentCache...
+2025-06-11 17:36:07 - intelligent_cache - INFO - Cache cleared
+2025-06-11 17:36:07 - intelligent_cache - INFO - IntelligentCache shutdown complete
+2025-06-11 17:36:07 - grid_bot - INFO - Multi-Agent Trading System shutdown complete
+2025-06-11 17:36:07 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 17:36:07 - grid_bot - INFO - Shutdown already in progress
+2025-06-11 17:37:32 - pair_selector - WARNING - Could not fetch sufficient kline data (9/30) for SQDUSDT. Excluding from this cycle.
+2025-06-11 17:37:44 - pair_selector - INFO - Fetched kline data for 469 pairs.
+2025-06-11 17:37:44 - pair_selector - INFO - Applying sentiment filter. Current score: 0.0000, Minimum required: -0.3
+2025-06-11 17:37:44 - pair_selector - INFO - Found 5 pairs after filtering (including sentiment if enabled).
+2025-06-11 17:37:44 - pair_selector - INFO - Ranked pairs: ['PNUTUSDT', 'MOODENGUSDT', 'EIGENUSDT']
+2025-06-11 17:37:44 - pair_selector - INFO - Pair selection updated. Selected pairs: ['PNUTUSDT', 'MOODENGUSDT', 'EIGENUSDT']
+2025-06-11 17:37:44 - grid_bot - INFO - Selected pairs for trading: ['PNUTUSDT', 'MOODENGUSDT', 'EIGENUSDT']
+2025-06-11 17:37:44 - grid_bot - INFO - Starting trading worker for EIGENUSDT
+2025-06-11 17:37:44 - grid_bot - INFO - Trading worker for EIGENUSDT started (PID: 377854)
+2025-06-11 17:37:44 - grid_bot - INFO - Starting trading worker for MOODENGUSDT
+2025-06-11 17:37:44 - grid_bot - INFO - [EIGENUSDT] Trading worker started (PID: 377854)
+2025-06-11 17:37:44 - grid_bot - INFO - Trading worker for MOODENGUSDT started (PID: 377855)
+2025-06-11 17:37:44 - grid_bot - INFO - Starting trading worker for PNUTUSDT
+2025-06-11 17:37:44 - grid_bot - INFO - [MOODENGUSDT] Trading worker started (PID: 377855)
+2025-06-11 17:37:44 - grid_bot - INFO - Trading worker for PNUTUSDT started (PID: 377856)
+2025-06-11 17:37:44 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 3, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 17:37:44 - grid_bot - INFO - Main loop exited
+2025-06-11 17:37:44 - grid_bot - INFO - Shutdown already in progress
+2025-06-11 17:37:44 - grid_bot - INFO - [PNUTUSDT] Trading worker started (PID: 377856)
+2025-06-11 17:37:44 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:37:44 - grid_bot - INFO - Shutdown already in progress
+2025-06-11 17:37:45 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:37:45 - grid_bot - INFO - Shutdown already in progress
+2025-06-11 17:37:45 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 17:37:45 - grid_bot - INFO - Shutdown already in progress
+2025-06-11 17:37:46 - grid_logic - INFO - [PNUTUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:37:46 - grid_logic - INFO - [PNUTUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:37:46 - grid_logic - INFO - [PNUTUSDT] Tick: 0.0000100, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 17:37:46 - rl_agent - INFO - [PNUTUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:37:46 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:37:46 - rl_agent - INFO - [PNUTUSDT] Creating new RLTrading agent
+2025-06-11 17:37:46 - grid_bot - INFO - [PNUTUSDT] Trading worker shutting down
+2025-06-11 17:37:46 - grid_bot - ERROR - [PNUTUSDT] Error during cleanup: 'GridLogic' object has no attribute 'cancel_all_orders'
+2025-06-11 17:37:47 - grid_logic - INFO - [MOODENGUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:37:47 - grid_logic - INFO - [EIGENUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 17:37:47 - grid_logic - INFO - [MOODENGUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:37:47 - grid_logic - INFO - [EIGENUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 17:37:47 - grid_logic - INFO - [EIGENUSDT] Tick: 0.0001000, Step: 0.1, MinNotional: 5, PricePrec: 7, QtyPrec: 1 (Mercado: FUTURES)
+2025-06-11 17:37:47 - rl_agent - INFO - [EIGENUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:37:47 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:37:47 - grid_logic - INFO - [MOODENGUSDT] Tick: 0.0000100, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 17:37:47 - rl_agent - INFO - [EIGENUSDT] Creating new RLTrading agent
+2025-06-11 17:37:47 - rl_agent - INFO - [MOODENGUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 17:37:47 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 17:37:47 - rl_agent - INFO - [MOODENGUSDT] Creating new RLTrading agent
+2025-06-11 17:37:48 - grid_bot - INFO - [MOODENGUSDT] Trading worker shutting down
+2025-06-11 17:37:48 - grid_bot - INFO - [EIGENUSDT] Trading worker shutting down
+2025-06-11 17:37:48 - grid_bot - ERROR - [MOODENGUSDT] Error during cleanup: 'GridLogic' object has no attribute 'cancel_all_orders'
+2025-06-11 17:37:48 - grid_bot - ERROR - [EIGENUSDT] Error during cleanup: 'GridLogic' object has no attribute 'cancel_all_orders'
+2025-06-11 20:45:26 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 20:45:26 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-11 20:45:28 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-11 20:45:28 - grid_bot - INFO - Configuration loaded from /home/luiz/PycharmProjects/binance-grid-bot-RL/src/config/config.yaml
+2025-06-11 20:45:29 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-11 20:45:29 - grid_bot - INFO - Cache prefetch callbacks registered
+2025-06-11 20:45:29 - grid_bot - INFO - MultiAgentTradingBot initialized in PRODUCTION mode
+2025-06-11 20:45:29 - grid_bot - INFO - Starting Multi-Agent Trading System...
+2025-06-11 20:45:29 - grid_bot - INFO - Initializing specialized agents...
+2025-06-11 20:45:29 - coordinator_agent - INFO - CoordinatorAgent initialized
+2025-06-11 20:45:29 - coordinator_agent - INFO - Initializing specialized agents...
+2025-06-11 20:45:29 - data_agent - INFO - DataAgent initialized with intelligent caching
+2025-06-11 20:45:29 - coordinator_agent - INFO - Data Agent initialized
+2025-06-11 20:45:29 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 20:45:29 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 20:45:29 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 20:45:29 - grid_bot - ERROR - Reddit API credentials not found. Cannot authenticate.
+2025-06-11 20:45:29 - sentiment_agent - INFO - SentimentAgent initialized with distributed analysis
+2025-06-11 20:45:29 - coordinator_agent - INFO - Sentiment Agent initialized
+2025-06-11 20:45:29 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-11 20:45:29 - coordinator_agent - INFO - AI Agent initialized (will check availability on start)
+2025-06-11 20:45:29 - coordinator_agent - INFO - Inter-agent communication channels established
+2025-06-11 20:45:29 - coordinator_agent - INFO - All agents initialized successfully
+2025-06-11 20:45:29 - risk_agent - INFO - RiskAgent initialized
+2025-06-11 20:45:29 - ai_trading_integration - INFO - AI Trading Integration initialized
+2025-06-11 20:45:29 - grid_bot - INFO - AI Trading Integration initialized
+2025-06-11 20:45:29 - pair_selector - INFO - PairSelector initialized. Min Vol: 100000000 USD, Min ATR: 2.00%, Max Spread: 0.100%, Max ADX: 25, Use Candlestick Filter: False, Sentiment Filter: True (Min Score: -0.3)
+2025-06-11 20:45:29 - grid_bot - INFO - All agents initialized successfully
+2025-06-11 20:45:29 - coordinator_agent - INFO - Starting coordination system...
+2025-06-11 20:45:29 - coordinator_agent - INFO - Starting data agent...
+2025-06-11 20:45:29 - data_agent - INFO - DataAgent started with background processes
+2025-06-11 20:45:29 - coordinator_agent - INFO - data agent started successfully
+2025-06-11 20:45:29 - coordinator_agent - INFO - Starting sentiment agent...
+2025-06-11 20:45:29 - sentiment_agent - ERROR - Sentiment analyzer not loaded, cannot start agent
+2025-06-11 20:45:29 - coordinator_agent - INFO - sentiment agent started successfully
+2025-06-11 20:45:29 - coordinator_agent - INFO - Starting ai agent...
+2025-06-11 20:45:29 - ai_agent - INFO - Starting AI Agent...
+2025-06-11 20:45:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:45:29 - ai_agent - INFO - AI Agent fully operational with local AI
+2025-06-11 20:45:29 - ai_agent - INFO - AI Agent started successfully
+2025-06-11 20:45:29 - coordinator_agent - INFO - ai agent started successfully
+2025-06-11 20:45:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.00']
+2025-06-11 20:45:29 - coordinator_agent - INFO - Coordination system started
+2025-06-11 20:45:29 - risk_agent - INFO - RiskAgent started
+2025-06-11 20:45:29 - grid_bot - INFO - Updating trading pairs...
+2025-06-11 20:45:29 - pair_selector - INFO - Updating pair selection (Force update: True, Time elapsed: 486023.76h)
+2025-06-11 20:45:29 - pair_selector - INFO - Fetching market data for pair selection...
+2025-06-11 20:45:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:45:30 - pair_selector - INFO - Found 471 potential USDT pairs.
+2025-06-11 20:45:30 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:45:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.33']
+2025-06-11 20:46:00 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:46:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.29']
+2025-06-11 20:46:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:46:30 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:46:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 20:47:00 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:47:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.31']
+2025-06-11 20:47:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:47:30 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:47:35 - pair_selector - WARNING - Could not fetch sufficient kline data (12/30) for SQDUSDT. Excluding from this cycle.
+2025-06-11 20:47:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:48:00 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:48:25 - pair_selector - WARNING - Could not fetch sufficient kline data (12/30) for TAIKOUSDT. Excluding from this cycle.
+2025-06-11 20:48:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 20:48:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:48:30 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:48:48 - pair_selector - INFO - Fetched kline data for 469 pairs.
+2025-06-11 20:48:48 - pair_selector - INFO - Applying sentiment filter. Current score: 0.0000, Minimum required: -0.3
+2025-06-11 20:48:48 - pair_selector - INFO - Found 10 pairs after filtering (including sentiment if enabled).
+2025-06-11 20:48:48 - pair_selector - INFO - Ranked pairs: ['WIFUSDT', 'PENGUUSDT', 'PNUTUSDT']
+2025-06-11 20:48:48 - pair_selector - INFO - Pair selection updated. Selected pairs: ['WIFUSDT', 'PENGUUSDT', 'PNUTUSDT']
+2025-06-11 20:48:48 - grid_bot - INFO - Selected pairs for trading: ['WIFUSDT', 'PENGUUSDT', 'PNUTUSDT']
+2025-06-11 20:48:48 - grid_bot - INFO - Starting trading worker for PNUTUSDT
+2025-06-11 20:48:48 - grid_bot - INFO - Trading worker for PNUTUSDT started (PID: 436350)
+2025-06-11 20:48:48 - grid_bot - INFO - Starting trading worker for WIFUSDT
+2025-06-11 20:48:48 - grid_bot - INFO - [PNUTUSDT] Trading worker started (PID: 436350)
+2025-06-11 20:48:48 - grid_bot - INFO - Trading worker for WIFUSDT started (PID: 436351)
+2025-06-11 20:48:48 - grid_bot - INFO - Starting trading worker for PENGUUSDT
+2025-06-11 20:48:48 - grid_bot - INFO - [WIFUSDT] Trading worker started (PID: 436351)
+2025-06-11 20:48:48 - grid_bot - INFO - Trading worker for PENGUUSDT started (PID: 436352)
+2025-06-11 20:48:48 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 3, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 20:48:48 - grid_bot - INFO - [PENGUUSDT] Trading worker started (PID: 436352)
+2025-06-11 20:48:50 - grid_logic - INFO - [PENGUUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 20:48:50 - grid_logic - INFO - [PENGUUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 20:48:50 - grid_logic - INFO - [WIFUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 20:48:50 - grid_logic - INFO - [WIFUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 20:48:50 - grid_logic - INFO - [PNUTUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 20:48:50 - grid_logic - INFO - [PNUTUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 20:48:50 - grid_logic - INFO - [WIFUSDT] Tick: 0.0001000, Step: 0.1, MinNotional: 5, PricePrec: 7, QtyPrec: 1 (Mercado: FUTURES)
+2025-06-11 20:48:50 - rl_agent - INFO - [WIFUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 20:48:50 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 20:48:50 - rl_agent - INFO - [WIFUSDT] Creating new RLTrading agent
+2025-06-11 20:48:50 - grid_logic - INFO - [PNUTUSDT] Tick: 0.0000100, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 20:48:50 - grid_logic - INFO - [PENGUUSDT] Tick: 0.0000010, Step: 1, MinNotional: 5, PricePrec: 7, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 20:48:50 - rl_agent - INFO - [PNUTUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 20:48:50 - rl_agent - INFO - [PENGUUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 20:48:50 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 20:48:50 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 20:48:50 - rl_agent - INFO - [PENGUUSDT] Creating new RLTrading agent
+2025-06-11 20:48:50 - rl_agent - INFO - [PNUTUSDT] Creating new RLTrading agent
+2025-06-11 20:48:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:48:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:48:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:48:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 20:48:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 20:48:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] Encontradas 0 ordens SPOT
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 20:48:51 - grid_logic - INFO - [PENGUUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] Encontradas 0 ordens SPOT
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 20:48:51 - grid_logic - INFO - [PNUTUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] Encontradas 0 ordens SPOT
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 20:48:51 - grid_logic - INFO - [WIFUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 20:48:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:48:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:48:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:48:53 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:48:53 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:48:53 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:48:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:48:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:48:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:48:54 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:48:54 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:48:54 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:48:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:49:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:49:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 20:49:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:49:33 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:49:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:49:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:49:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:49:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 12
+2025-06-11 20:49:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 12
+2025-06-11 20:49:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 12
+2025-06-11 20:49:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:49:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:49:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:49:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:49:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:49:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:49:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:49:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:49:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:49:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:49:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:49:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:49:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:49:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:49:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:49:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:49:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 10
+2025-06-11 20:50:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 36.7%, API Calls Saved: 0, Data Updates: 10
+2025-06-11 20:50:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:50:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.35']
+2025-06-11 20:50:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:50:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:50:48 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 3, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 20:50:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:50:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:50:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:50:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 15
+2025-06-11 20:50:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:50:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 15
+2025-06-11 20:50:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:50:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 15
+2025-06-11 20:50:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:50:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:50:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:50:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:50:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:50:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:50:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:50:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:50:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:50:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:50:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:50:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:50:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:50:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:51:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:51:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:51:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:51:33 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:51:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:51:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:51:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:51:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:51:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:51:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:51:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:51:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:51:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:51:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:51:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:51:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:51:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:51:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:51:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:51:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:51:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:51:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:51:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:51:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:51:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:51:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:52:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:52:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 20:52:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:52:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:52:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:52:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:52:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:52:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:52:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:52:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:52:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:52:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:52:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:52:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:52:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:52:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:52:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:52:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:52:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:52:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:52:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:52:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:52:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:52:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:52:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:52:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:53:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:53:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 20:53:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:53:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:53:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:53:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:53:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:53:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:53:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:53:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:53:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:53:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:53:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:53:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:53:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:53:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:53:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:53:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:53:53 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:53:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:53:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:53:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:53:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:53:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:53:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:53:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:54:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:54:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:54:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:54:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:54:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:54:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:54:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:54:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:54:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:54:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:54:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:54:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:54:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:54:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:54:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:54:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:54:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:54:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:54:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:54:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:54:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:54:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:54:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:54:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:54:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:54:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:54:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 20
+2025-06-11 20:55:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.3%, API Calls Saved: 0, Data Updates: 20
+2025-06-11 20:55:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:55:02 - risk_agent - INFO - RiskAgent Status - Checks: 20, Positions: 0, Alerts: 0, Avg Check Time: 1.66s
+2025-06-11 20:55:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:55:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:55:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:55:48 - grid_bot - INFO - System Stats - Uptime: 0.2h, Trades: 0, Active Pairs: 3, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 20:55:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:55:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:55:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:55:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:55:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:55:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:55:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:55:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:55:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:55:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:55:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:55:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:55:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:55:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:55:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:55:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:55:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:55:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:55:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:55:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:55:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:55:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:56:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:56:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 20:56:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:56:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:56:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:56:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:56:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:56:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:56:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:56:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:56:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:56:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:56:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:56:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:56:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:56:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:56:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:56:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:56:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:56:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:56:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:56:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:56:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:56:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:56:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:56:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:57:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:57:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:57:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:57:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:57:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:57:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:57:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:57:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:57:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:57:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:57:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:57:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:57:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:57:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:57:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:57:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:57:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:57:53 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:57:53 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:57:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:57:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:57:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:57:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:57:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:57:54 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:57:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:58:03 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:58:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:58:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:58:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:58:50 - grid_bot - INFO - [PNUTUSDT] Starting trading cycle...
+2025-06-11 20:58:50 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 20:58:50 - grid_bot - INFO - [PENGUUSDT] Starting trading cycle...
+2025-06-11 20:58:51 - rl_agent - ERROR - [PNUTUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:58:51 - rl_agent - ERROR - [PENGUUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:58:51 - grid_logic - INFO - [PNUTUSDT] Running grid cycle...
+2025-06-11 20:58:51 - grid_logic - INFO - [PENGUUSDT] Running grid cycle...
+2025-06-11 20:58:51 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 18
+2025-06-11 20:58:51 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 20:58:52 - grid_logic - WARNING - [PNUTUSDT] Could not fetch production position info.
+2025-06-11 20:58:52 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 20:58:52 - grid_logic - WARNING - [PENGUUSDT] Could not fetch production position info.
+2025-06-11 20:58:52 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 20:58:52 - grid_logic - INFO - [PNUTUSDT] Applying RL discrete action: 0
+2025-06-11 20:58:52 - grid_logic - INFO - [PENGUUSDT] Applying RL discrete action: 0
+2025-06-11 20:58:53 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 20:58:53 - grid_logic - INFO - [PNUTUSDT] RL action: No change to grid parameters
+2025-06-11 20:58:53 - grid_logic - INFO - [PENGUUSDT] RL action: No change to grid parameters
+2025-06-11 20:58:53 - grid_logic - ERROR - [PNUTUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:58:53 - grid_logic - ERROR - [WIFUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:58:53 - grid_logic - ERROR - [PENGUUSDT] Não é possível definir grid, falha ao obter preço atual.
+2025-06-11 20:58:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:59:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:59:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 20:59:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 20:59:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 20:59:46 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 20:59:46 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 20:59:46 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 20:59:46 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 20:59:46 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 20:59:46 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-11 20:59:46 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 20:59:46 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 20:59:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 20:59:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 30
+2025-06-11 21:00:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.9%, API Calls Saved: 0, Data Updates: 30
+2025-06-11 21:00:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:00:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:00:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:00:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:00:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:01:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:01:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:01:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:01:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:01:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:02:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:02:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:02:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:02:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:02:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:03:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:03:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:03:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:03:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:03:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:04:03 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:04:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:04:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:04:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:04:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:04:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 40
+2025-06-11 21:05:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.3%, API Calls Saved: 0, Data Updates: 40
+2025-06-11 21:05:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:05:02 - risk_agent - INFO - RiskAgent Status - Checks: 40, Positions: 0, Alerts: 0, Avg Check Time: 2.01s
+2025-06-11 21:05:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:05:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:05:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:05:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:06:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:06:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:06:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:06:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:06:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:07:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:07:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:07:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:07:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:07:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:08:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:08:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:08:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:08:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:08:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:09:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:09:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:09:29 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:09:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:09:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:09:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 50
+2025-06-11 21:10:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.7%, API Calls Saved: 0, Data Updates: 50
+2025-06-11 21:10:03 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:10:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:10:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:10:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:10:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:11:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:11:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:11:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:11:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:11:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:12:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:12:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:12:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:12:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:12:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:13:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:13:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:13:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:13:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:13:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:14:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:14:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:14:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:14:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:14:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:14:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 60
+2025-06-11 21:15:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.9%, API Calls Saved: 0, Data Updates: 60
+2025-06-11 21:15:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:15:02 - risk_agent - INFO - RiskAgent Status - Checks: 60, Positions: 0, Alerts: 0, Avg Check Time: 2.13s
+2025-06-11 21:15:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:15:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:15:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:15:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:16:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:16:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:16:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:16:34 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:16:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:17:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:17:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:17:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:17:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:17:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:18:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:18:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:18:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:18:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:18:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:19:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:19:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:19:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:19:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:19:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:19:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 70
+2025-06-11 21:20:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.6%, API Calls Saved: 0, Data Updates: 70
+2025-06-11 21:20:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:20:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:20:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:20:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:20:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:21:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:21:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:21:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:21:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:21:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:22:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:22:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:22:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:22:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:22:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:23:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:23:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:23:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:23:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:23:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:24:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:24:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:24:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:24:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:24:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:24:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 80
+2025-06-11 21:25:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.8%, API Calls Saved: 0, Data Updates: 80
+2025-06-11 21:25:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:25:02 - risk_agent - INFO - RiskAgent Status - Checks: 80, Positions: 0, Alerts: 0, Avg Check Time: 2.18s
+2025-06-11 21:25:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:25:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:25:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:25:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:26:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:26:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:26:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:26:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:26:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:27:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:27:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:27:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:27:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:27:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:28:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:28:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:28:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:28:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:28:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:29:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:29:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:29:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:29:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:29:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:29:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 90
+2025-06-11 21:30:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.9%, API Calls Saved: 0, Data Updates: 90
+2025-06-11 21:30:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:30:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:30:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:30:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:30:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:31:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:31:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:31:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:31:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:31:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:32:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:32:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:32:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:32:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:32:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:33:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:33:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:33:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:33:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:33:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 21:34:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:34:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:34:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:34:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:34:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:34:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 100
+2025-06-11 21:35:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.7%, API Calls Saved: 0, Data Updates: 100
+2025-06-11 21:35:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:35:02 - risk_agent - INFO - RiskAgent Status - Checks: 100, Positions: 0, Alerts: 0, Avg Check Time: 2.19s
+2025-06-11 21:35:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:35:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:35:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:35:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:36:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:36:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:36:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:36:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:36:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:37:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:37:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:37:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:37:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:37:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:38:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:38:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:38:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:38:31 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:38:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:39:01 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:39:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:39:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:39:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:39:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:39:59 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 110
+2025-06-11 21:40:00 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.8%, API Calls Saved: 0, Data Updates: 110
+2025-06-11 21:40:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:40:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:40:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:40:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:40:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:41:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:41:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:41:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:41:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:41:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:42:02 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:42:18 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:18 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:18 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:18 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:18 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:42:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:42:20 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:42:29 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:42:30 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 21:42:32 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:42:59 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 21:43:03 - risk_agent - ERROR - Error monitoring system risks: 'list' object has no attribute 'get'
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:20 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGINT. Initiating graceful shutdown...
+2025-06-11 21:43:21 - grid_bot - WARNING - Received signal SIGTERM. Initiating graceful shutdown...
+2025-06-11 22:02:42 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 22:02:42 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-11 22:02:44 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-11 22:02:44 - grid_bot - INFO - Configuration loaded from /home/luiz/PycharmProjects/binance-grid-bot-RL/src/config/config.yaml
+2025-06-11 22:02:46 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-11 22:02:46 - grid_bot - INFO - Cache prefetch callbacks registered
+2025-06-11 22:02:46 - grid_bot - INFO - MultiAgentTradingBot initialized in PRODUCTION mode
+2025-06-11 22:02:46 - grid_bot - INFO - Starting Multi-Agent Trading System...
+2025-06-11 22:02:46 - grid_bot - INFO - Initializing specialized agents...
+2025-06-11 22:02:46 - coordinator_agent - INFO - CoordinatorAgent initialized
+2025-06-11 22:02:46 - coordinator_agent - INFO - Initializing specialized agents...
+2025-06-11 22:02:46 - data_agent - INFO - DataAgent initialized with intelligent caching
+2025-06-11 22:02:46 - coordinator_agent - INFO - Data Agent initialized
+2025-06-11 22:02:46 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 22:02:46 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 22:02:46 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 22:02:46 - grid_bot - ERROR - Reddit API credentials not found. Cannot authenticate.
+2025-06-11 22:02:46 - sentiment_agent - INFO - SentimentAgent initialized with distributed analysis
+2025-06-11 22:02:46 - coordinator_agent - INFO - Sentiment Agent initialized
+2025-06-11 22:02:46 - ai_agent - INFO - AIAgent initialized for http://127.0.0.1:11434
+2025-06-11 22:02:46 - coordinator_agent - INFO - AI Agent initialized (will check availability on start)
+2025-06-11 22:02:46 - coordinator_agent - INFO - Inter-agent communication channels established
+2025-06-11 22:02:46 - coordinator_agent - INFO - All agents initialized successfully
+2025-06-11 22:02:46 - risk_agent - INFO - RiskAgent initialized
+2025-06-11 22:02:46 - ai_trading_integration - INFO - AI Trading Integration initialized
+2025-06-11 22:02:46 - grid_bot - INFO - AI Trading Integration initialized
+2025-06-11 22:02:46 - pair_selector - INFO - PairSelector initialized. Min Vol: 100000000 USD, Min ATR: 2.00%, Max Spread: 0.100%, Max ADX: 25, Use Candlestick Filter: False, Sentiment Filter: True (Min Score: -0.3)
+2025-06-11 22:02:46 - grid_bot - INFO - All agents initialized successfully
+2025-06-11 22:02:46 - coordinator_agent - INFO - Starting coordination system...
+2025-06-11 22:02:46 - coordinator_agent - INFO - Starting data agent...
+2025-06-11 22:02:46 - data_agent - INFO - DataAgent started with background processes
+2025-06-11 22:02:46 - coordinator_agent - INFO - data agent started successfully
+2025-06-11 22:02:46 - coordinator_agent - INFO - Starting sentiment agent...
+2025-06-11 22:02:46 - sentiment_agent - ERROR - Sentiment analyzer not loaded, cannot start agent
+2025-06-11 22:02:46 - coordinator_agent - INFO - sentiment agent started successfully
+2025-06-11 22:02:46 - coordinator_agent - INFO - Starting ai agent...
+2025-06-11 22:02:46 - ai_agent - INFO - Starting AI Agent...
+2025-06-11 22:02:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:02:46 - ai_agent - INFO - AI Agent fully operational with local AI
+2025-06-11 22:02:46 - ai_agent - INFO - AI Agent started successfully
+2025-06-11 22:02:46 - coordinator_agent - INFO - ai agent started successfully
+2025-06-11 22:02:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.00']
+2025-06-11 22:02:46 - coordinator_agent - INFO - Coordination system started
+2025-06-11 22:02:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:02:48 - risk_agent - INFO - RiskAgent started
+2025-06-11 22:02:51 - grid_bot - INFO - Updating trading pairs...
+2025-06-11 22:02:51 - pair_selector - INFO - Updating pair selection (Force update: True, Time elapsed: 486025.05h)
+2025-06-11 22:02:51 - pair_selector - INFO - Fetching market data for pair selection...
+2025-06-11 22:02:51 - pair_selector - INFO - Found 471 potential USDT pairs.
+2025-06-11 22:02:51 - pair_selector - WARNING - Could not fetch sufficient kline data (14/30) for TAIKOUSDT. Excluding from this cycle.
+2025-06-11 22:03:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.33']
+2025-06-11 22:03:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.29']
+2025-06-11 22:03:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:04:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 22:04:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.31']
+2025-06-11 22:04:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:05:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:05:21 - pair_selector - WARNING - Could not fetch sufficient kline data (14/30) for SQDUSDT. Excluding from this cycle.
+2025-06-11 22:05:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 22:05:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:06:07 - pair_selector - INFO - Fetched kline data for 469 pairs.
+2025-06-11 22:06:07 - pair_selector - INFO - Applying sentiment filter. Current score: 0.0000, Minimum required: -0.3
+2025-06-11 22:06:07 - pair_selector - INFO - Found 7 pairs after filtering (including sentiment if enabled).
+2025-06-11 22:06:07 - pair_selector - INFO - Ranked pairs: ['JTOUSDT', 'WIFUSDT']
+2025-06-11 22:06:07 - pair_selector - INFO - Pair selection updated. Selected pairs: ['JTOUSDT', 'WIFUSDT']
+2025-06-11 22:06:07 - grid_bot - INFO - Selected pairs for trading: ['JTOUSDT', 'WIFUSDT']
+2025-06-11 22:06:07 - grid_bot - INFO - Starting trading worker for JTOUSDT
+2025-06-11 22:06:07 - grid_bot - INFO - Trading worker for JTOUSDT started (PID: 470912)
+2025-06-11 22:06:07 - grid_bot - INFO - Starting trading worker for WIFUSDT
+2025-06-11 22:06:07 - grid_bot - INFO - [JTOUSDT] Trading worker started (PID: 470912)
+2025-06-11 22:06:07 - grid_bot - INFO - Trading worker for WIFUSDT started (PID: 470913)
+2025-06-11 22:06:07 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 2, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 22:06:07 - grid_bot - INFO - [WIFUSDT] Trading worker started (PID: 470913)
+2025-06-11 22:06:09 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:09 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:09 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:10 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:11 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:11 - capital_management - INFO - Market decision for JTOUSDT: futures (More capital available in futures)
+2025-06-11 22:06:11 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-11 22:06:11 - capital_management - INFO - Capital per pair: $4.20, Total allocated: $4.20
+2025-06-11 22:06:11 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($4.20)
+2025-06-11 22:06:11 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-11 22:06:11 - grid_bot - INFO - [JTOUSDT] Capital allocated: $4.20 (futures, 5 levels)
+2025-06-11 22:06:11 - grid_logic - INFO - [JTOUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 22:06:11 - grid_logic - INFO - [JTOUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 22:06:11 - grid_logic - INFO - [JTOUSDT] Tick: 0.000100, Step: 1, MinNotional: 5, PricePrec: 6, QtyPrec: 0 (Mercado: FUTURES)
+2025-06-11 22:06:11 - rl_agent - INFO - [JTOUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 22:06:11 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 22:06:11 - rl_agent - INFO - [JTOUSDT] Creating new RLTrading agent
+2025-06-11 22:06:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:06:11 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $14.01, Total: $14.01
+2025-06-11 22:06:11 - capital_management - INFO - Market decision for WIFUSDT: futures (More capital available in futures)
+2025-06-11 22:06:11 - capital_management - INFO - Calculated 1 capital allocations from 1 requested symbols
+2025-06-11 22:06:11 - capital_management - INFO - Capital per pair: $4.20, Total allocated: $4.20
+2025-06-11 22:06:11 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 1 Futures pairs ($4.20)
+2025-06-11 22:06:11 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-11 22:06:11 - grid_bot - INFO - [WIFUSDT] Capital allocated: $4.20 (futures, 5 levels)
+2025-06-11 22:06:11 - grid_logic - INFO - [WIFUSDT] GridLogic inicializado no modo PRODUCTION para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 22:06:11 - grid_logic - INFO - [WIFUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 22:06:12 - rl_agent - ERROR - [JTOUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] Running grid cycle...
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 22:06:12 - grid_logic - INFO - [WIFUSDT] Tick: 0.0001000, Step: 0.1, MinNotional: 5, PricePrec: 7, QtyPrec: 1 (Mercado: FUTURES)
+2025-06-11 22:06:12 - rl_agent - INFO - [WIFUSDT] RLAgent initialized with state_size=30, action_size=3
+2025-06-11 22:06:12 - rl_environment - INFO - TradingEnvironment initialized. Observation space size: 155, Include Sentiment: False
+2025-06-11 22:06:12 - rl_agent - INFO - [WIFUSDT] Creating new RLTrading agent
+2025-06-11 22:06:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] Encontradas 0 ordens SPOT
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 22:06:12 - grid_logic - INFO - [JTOUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 22:06:13 - rl_agent - ERROR - [WIFUSDT] Invalid state size for sentiment inclusion. Expected 29, got 9
+2025-06-11 22:06:13 - grid_logic - INFO - [WIFUSDT] Running grid cycle...
+2025-06-11 22:06:13 - grid_logic - INFO - [WIFUSDT] 🔄 Primeira execução - verificando existência de grid ativo na Binance...
+2025-06-11 22:06:13 - grid_logic - INFO - [WIFUSDT] 🔍 Verificando ordens ativas em ambos os mercados...
+2025-06-11 22:06:13 - grid_logic - WARNING - [JTOUSDT] Could not fetch production position info.
+2025-06-11 22:06:13 - grid_logic - INFO - [WIFUSDT] Encontradas 0 ordens FUTURES
+2025-06-11 22:06:14 - grid_logic - INFO - [WIFUSDT] Encontradas 0 ordens SPOT
+2025-06-11 22:06:14 - grid_logic - INFO - [WIFUSDT] Nenhuma ordem ativa encontrada em nenhum mercado
+2025-06-11 22:06:14 - grid_logic - INFO - [WIFUSDT] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid
+2025-06-11 22:06:14 - grid_logic - INFO - [JTOUSDT] Applying RL discrete action: 0
+2025-06-11 22:06:14 - grid_logic - INFO - [JTOUSDT] RL action: No change to grid parameters
+2025-06-11 22:06:15 - grid_logic - WARNING - [WIFUSDT] Could not fetch production position info.
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Definindo níveis do grid em torno do preço: 2.1242 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Definidos 4 níveis de grid.
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Placing initial grid orders...
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Calculated quantity per order: 1
+2025-06-11 22:06:15 - grid_logic - WARNING - [JTOUSDT] Nocional da ordem 2.0923 < min_notional 5 (Preço: 2.092300, Qtd: 1)
+2025-06-11 22:06:15 - grid_logic - WARNING - [JTOUSDT] Nocional da ordem 2.1082 < min_notional 5 (Preço: 2.108200, Qtd: 1)
+2025-06-11 22:06:15 - grid_logic - WARNING - [JTOUSDT] Nocional da ordem 2.1401 < min_notional 5 (Preço: 2.140100, Qtd: 1)
+2025-06-11 22:06:15 - grid_logic - WARNING - [JTOUSDT] Nocional da ordem 2.1561 < min_notional 5 (Preço: 2.156100, Qtd: 1)
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Placed 0 initial grid orders.
+2025-06-11 22:06:15 - grid_logic - INFO - [JTOUSDT] Grid cycle finished.
+2025-06-11 22:06:15 - grid_logic - INFO - [WIFUSDT] Applying RL discrete action: 0
+2025-06-11 22:06:16 - grid_logic - INFO - [WIFUSDT] RL action: No change to grid parameters
+2025-06-11 22:06:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:06:16 - grid_logic - INFO - [WIFUSDT] Definindo níveis do grid em torno do preço: 0.9453 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 22:06:16 - grid_logic - INFO - [WIFUSDT] Definidos 4 níveis de grid.
+2025-06-11 22:06:16 - grid_logic - INFO - [WIFUSDT] Placing initial grid orders...
+2025-06-11 22:06:17 - grid_logic - INFO - [WIFUSDT] Calculated quantity per order: 2.1
+2025-06-11 22:06:17 - grid_logic - WARNING - [WIFUSDT] Nocional da ordem 1.9553 < min_notional 5 (Preço: 0.9311000, Qtd: 2.1)
+2025-06-11 22:06:17 - grid_logic - WARNING - [WIFUSDT] Nocional da ordem 1.9702 < min_notional 5 (Preço: 0.9382000, Qtd: 2.1)
+2025-06-11 22:06:17 - grid_logic - WARNING - [WIFUSDT] Nocional da ordem 1.9998 < min_notional 5 (Preço: 0.9523000, Qtd: 2.1)
+2025-06-11 22:06:17 - grid_logic - WARNING - [WIFUSDT] Nocional da ordem 2.0147 < min_notional 5 (Preço: 0.9594000, Qtd: 2.1)
+2025-06-11 22:06:17 - grid_logic - INFO - [WIFUSDT] Placed 0 initial grid orders.
+2025-06-11 22:06:17 - grid_logic - INFO - [WIFUSDT] Grid cycle finished.
+2025-06-11 22:06:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.36']
+2025-06-11 22:06:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:07:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:07:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:07:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:07:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:07:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:07:16 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 10
+2025-06-11 22:07:17 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 36.7%, API Calls Saved: 0, Data Updates: 10
+2025-06-11 22:07:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.35']
+2025-06-11 22:07:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:08:07 - grid_bot - INFO - System Stats - Uptime: 0.1h, Trades: 0, Active Pairs: 2, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 22:08:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:08:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:08:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:08:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:08:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:08:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:08:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:09:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:09:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:09:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:09:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:09:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:09:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 22:09:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:10:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:10:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:10:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:10:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:10:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:10:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 22:10:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:11:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:11:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:11:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:11:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:11:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:11:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:11:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:12:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:12:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:12:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:12:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:12:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:12:16 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 20
+2025-06-11 22:12:16 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.3%, API Calls Saved: 0, Data Updates: 20
+2025-06-11 22:12:20 - risk_agent - INFO - RiskAgent Status - Checks: 20, Positions: 0, Alerts: 0, Avg Check Time: 1.15s
+2025-06-11 22:12:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:12:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:13:07 - grid_bot - INFO - System Stats - Uptime: 0.2h, Trades: 0, Active Pairs: 2, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 22:13:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:13:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:13:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:13:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:13:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:13:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.37']
+2025-06-11 22:13:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:14:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:14:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:14:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:14:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:14:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:14:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:14:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:15:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:15:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:15:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:15:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:15:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:15:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:15:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:16:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:16:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:16:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:16:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:16:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:16:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:16:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:17:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:17:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:17:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:17:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:17:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:17:16 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 30
+2025-06-11 22:17:16 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.9%, API Calls Saved: 0, Data Updates: 30
+2025-06-11 22:17:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:17:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:18:07 - grid_bot - INFO - System Stats - Uptime: 0.3h, Trades: 0, Active Pairs: 2, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 22:18:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:18:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:18:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:18:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:18:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:18:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:18:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:19:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:19:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:19:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:19:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:19:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:19:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:19:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:20:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:20:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:20:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:20:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:20:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:20:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:20:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:21:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:21:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:21:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:21:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:21:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:21:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:21:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:22:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:22:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:22:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:22:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:22:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:22:16 - coordinator_agent - INFO - System Status - Health: 66.7%, Load: 0.0%, Healthy Agents: 2/3, Coordination Cycles: 40
+2025-06-11 22:22:17 - data_agent - INFO - DataAgent Stats - Cache Hit Rate: 38.3%, API Calls Saved: 0, Data Updates: 40
+2025-06-11 22:22:20 - risk_agent - INFO - RiskAgent Status - Checks: 40, Positions: 0, Alerts: 0, Avg Check Time: 1.38s
+2025-06-11 22:22:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:22:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:23:07 - grid_bot - INFO - System Stats - Uptime: 0.3h, Trades: 0, Active Pairs: 2, Health: 66.7%, Cache Efficiency: 0.0%
+2025-06-11 22:23:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:23:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:23:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:23:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:23:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:23:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:23:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:24:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:24:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:24:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:24:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:24:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:24:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:24:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:25:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:25:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:25:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:25:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:25:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:25:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.38']
+2025-06-11 22:25:46 - ai_agent - INFO - Local AI is available and responding
+2025-06-11 22:26:11 - grid_bot - INFO - [JTOUSDT] Starting trading cycle...
+2025-06-11 22:26:12 - grid_bot - ERROR - [JTOUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:26:12 - grid_bot - INFO - [WIFUSDT] Starting trading cycle...
+2025-06-11 22:26:13 - grid_bot - ERROR - [WIFUSDT] Error in trading cycle: '<' not supported between instances of 'dict' and 'float'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 449, in _trading_worker_main
+    market_state = grid_logic.get_market_state()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1187, in get_market_state
+    buy_levels_below = sum(
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/core/grid_logic.py", line 1188, in <genexpr>
+    1 for level in self.grid_levels if level < current_price
+TypeError: '<' not supported between instances of 'dict' and 'float'
+2025-06-11 22:26:16 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:26:46 - coordinator_agent - WARNING - data agent health issues: ['Low performance score: 0.39']
+2025-06-11 22:26:46 - ai_agent - INFO - Local AI is available and responding

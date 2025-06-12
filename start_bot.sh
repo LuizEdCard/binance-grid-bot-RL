@@ -13,9 +13,9 @@ mkdir -p logs
 mkdir -p models
 mkdir -p data/grid_states
 
-# Verificar se o arquivo .env existe
-if [ ! -f ".env" ]; then
-    echo "AVISO: Arquivo .env não encontrado. Certifique-se de configurar as credenciais da API."
+# Verificar se o arquivo .env existe na pasta secrets
+if [ ! -f "secrets/.env" ]; then
+    echo "AVISO: Arquivo secrets/.env não encontrado. Certifique-se de configurar as credenciais da API."
 fi
 
 # Iniciar o servidor backend (usando main.py ao invés de bot_logic.py)

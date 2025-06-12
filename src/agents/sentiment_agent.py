@@ -87,17 +87,80 @@ class RedditSentimentSource(SentimentSource):
         return self.source_name
 
 
-class NewsSentimentSource(SentimentSource):
-    """News sentiment data source (placeholder for future implementation)."""
+class BinanceNewsSentimentSource(SentimentSource):
+    """Binance news sentiment data source."""
     
     def __init__(self):
-        self.source_name = "news"
+        self.source_name = "binance_news"
     
     def fetch_data(self, config: dict) -> List[str]:
-        """Fetch text data from news sources."""
-        # Placeholder - could integrate with news APIs like NewsAPI, Alpha Vantage, etc.
-        log.debug("News sentiment source not yet implemented")
-        return []
+        """Fetch text data from Binance news sources."""
+        texts = []
+        binance_config = config.get("binance_news", {})
+        
+        if not binance_config.get("enabled", False):
+            return texts
+        
+        try:
+            # Import here to avoid circular imports
+            from utils.binance_news_listener import BinanceNewsListener
+            
+            # Get configuration
+            hours_back = binance_config.get("hours_back", 24)
+            min_relevance = binance_config.get("min_relevance_score", 0.2)
+            max_news = binance_config.get("max_news_per_fetch", 20)
+            
+            async def _fetch_news():
+                async with BinanceNewsListener() as listener:
+                    # Test connection first
+                    if not await listener.test_connection():
+                        log.warning("Cannot connect to Binance news API")
+                        return []
+                    
+                    # Set listener configuration
+                    listener.max_news_per_fetch = max_news
+                    
+                    # Fetch recent news based on config
+                    news_items = await listener.fetch_all_recent_news(hours_back=hours_back)
+                    
+                    # Filter by relevance
+                    relevant_news = [
+                        news for news in news_items 
+                        if news.relevance_score >= min_relevance
+                    ]
+                    
+                    # Extract text from news items
+                    news_texts = []
+                    for news in relevant_news:
+                        # Add title
+                        if news.title:
+                            news_texts.append(news.title)
+                        
+                        # Add body excerpt (first 200 chars to avoid overwhelming)
+                        if news.body:
+                            body_excerpt = news.body[:200] + "..." if len(news.body) > 200 else news.body
+                            news_texts.append(body_excerpt)
+                    
+                    return news_texts
+            
+            # Run async function
+            try:
+                # Tentar usar loop existente
+                loop = asyncio.get_running_loop()
+                # Se há um loop rodando, usar ThreadPoolExecutor
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(asyncio.run, _fetch_news())
+                    texts = future.result()
+            except RuntimeError:
+                # Não há loop rodando, criar um novo
+                texts = asyncio.run(_fetch_news())
+                    
+        except Exception as e:
+            log.error(f"Error in Binance news sentiment source: {e}")
+        
+        log.info(f"Binance news source collected {len(texts)} texts")
+        return texts
     
     def get_source_name(self) -> str:
         return self.source_name
@@ -230,7 +293,7 @@ class SentimentAgent:
         # Initialize sources
         self.sources = {
             "reddit": RedditSentimentSource(),
-            "news": NewsSentimentSource(),
+            "binance_news": BinanceNewsSentimentSource(),
             "twitter": TwitterSentimentSource()
         }
         

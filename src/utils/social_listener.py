@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 from .logger import log
 
-# Load environment variables from .env file in the config directory
-dotenv_path = os.path.join(os.path.dirname(__file__), "..", "config", ".env")
+# Load environment variables from .env file in the secrets directory
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", "secrets", ".env")
 load_dotenv(dotenv_path=dotenv_path)
 
 

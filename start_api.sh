@@ -11,10 +11,11 @@ echo "📁 Diretório do projeto: $PROJECT_DIR"
 export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 echo "🔧 PYTHONPATH configurado: $PYTHONPATH"
 
-# Verificar se arquivo .env existe
-if [ ! -f "$PROJECT_DIR/.env" ]; then
-    echo "⚠️  Arquivo .env não encontrado. Criando template..."
-    cat > "$PROJECT_DIR/.env" << EOF
+# Verificar se arquivo .env existe na pasta secrets
+if [ ! -f "$PROJECT_DIR/secrets/.env" ]; then
+    echo "⚠️  Arquivo secrets/.env não encontrado. Criando estrutura..."
+    mkdir -p "$PROJECT_DIR/secrets"
+    cat > "$PROJECT_DIR/secrets/.env" << EOF
 # API Keys
 BINANCE_API_KEY=your_binance_api_key_here
 BINANCE_API_SECRET=your_binance_api_secret_here
@@ -28,7 +29,7 @@ REDDIT_CLIENT_ID=your_reddit_client_id_here
 REDDIT_CLIENT_SECRET=your_reddit_client_secret_here
 REDDIT_USER_AGENT=your_reddit_user_agent_here
 EOF
-    echo "📝 Template .env criado. Configure suas chaves de API antes de usar em produção."
+    echo "📝 Template secrets/.env criado. Configure suas chaves de API antes de usar em produção."
 fi
 
 # Verificar dependências Python

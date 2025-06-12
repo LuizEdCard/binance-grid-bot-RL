@@ -3,16 +3,13 @@
 echo "🧹 LIMPEZA COMPLETA E CONFIGURAÇÃO FINAL"
 echo "========================================"
 
-# 1. LIMPAR VARIÁVEIS DE AMBIENTE ANTIGAS
-echo "🔄 Limpando ambiente antigo..."
-unset CONDA_DEFAULT_ENV
-unset CONDA_PREFIX
-unset CONDA_PROMPT_MODIFIER
-
-# 2. FORÇAR SAÍDA DE QUALQUER AMBIENTE
-echo "🚪 Saindo de ambientes ativos..."
-conda deactivate 2>/dev/null || true
-conda deactivate 2>/dev/null || true
+# 1. VERIFICAR SE ESTÁ NO AMBIENTE VIRTUAL
+echo "🔄 Verificando ambiente..."
+if [[ "$VIRTUAL_ENV" == "" ]]; then
+    echo "❌ Ambiente virtual não está ativo!"
+    echo "Execute: source venv/bin/activate"
+    exit 1
+fi
 
 # 3. VERIFICAR ESPAÇO LIVRE ANTES
 echo "💾 Espaço em disco antes da limpeza:"
@@ -21,8 +18,8 @@ df -h "$HOME" | tail -1
 # 4. LIMPAR CACHES E ARQUIVOS TEMPORÁRIOS
 echo "🧹 Limpando caches..."
 
-# Cache do conda
-conda clean --all -y
+# Cache do pip
+pip cache purge
 
 # Cache do pip (se existir)
 pip cache purge 2>/dev/null || true
@@ -35,19 +32,11 @@ find "$HOME" -name "*.pyc" -delete 2>/dev/null || true
 echo "💾 Espaço em disco após limpeza:"
 df -h "$HOME" | tail -1
 
-# 6. ATIVAR AMBIENTE CORRETO
-echo "🎯 Ativando ambiente trading-bot..."
-conda activate trading-bot
-
-# Verificar se ativação funcionou
-if [[ "$CONDA_DEFAULT_ENV" == "trading-bot" ]]; then
-    echo "✅ Ambiente trading-bot ativado com sucesso"
-    echo "Python: $(python --version)"
-    echo "Localização: $(which python)"
-else
-    echo "❌ Falha ao ativar ambiente. Tentando método alternativo..."
-    source activate trading-bot
-fi
+# 6. VERIFICAR AMBIENTE VIRTUAL
+echo "🎯 Verificando ambiente virtual..."
+echo "✅ Ambiente virtual ativo: $(basename $VIRTUAL_ENV)"
+echo "Python: $(python --version)"
+echo "Localização: $(which python)"
 
 # 7. VERIFICAR DEPENDÊNCIAS NO AMBIENTE CORRETO
 echo ""
@@ -57,7 +46,7 @@ echo "==============================================="
 python -c "
 import sys
 print(f'Python ativo: {sys.executable}')
-print(f'Ambiente: $CONDA_DEFAULT_ENV' if '$CONDA_DEFAULT_ENV' else 'Nenhum ambiente ativo')
+print(f'Ambiente: {os.path.basename(os.environ.get("VIRTUAL_ENV", "Nenhum ambiente ativo"))}')
 
 # Lista de módulos necessários
 required_modules = [
@@ -83,9 +72,9 @@ if missing:
     print(f'\\n🔧 Comandos para instalar faltantes:')
     for module in missing:
         if module == 'talib':
-            print('   conda install -c conda-forge ta-lib -y')
+            print('   pip install TA-Lib --no-cache-dir')
         elif module == 'tensorflow':
-            print('   pip install tensorflow==2.11.0')
+            print('   pip install tensorflow-cpu==2.19.0')
         elif module == 'sklearn':
             print('   pip install scikit-learn')
         else:
@@ -103,7 +92,6 @@ echo "      python quick_test.py"
 
 echo ""
 echo "💡 COMANDOS ÚTEIS:"
-echo "   conda activate trading-bot    # Sempre ativar este ambiente"
-echo "   conda list                    # Ver pacotes instalados"
-echo "   pip list                      # Ver pacotes pip"
-echo "   conda info --envs             # Ver todos os ambientes"
+echo "   source venv/bin/activate      # Sempre ativar este ambiente"
+echo "   pip list                      # Ver pacotes instalados"
+echo "   deactivate                    # Sair do ambiente virtual"

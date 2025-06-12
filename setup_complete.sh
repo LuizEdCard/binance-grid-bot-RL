@@ -8,13 +8,13 @@ echo "========================================"
 
 # 1. VERIFICAR AMBIENTE
 echo "🔍 Verificando ambiente..."
-if [[ "$CONDA_DEFAULT_ENV" != "trading-bot" ]]; then
-    echo "❌ ERRO: Ambiente 'trading-bot' não está ativo!"
-    echo "Execute primeiro: conda activate trading-bot"
+if [[ "$VIRTUAL_ENV" == "" ]]; then
+    echo "❌ ERRO: Ambiente virtual não está ativo!"
+    echo "Execute primeiro: source venv/bin/activate"
     exit 1
 fi
 
-echo "✅ Ambiente trading-bot ativo"
+echo "✅ Ambiente virtual ativo"
 echo "Python: $(python --version)"
 echo "Localização: $(which python)"
 echo ""
@@ -35,7 +35,7 @@ pip install numpy==1.23.5 --force-reinstall
 # 5. INSTALAR TA-LIB CORRETAMENTE
 echo "📈 Instalando TA-Lib..."
 echo "  → Instalando bibliotecas C via conda..."
-conda install -c conda-forge libta-lib -y
+echo "  → TA-Lib precisa ser instalado manualmente no sistema"
 
 echo "  → Instalando TA-Lib Python..."
 pip install TA-Lib --no-cache-dir
@@ -47,12 +47,12 @@ if python -c "import talib; print('✅ TA-Lib OK')" 2>/dev/null; then
 else
     echo "❌ TA-Lib falhou. Tentando método alternativo..."
     pip uninstall ta-lib -y
-    conda install -c conda-forge ta-lib -y
+    pip install TA-Lib --no-cache-dir
 fi
 
-# 6. INSTALAR TENSORFLOW
-echo "🤖 Instalando TensorFlow..."
-pip install tensorflow==2.11.0 --no-cache-dir
+# 6. INSTALAR TENSORFLOW CPU (COMPATÍVEL)
+echo "🤖 Instalando TensorFlow CPU..."
+pip install tensorflow-cpu==2.19.0 --no-cache-dir
 
 # 7. INSTALAR OUTRAS DEPENDÊNCIAS EM GRUPOS
 echo "📦 Instalando dependências por grupos..."
@@ -162,8 +162,8 @@ if [ $success_count -eq $total_count ]; then
     echo "   3. Testar Fibonacci:  python tests/test_fibonacci.py"
     echo ""
     echo "📝 COMANDOS ÚTEIS:"
-    echo "   conda activate trading-bot    # Ativar ambiente"
-    echo "   conda deactivate              # Desativar ambiente"
+    echo "   source venv/bin/activate      # Ativar ambiente"
+    echo "   deactivate                    # Desativar ambiente"
     echo "   pip list                      # Ver pacotes instalados"
 else
     echo "⚠️  CONFIGURAÇÃO INCOMPLETA"
@@ -178,7 +178,7 @@ fi
 
 echo ""
 echo "📋 INFORMAÇÕES DO AMBIENTE:"
-echo "   Ambiente: $CONDA_DEFAULT_ENV"
+echo "   Ambiente: $(basename $VIRTUAL_ENV)"
 echo "   Python: $(python --version)"
 echo "   Pip: $(pip --version)"
 echo "   Localização: $(which python)"

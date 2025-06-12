@@ -17,10 +17,10 @@ requests>=2.28.0
 python-binance>=1.0.15
 
 # Machine Learning & RL
-tensorflow>=2.11.0,<3.0.0
-stable-baselines3>=1.6.0
+tensorflow-cpu==2.19.0
+stable-baselines3>=2.6.0
 scikit-learn>=1.1.0
-gymnasium>=0.26.0
+gymnasium>=1.1.1
 
 # Technical Analysis
 TA-Lib>=0.4.25  # Requires manual C library installation
@@ -28,8 +28,8 @@ pandas-ta>=0.3.14b  # Fallback for TA-Lib
 
 # Sentiment Analysis
 transformers>=4.21.0
-torch>=1.12.0
-onnxruntime>=1.12.0
+torch>=2.7.1  # CPU-only version
+onnxruntime>=1.22.0
 huggingface-hub>=0.10.0
 
 # Social Media APIs

@@ -1,10 +1,22 @@
 #!/bin/bash
 
-# Setup Conda Environment for Trading Bot
-# Python 3.10 + All Dependencies with TA-Lib via conda
+# DEPRECATED: Este script usava Conda - agora usando venv
+# Use: source venv/bin/activate && pip install -r requirements_multi_agent.txt
 
-echo "🐍 SETUP CONDA ENVIRONMENT - TRADING BOT"
-echo "========================================"
+echo "⚠️  SCRIPT DESCONTINUADO - USO DE VENV RECOMENDADO"
+echo "=================================================="
+echo ""
+echo "Este script foi descontinuado. O projeto agora usa venv."
+echo ""
+echo "🔧 CONFIGURAÇÃO RECOMENDADA:"
+echo "   1. source venv/bin/activate"
+echo "   2. pip install -r requirements_multi_agent.txt"
+echo "   3. ./install_heavy_deps.sh  # Para dependências pesadas"
+echo ""
+echo "📝 OU execute o script atualizado:"
+echo "   ./setup_complete.sh"
+echo ""
+exit 1
 
 # 1. VERIFICAR SE CONDA ESTÁ DISPONÍVEL
 if ! command -v conda &> /dev/null; then

@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Tuple
 from agents.data_agent import DataAgent
 from agents.sentiment_agent import SentimentAgent
 from agents.ai_agent import AIAgent
+from core.capital_management import CapitalManager
 from utils.alerter import Alerter
 from utils.api_client import APIClient
 from utils.logger import setup_logger
@@ -167,6 +168,9 @@ class CoordinatorAgent:
         self.api_client = api_client
         self.alerter = Alerter(api_client)
         
+        # Capital management
+        self.capital_manager = CapitalManager(api_client, config)
+        
         # Agent management
         self.agents = {}
         self.agent_threads = {}
@@ -218,7 +222,7 @@ class CoordinatorAgent:
             ai_config = self.config.get("ai_agent", {})
             if ai_config.get("enabled", False):
                 try:
-                    ai_base_url = ai_config.get("base_url", "http://127.0.0.1:1234")
+                    ai_base_url = ai_config.get("base_url", "http://127.0.0.1:11434")
                     self.agents['ai'] = AIAgent(self.config, ai_base_url)
                     log.info("AI Agent initialized (will check availability on start)")
                 except Exception as e:
@@ -235,6 +239,30 @@ class CoordinatorAgent:
         except Exception as e:
             log.error(f"Error initializing agents: {e}", exc_info=True)
             raise
+    
+    def validate_trading_symbols(self, symbols: List[str]) -> List[str]:
+        """
+        Valida e filtra símbolos baseado no capital disponível.
+        """
+        log.info(f"Validating {len(symbols)} symbols for trading based on available capital...")
+        
+        # Obter alocações de capital
+        allocations = self.capital_manager.calculate_optimal_allocations(symbols)
+        
+        if not allocations:
+            log.warning("No symbols can be traded with current capital")
+            return []
+        
+        valid_symbols = [alloc.symbol for alloc in allocations]
+        
+        if len(valid_symbols) < len(symbols):
+            log.warning(f"Capital limited trading to {len(valid_symbols)} of {len(symbols)} requested symbols")
+            log.info(f"Trading symbols: {valid_symbols}")
+            
+            # Log capital status
+            self.capital_manager.log_capital_status()
+        
+        return valid_symbols
     
     def start_coordination(self) -> None:
         """Start the coordination system."""

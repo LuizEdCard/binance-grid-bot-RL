@@ -5,6 +5,7 @@ from utils.sentiment_analyzer import SentimentAnalyzer
 from utils.logger import log, setup_logger
 from utils.api_client import APIClient
 from utils.alerter import Alerter
+from core.capital_management import CapitalManager
 from core.rl_agent import RLAgent
 from core.risk_management import RiskManager
 from core.pair_selector import PairSelector
@@ -120,7 +121,7 @@ def check_and_send_sentiment_alerts(current_score, config, alerter):
 
 
 ROOT_DIR = os.path.dirname(SRC_DIR)
-ENV_PATH = os.path.join(ROOT_DIR, "config", ".env")
+ENV_PATH = os.path.join(ROOT_DIR, "secrets", ".env")
 CONFIG_PATH = os.path.join(ROOT_DIR, "config", "config.yaml")
 
 load_dotenv(dotenv_path=ENV_PATH)
@@ -183,8 +184,39 @@ def trading_pair_worker(
     try:
         api_client = APIClient(config, operation_mode=operation_mode)
         alerter = Alerter(api_client)
+        
+        # Initialize capital manager and validate symbol before grid initialization
+        capital_manager = CapitalManager(api_client, config)
+        
+        # Check if we have sufficient capital for this symbol
+        min_capital = capital_manager.min_capital_per_pair_usd
+        if not capital_manager.can_trade_symbol(symbol, min_capital):
+            log.error(f"[{symbol}] Insufficient capital to trade. Minimum required: ${min_capital:.2f}")
+            capital_manager.log_capital_status()
+            return
+        
+        # Get capital allocation for this symbol
+        allocation = capital_manager.get_allocation_for_symbol(symbol)
+        if not allocation:
+            # Calculate allocation for single symbol
+            allocations = capital_manager.calculate_optimal_allocations([symbol])
+            if not allocations:
+                log.error(f"[{symbol}] No capital can be allocated for trading")
+                return
+            allocation = allocations[0]
+        
+        log.info(f"[{symbol}] Capital allocated: ${allocation.allocated_amount:.2f} ({allocation.market_type}, {allocation.grid_levels} levels)")
+        
+        # Initialize grid logic with capital-adapted configuration
+        adapted_config = config.copy()
+        adapted_config['initial_levels'] = allocation.grid_levels
+        adapted_config['initial_spacing_perc'] = str(allocation.spacing_percentage)
+        adapted_config['max_position_size_usd'] = allocation.max_position_size
+        
         grid_logic = GridLogic(
-            symbol, config, api_client, operation_mode=operation_mode
+            symbol, adapted_config, api_client, 
+            operation_mode=operation_mode, 
+            market_type=allocation.market_type
         )
         # Pass the getter function for sentiment score
         risk_manager = RiskManager(

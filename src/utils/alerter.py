@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.INFO)
 UTILS_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.dirname(UTILS_DIR)
 ROOT_DIR = os.path.dirname(SRC_DIR)
-ENV_PATH = os.path.join(ROOT_DIR, ".env")
+ENV_PATH = os.path.join(ROOT_DIR, "secrets", ".env")
 CONFIG_PATH = os.path.join(SRC_DIR, "config", "config.yaml")
 
 load_dotenv(dotenv_path=ENV_PATH)
@@ -213,21 +213,49 @@ class Alerter:
     def send_message(self, text: str, parse_mode="MarkdownV2", photo: bytes = None):
         """Synchronously sends a message via Telegram by running the async version."""
         if not self.enabled:
+            log.debug("Telegram not enabled, skipping message")
             return False
+        
+        if not text or text.strip() == "":
+            log.warning("Empty message, skipping")
+            return False
+            
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.ensure_future(self.send_message_async(text, parse_mode, photo))
-                return True
-            else:
-                return loop.run_until_complete(
-                    self.send_message_async(text, parse_mode, photo)
-                )
-        except RuntimeError:
-            return asyncio.run(self.send_message_async(text, parse_mode, photo))
+            # Try to use existing event loop
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If loop is running, create a task
+                    task = asyncio.create_task(self.send_message_async(text, parse_mode, photo))
+                    return True
+                else:
+                    # If loop exists but not running, use it
+                    return loop.run_until_complete(self.send_message_async(text, parse_mode, photo))
+            except RuntimeError:
+                # No event loop exists, create a new one
+                return asyncio.run(self.send_message_async(text, parse_mode, photo))
+                
         except Exception as e:
-            log.error(f"Error running async send_message: {e}")
-            return False
+            log.error(f"Error sending Telegram message: {e}")
+            # Try simple non-async approach as fallback
+            try:
+                import requests
+                url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+                data = {
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": text,
+                    "parse_mode": "Markdown" if parse_mode == "MarkdownV2" else parse_mode
+                }
+                response = requests.post(url, data=data, timeout=10)
+                if response.status_code == 200:
+                    log.info("Message sent via fallback method")
+                    return True
+                else:
+                    log.error(f"Fallback method failed: {response.status_code}")
+                    return False
+            except Exception as fallback_error:
+                log.error(f"Fallback method also failed: {fallback_error}")
+                return False
 
     def _generate_chart(
         self, klines, symbol: str, entry_price=None, tp_price=None, sl_price=None

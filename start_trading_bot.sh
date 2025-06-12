@@ -11,9 +11,9 @@ echo "📁 Diretório do projeto: $PROJECT_DIR"
 export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 echo "🔧 PYTHONPATH configurado: $PYTHONPATH"
 
-# Verificar se arquivo .env existe
-if [ ! -f "$PROJECT_DIR/.env" ]; then
-    echo "❌ Arquivo .env não encontrado. Execute ./start_api.sh primeiro para criar o template."
+# Verificar se arquivo .env existe na pasta secrets
+if [ ! -f "$PROJECT_DIR/secrets/.env" ]; then
+    echo "❌ Arquivo secrets/.env não encontrado. Execute ./start_api.sh primeiro para criar o template."
     exit 1
 fi
 

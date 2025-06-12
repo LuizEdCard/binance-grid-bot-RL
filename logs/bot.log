@@ -20455,3 +20455,384 @@ onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError]
 2025-06-06 22:05:33 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
 2025-06-06 23:11:34 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
 2025-06-06 23:28:02 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:24:13 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:24:13 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:24:13 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:24:19 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:24:19 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:24:19 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:26:51 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:26:51 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:26:57 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:26:57 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:26:57 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:27:02 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:27:02 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:27:02 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:27:20 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-10 13:27:20 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-10 13:27:23 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-10 13:27:23 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-10 13:27:24 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-10 13:27:24 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-10 13:27:25 - flask_api - ERROR - Erro ao buscar dados de mercado: name 'method_name' is not defined
+2025-06-10 13:27:42 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-10 13:27:42 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-10 13:27:42 - flask_api - ERROR - Erro ao buscar dados de mercado: name 'method_name' is not defined
+2025-06-10 13:31:08 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-10 13:31:09 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-10 13:31:09 - flask_api - ERROR - Erro ao buscar dados de mercado: name 'method_name' is not defined
+2025-06-10 13:35:20 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:35:20 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:35:25 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:35:25 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:35:25 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:35:30 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:35:30 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:35:30 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:35:51 - flask_api - INFO - Recebida requisição para /api/market_data
+2025-06-10 13:35:51 - flask_api - INFO - Inicializando cliente Binance Spot...
+2025-06-10 13:35:53 - flask_api - INFO - Cliente Binance Spot inicializado.
+2025-06-10 13:35:53 - flask_api - INFO - Inicializando cliente Binance Futuros...
+2025-06-10 13:35:55 - flask_api - INFO - Cliente Binance Futuros inicializado.
+2025-06-10 13:35:55 - flask_api - INFO - Tentando obter tickers com volume do mercado spot...
+2025-06-10 13:35:56 - flask_api - INFO - Tickers com volume obtidos: 3131
+2025-06-10 13:49:54 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:49:54 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:49:59 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:49:59 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:49:59 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:50:05 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 13:50:05 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:50:05 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 13:50:35 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 13:50:35 - pair_selector - INFO - TA-Lib library found and imported successfully for PairSelector.
+2025-06-10 13:50:37 - rl_agent - INFO - TA-Lib library found and imported successfully for RLAgent.
+2025-06-10 13:50:37 - grid_bot - INFO - Configuration loaded from /home/luiz/PycharmProjects/binance-grid-bot-RL/src/config/config.yaml
+2025-06-10 13:50:39 - intelligent_cache - INFO - IntelligentCache initialized - Max Size: 100MB, Default TTL: 300s, Prefetching: True
+2025-06-10 13:50:39 - grid_bot - INFO - Cache prefetch callbacks registered
+2025-06-10 13:50:39 - grid_bot - INFO - MultiAgentTradingBot initialized in PRODUCTION mode
+2025-06-10 13:50:39 - grid_bot - INFO - Starting Multi-Agent Trading System...
+2025-06-10 13:50:39 - grid_bot - INFO - Initializing specialized agents...
+2025-06-10 13:50:39 - coordinator_agent - INFO - CoordinatorAgent initialized
+2025-06-10 13:50:39 - coordinator_agent - INFO - Initializing specialized agents...
+2025-06-10 13:50:39 - coordinator_agent - ERROR - Error initializing agents: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/coordinator_agent.py", line 210, in initialize_agents
+    self.agents['data'] = DataAgent(self.config, self.api_client)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/data_agent.py", line 74, in __init__
+    self.ticker_cache = DataCache(ttl_seconds=30)  # Tickers updated frequently
+TypeError: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+2025-06-10 13:50:39 - grid_bot - ERROR - Error initializing agents: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 171, in initialize_agents
+    self.coordinator.initialize_agents()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/coordinator_agent.py", line 210, in initialize_agents
+    self.agents['data'] = DataAgent(self.config, self.api_client)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/data_agent.py", line 74, in __init__
+    self.ticker_cache = DataCache(ttl_seconds=30)  # Tickers updated frequently
+TypeError: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+2025-06-10 13:50:39 - grid_bot - ERROR - Error starting multi-agent system: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 222, in start
+    self.initialize_agents()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/multi_agent_bot.py", line 171, in initialize_agents
+    self.coordinator.initialize_agents()
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/coordinator_agent.py", line 210, in initialize_agents
+    self.agents['data'] = DataAgent(self.config, self.api_client)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/agents/data_agent.py", line 74, in __init__
+    self.ticker_cache = DataCache(ttl_seconds=30)  # Tickers updated frequently
+TypeError: DataCache.__init__() got an unexpected keyword argument 'ttl_seconds'
+2025-06-10 13:50:39 - grid_bot - INFO - Stopping Multi-Agent Trading System...
+2025-06-10 13:50:39 - grid_bot - INFO - Stopping trading workers...
+2025-06-10 13:50:39 - coordinator_agent - INFO - Stopping coordination system...
+2025-06-10 13:50:39 - coordinator_agent - INFO - Coordination system stopped
+2025-06-10 13:50:39 - intelligent_cache - INFO - Shutting down IntelligentCache...
+2025-06-10 13:50:39 - intelligent_cache - INFO - Cache cleared
+2025-06-10 13:50:39 - intelligent_cache - INFO - IntelligentCache shutdown complete
+2025-06-10 13:50:39 - grid_bot - INFO - Multi-Agent Trading System shutdown complete
+2025-06-10 13:50:39 - grid_bot - INFO - Shutdown already in progress
+2025-06-10 18:52:24 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 18:52:24 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 18:52:53 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 18:52:53 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 18:52:54 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-10 18:53:19 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-10 18:53:19 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-10 18:53:19 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-11 16:15:56 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-11 16:15:56 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 16:16:00 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-11 16:16:00 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 16:16:00 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-11 16:16:04 - risk_management - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para RiskManager.
+2025-06-11 16:16:04 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 16:16:04 - flask_api - INFO - Iniciando servidor Flask API...
+2025-06-11 20:10:00 - ai_agent - INFO - Auto-detected available model: qwen3:1.7b
+2025-06-11 20:10:00 - ai_agent - INFO - CPU Resource Manager started (max concurrent: 1)
+2025-06-11 20:10:01 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:10:05 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:10:14 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:10:30 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:10:57 - ai_agent - INFO - CPU Resource Manager stopped
+2025-06-11 20:11:34 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:12:44 - ai_agent - WARNING - Request timeout after 60s
+2025-06-11 20:12:44 - ai_agent - WARNING - Request timeout after 60s
+2025-06-11 20:12:44 - ai_agent - WARNING - Request timeout after 60s
+2025-06-11 20:12:44 - ai_agent - WARNING - Request timeout after 60s
+2025-06-11 20:12:45 - ai_agent - WARNING - Request timeout after 60s
+2025-06-11 20:12:45 - ai_agent - INFO - CPU Resource Manager started (max concurrent: 1)
+2025-06-11 20:12:50 - ai_agent - INFO - CPU Resource Manager stopped
+2025-06-11 20:26:25 - ai_agent - INFO - Auto-detected available model: qwen3:1.7b
+2025-06-11 20:26:25 - ai_agent - INFO - CPU Resource Manager started (max concurrent: 1)
+2025-06-11 20:26:26 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:26:30 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:26:39 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:26:55 - ai_agent - INFO - Detected active model: qwen3:1.7b
+2025-06-11 20:27:22 - ai_agent - INFO - CPU Resource Manager stopped
+2025-06-11 20:35:58 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 20:35:58 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 20:35:58 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 20:35:58 - grid_bot - WARNING - Failed to connect to Binance news API
+2025-06-11 20:35:58 - grid_bot - WARNING - Failed to connect to Binance news API
+2025-06-11 20:35:58 - grid_bot - INFO - Fetching all Binance news from last 6 hours...
+2025-06-11 20:35:58 - grid_bot - ERROR - Failed to fetch Binance CMS news: HTTP 400
+2025-06-11 20:35:58 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:35:58 - grid_bot - ERROR - Failed to fetch Binance CMS news: HTTP 400
+2025-06-11 20:35:58 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:35:58 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238684: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238624: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238621: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238492: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238362: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238357: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238317: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238227: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238183: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - ERROR - Error parsing article 238037: can only concatenate str (not "NoneType") to str
+2025-06-11 20:35:58 - grid_bot - INFO - Parsed 0 new trending articles
+2025-06-11 20:35:58 - grid_bot - INFO - Successfully fetched 0 unique Binance news items
+2025-06-11 20:35:58 - sentiment_agent - ERROR - Error in Binance news sentiment source: Cannot run the event loop while another loop is running
+2025-06-11 20:35:58 - sentiment_agent - INFO - Binance news source collected 0 texts
+2025-06-11 20:37:30 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:37:30 - grid_bot - INFO - Parsed 10 new trending articles
+2025-06-11 20:37:30 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 1)
+2025-06-11 20:37:30 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:37:30 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 0)
+2025-06-11 20:37:30 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:38:08 - grid_bot - INFO - Fetching all Binance news from last 48 hours...
+2025-06-11 20:38:08 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 1)
+2025-06-11 20:38:08 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:38:08 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 0)
+2025-06-11 20:38:08 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:38:08 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:38:08 - grid_bot - INFO - Parsed 10 new trending articles
+2025-06-11 20:38:08 - grid_bot - INFO - Successfully fetched 10 unique Binance news items
+2025-06-11 20:38:08 - grid_bot - INFO - Loading sentiment analysis tokenizer from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx
+2025-06-11 20:38:08 - grid_bot - INFO - Loading sentiment analysis ONNX model from: /home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx
+2025-06-11 20:38:08 - grid_bot - ERROR - Failed to load sentiment analysis model or tokenizer: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+Traceback (most recent call last):
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/src/utils/sentiment_analyzer.py", line 51, in _load_model
+    self.session = ort.InferenceSession(self.model_path, providers=providers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/luiz/PycharmProjects/binance-grid-bot-RL/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 561, in _create_inference_session
+    sess.initialize_session(providers, provider_options, disabled_optimizers)
+onnxruntime.capi.onnxruntime_pybind11_state.RuntimeException: [ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: filesystem error: cannot get file size: No such file or directory [/home/luiz/PycharmProjects/binance-grid-bot-RL/models/sentiment_onnx/model.onnx.data]
+2025-06-11 20:38:35 - grid_bot - INFO - Fetching all Binance news from last 48 hours...
+2025-06-11 20:38:35 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 1)
+2025-06-11 20:38:35 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:38:35 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:38:35 - grid_bot - INFO - Parsed 10 new trending articles
+2025-06-11 20:38:35 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 0)
+2025-06-11 20:38:35 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:38:35 - grid_bot - INFO - Successfully fetched 10 unique Binance news items
+2025-06-11 20:39:59 - grid_bot - INFO - Analyzed 10 Binance news items. Overall sentiment: neutral (0.068)
+2025-06-11 20:40:00 - grid_bot - INFO - Fetching all Binance news from last 48 hours...
+2025-06-11 20:40:00 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:40:00 - grid_bot - INFO - Parsed 10 new trending articles
+2025-06-11 20:40:00 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 0)
+2025-06-11 20:40:00 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:40:00 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 1)
+2025-06-11 20:40:00 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:40:00 - grid_bot - INFO - Successfully fetched 10 unique Binance news items
+2025-06-11 20:40:00 - sentiment_agent - INFO - Binance news source collected 10 texts
+2025-06-11 20:40:00 - grid_bot - INFO - Fetching all Binance news from last 48 hours...
+2025-06-11 20:40:00 - grid_bot - INFO - Fetched 10 trending articles from Binance
+2025-06-11 20:40:00 - grid_bot - INFO - Parsed 10 new trending articles
+2025-06-11 20:40:00 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 1)
+2025-06-11 20:40:00 - grid_bot - INFO - Parsed 0 new announcement articles
+2025-06-11 20:40:01 - grid_bot - INFO - Fetched 0 articles from Binance CMS (type: 0)
+2025-06-11 20:40:01 - grid_bot - INFO - Parsed 0 new news articles
+2025-06-11 20:40:01 - grid_bot - INFO - Successfully fetched 10 unique Binance news items
+2025-06-11 20:40:01 - grid_bot - INFO - Found 0 news items mentioning symbols: ['BTC']
+2025-06-11 20:40:01 - grid_bot - INFO - No relevant Binance news found
+2025-06-11 21:04:20 - capital_management - WARNING - Failed to get spot balance: 'APIClient' object has no attribute 'get_account_balance'
+2025-06-11 21:04:20 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:04:20 - capital_management - WARNING - Failed to get spot balance: 'APIClient' object has no attribute 'get_account_balance'
+2025-06-11 21:04:20 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:04:20 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:04:20 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:04:20 - capital_management - WARNING - Failed to get spot balance: 'APIClient' object has no attribute 'get_account_balance'
+2025-06-11 21:04:21 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:04:21 - capital_management - INFO - === Capital Management Status ===
+2025-06-11 21:04:21 - capital_management - INFO - Total Balance: $30.01
+2025-06-11 21:04:21 - capital_management - INFO - Allocated Capital: $18.01
+2025-06-11 21:04:21 - capital_management - INFO - Utilization: 60.0%
+2025-06-11 21:04:21 - capital_management - INFO - Active Pairs: 2 / 2 max
+2025-06-11 21:04:21 - capital_management - INFO - Current Allocations:
+2025-06-11 21:04:21 - capital_management - INFO -   BTCUSDT: $9.00 (futures, 5 levels)
+2025-06-11 21:04:21 - capital_management - INFO -   ETHUSDT: $9.00 (futures, 5 levels)
+2025-06-11 21:09:40 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:09:41 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:09:41 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:09:41 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:09:42 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:09:42 - capital_management - INFO - === Capital Management Status ===
+2025-06-11 21:09:42 - capital_management - INFO - Total Balance: $30.01
+2025-06-11 21:09:42 - capital_management - INFO - Allocated Capital: $18.01
+2025-06-11 21:09:42 - capital_management - INFO - Utilization: 60.0%
+2025-06-11 21:09:42 - capital_management - INFO - Active Pairs: 2 / 2 max
+2025-06-11 21:09:42 - capital_management - INFO - Current Allocations:
+2025-06-11 21:09:42 - capital_management - INFO -   BTCUSDT: $9.00 (futures, 5 levels)
+2025-06-11 21:09:42 - capital_management - INFO -   ETHUSDT: $9.00 (futures, 5 levels)
+2025-06-11 21:10:23 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 21:10:24 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:10:25 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:10:25 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:10:25 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:10:26 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:10:26 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:10:26 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:10:26 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:10:27 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:10:27 - grid_logic - INFO - [ETHUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:10:27 - grid_logic - INFO - [ETHUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:10:27 - grid_logic - INFO - [ETHUSDT] Tick: 0.01, Step: 0.001, MinNotional: 20, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:10:28 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:11:08 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 21:11:10 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:11:10 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:11:10 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:11:10 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:11:11 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:11:11 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:11:11 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:11:11 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:11:12 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:11:12 - grid_logic - INFO - [ETHUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:11:12 - grid_logic - INFO - [ETHUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:11:12 - grid_logic - INFO - [ETHUSDT] Tick: 0.01, Step: 0.001, MinNotional: 20, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:11:13 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:12:54 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 21:12:56 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:12:57 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:12:57 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:12:57 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:12:57 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:12:57 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:12:57 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:12:58 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:12:59 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:12:59 - grid_logic - INFO - [ETHUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:12:59 - grid_logic - INFO - [ETHUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:12:59 - grid_logic - INFO - [ETHUSDT] Tick: 0.01, Step: 0.001, MinNotional: 20, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:13:00 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:18 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 21:13:20 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:21 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:21 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:13:21 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:13:21 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:21 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:13:21 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:13:22 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:13:22 - grid_logic - INFO - [BTCUSDT] Definindo níveis do grid em torno do preço: 108567.0 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 21:13:22 - grid_logic - INFO - [BTCUSDT] Definidos 4 níveis de grid.
+2025-06-11 21:13:23 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:23 - grid_logic - INFO - [ETHUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:13:23 - grid_logic - INFO - [ETHUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:13:23 - grid_logic - INFO - [ETHUSDT] Tick: 0.01, Step: 0.001, MinNotional: 20, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:13:23 - grid_logic - INFO - [ETHUSDT] Definindo níveis do grid em torno do preço: 2768.24 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 21:13:23 - grid_logic - INFO - [ETHUSDT] Definidos 4 níveis de grid.
+2025-06-11 21:13:24 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:49 - grid_logic - INFO - Biblioteca TA-Lib encontrada e importada com sucesso para GridLogic.
+2025-06-11 21:13:51 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:51 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:51 - capital_management - INFO - Calculated 2 capital allocations from 5 requested symbols
+2025-06-11 21:13:51 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:13:52 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:52 - grid_logic - INFO - [BTCUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:13:52 - grid_logic - INFO - [BTCUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:13:52 - grid_logic - INFO - [BTCUSDT] Tick: 0.10, Step: 0.001, MinNotional: 100, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:13:53 - grid_logic - INFO - [BTCUSDT] Definindo níveis do grid em torno do preço: 108601.0 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 21:13:53 - grid_logic - INFO - [BTCUSDT] Definidos 4 níveis de grid.
+2025-06-11 21:13:53 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:53 - grid_logic - INFO - [ETHUSDT] GridLogic inicializado no modo SHADOW para mercado FUTURES. Espaçamento Dinâmico (ATR): False
+2025-06-11 21:13:53 - grid_logic - INFO - [ETHUSDT] Inicializando informações de exchange para mercado FUTURES...
+2025-06-11 21:13:54 - grid_logic - INFO - [ETHUSDT] Tick: 0.01, Step: 0.001, MinNotional: 20, PricePrec: 2, QtyPrec: 3 (Mercado: FUTURES)
+2025-06-11 21:13:54 - grid_logic - INFO - [ETHUSDT] Definindo níveis do grid em torno do preço: 2771.66 (Níveis: 5, Espaçamento: 0.750%, Direção: neutral) (Fixo)
+2025-06-11 21:13:54 - grid_logic - INFO - [ETHUSDT] Definidos 4 níveis de grid.
+2025-06-11 21:13:55 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:13:55 - capital_management - INFO - Calculated 2 capital allocations from 3 requested symbols
+2025-06-11 21:13:55 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:13:55 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:02 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:06 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:06 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:06 - capital_management - INFO - Calculated 2 capital allocations from 2 requested symbols
+2025-06-11 21:26:06 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:26:07 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:07 - capital_management - INFO - Calculated 2 capital allocations from 2 requested symbols
+2025-06-11 21:26:07 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:26:07 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:09 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:26:09 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:28:57 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:28:57 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:28:57 - capital_management - INFO - Calculated 2 capital allocations from 3 requested symbols
+2025-06-11 21:28:57 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:28:58 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:28:58 - capital_management - INFO - Calculated 2 capital allocations from 3 requested symbols
+2025-06-11 21:28:58 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:28:58 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:28:58 - capital_management - INFO - Calculated 2 capital allocations from 3 requested symbols
+2025-06-11 21:28:58 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:32:57 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:32:57 - capital_management - INFO - Market decision for BTCUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:32:58 - capital_management - INFO - Market decision for ETHUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:32:59 - capital_management - INFO - Market decision for ADAUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:32:59 - capital_management - INFO - Market decision for BNBUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:00 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:33:00 - capital_management - INFO - Market decision for BTCUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:01 - capital_management - INFO - Market decision for ETHUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:01 - capital_management - INFO - Calculated 2 capital allocations from 4 requested symbols
+2025-06-11 21:33:01 - capital_management - INFO - Capital per pair: $9.00, Total allocated: $18.01
+2025-06-11 21:33:01 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 2 Futures pairs ($18.01)
+2025-06-11 21:33:01 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-11 21:33:02 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $30.01, Total: $30.01
+2025-06-11 21:33:02 - capital_management - INFO - Transferring $10.00 from Futures to Spot
+2025-06-11 21:33:02 - capital_management - ERROR - ❌ Transfer Futures->Spot failed
+2025-06-11 21:33:03 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $20.01, Total: $20.01
+2025-06-11 21:33:03 - capital_management - INFO - [BTCUSDT] Attempting transfer from Futures to Spot for optimal allocation
+2025-06-11 21:33:03 - capital_management - INFO - Available balances - Spot: $0.00, Futures: $20.01, Total: $20.01
+2025-06-11 21:33:03 - capital_management - INFO - Transferring $6.00 from Futures to Spot
+2025-06-11 21:33:04 - capital_management - ERROR - ❌ Transfer Futures->Spot failed
+2025-06-11 21:33:04 - capital_management - INFO - [BTCUSDT] Transfer failed, using futures instead
+2025-06-11 21:33:04 - capital_management - INFO - Calculated 2 capital allocations from 2 requested symbols
+2025-06-11 21:33:04 - capital_management - INFO - Capital per pair: $6.00, Total allocated: $12.01
+2025-06-11 21:33:04 - capital_management - INFO - Market distribution: 0 Spot pairs ($0.00), 2 Futures pairs ($12.01)
+2025-06-11 21:33:04 - capital_management - INFO - Allocation percentage: Spot 0.0% | Futures 100.0%
+2025-06-11 21:33:04 - capital_management - INFO - Market decision for BTCUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:05 - capital_management - INFO - Market decision for ETHUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:06 - capital_management - INFO - Market decision for ADAUSDT: futures (Higher volume/liquidity in futures market)
+2025-06-11 21:33:06 - capital_management - INFO - Market decision for BNBUSDT: futures (Higher volume/liquidity in futures market)
