@@ -73,7 +73,7 @@ class HybridSentimentAnalyzer:
                 log.info("Initializing Gemma-3-1b-it sentiment analyzer...")
                 self.gemma3_analyzer = Gemma3SentimentAnalyzer()
                 
-                if self.gemma3_analyzer.pipeline:
+                if self.gemma3_analyzer.available:
                     log.info("Gemma-3 sentiment analyzer ready")
                 else:
                     log.warning("Gemma-3 failed to load properly")
@@ -317,7 +317,7 @@ class HybridSentimentAnalyzer:
         }
         
         if self.gemma3_analyzer:
-            status["gemma3"]["loaded"] = self.gemma3_analyzer.pipeline is not None
+            status["gemma3"]["loaded"] = self.gemma3_analyzer.available
             status["gemma3"]["stats"] = self.gemma3_analyzer.get_stats()
         
         if self.onnx_analyzer:
