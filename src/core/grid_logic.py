@@ -265,15 +265,14 @@ class GridLogic:
             return None
 
     def _check_min_notional(self, price, quantity):
-        """Verifica se a ordem atende ao valor nocional mínimo."""
-        if not self.min_notional:
-            return False
+        """Verifica se a ordem atende ao valor nocional mínimo (mínimo 5 USDT por regra da Binance)."""
+        min_notional = self.min_notional if self.min_notional else Decimal("5")
         try:
             notional_value = Decimal(str(price)) * Decimal(str(quantity))
-            meets = notional_value >= self.min_notional
+            meets = notional_value >= min_notional
             if not meets:
                 log.warning(
-                    f"[{self.symbol}] Nocional da ordem {notional_value:.4f} < min_notional {self.min_notional} (Preço: {price}, Qtd: {quantity})"
+                    f"[{self.symbol}] Nocional da ordem {notional_value:.4f} < min_notional {min_notional} (Preço: {price}, Qtd: {quantity})"
                 )
             return meets
         except Exception as e:
@@ -1122,7 +1121,7 @@ class GridLogic:
                             "liquidationPrice": Decimal("0"),
                         }
                 else:
-                    log.warning(
+                    log.debug(
                         f"[{self.symbol}] Could not fetch production position info."
                     )
                     # Fetch ticker as fallback for mark price
@@ -1185,10 +1184,10 @@ class GridLogic:
         # Grid position relative to current price
         if hasattr(self, "grid_levels") and len(self.grid_levels) > 0:
             buy_levels_below = sum(
-                1 for level in self.grid_levels if level < current_price
+                1 for level in self.grid_levels if level["price"] < current_price
             )
             sell_levels_above = sum(
-                1 for level in self.grid_levels if level > current_price
+                1 for level in self.grid_levels if level["price"] > current_price
             )
             grid_balance = (buy_levels_below - sell_levels_above) / max(
                 1, len(self.grid_levels)
@@ -1263,6 +1262,19 @@ class GridLogic:
         # Replace NaN with neutral value
         state_array = np.nan_to_num(state_array, nan=0.5)
 
+        # TEMPORARY FIX: Ensure we have exactly 28 features (RL will add sentiment separately)
+        target_size = 28
+        current_size = len(state_array)
+        
+        if current_size < target_size:
+            # Add dummy features to reach target size
+            padding = np.full(target_size - current_size, 0.5, dtype=np.float32)
+            state_array = np.concatenate([state_array, padding])
+            log.debug(f"[{self.symbol}] Padded state from {current_size} to {target_size} features")
+        elif current_size > target_size:
+            # Truncate if too many features
+            state_array = state_array[:target_size]
+            log.debug(f"[{self.symbol}] Truncated state from {current_size} to {target_size} features")
 
         return state_array
 
@@ -1422,7 +1434,7 @@ class GridLogic:
             log.warning(f"[{self.symbol}] Erro ao calcular reward RL: {e}")
             return 0.0
 
-    def run_cycle(self, rl_action=None):
+    def run_cycle(self, rl_action=None, ai_decision=None):
         """Main execution cycle for the grid logic."""
         log.info(f"[{self.symbol}] Running grid cycle...")
 
@@ -1472,6 +1484,26 @@ class GridLogic:
                 log.warning(
                     f"[{self.symbol}] Unsupported RL action type: {type(rl_action)}"
                 )
+
+        # Apply AI decision if provided (takes priority over RL)
+        if ai_decision is not None and isinstance(ai_decision, dict):
+            suggested_params = ai_decision.get("suggested_params", {})
+            if suggested_params and suggested_params.get("is_valid", False):
+                # Apply AI suggested parameters
+                if "grid_levels" in suggested_params:
+                    new_levels = suggested_params["grid_levels"]
+                    if 5 <= new_levels <= 30:  # Safety bounds
+                        self.num_levels = new_levels
+                        
+                if "spacing_percentage" in suggested_params:
+                    new_spacing = suggested_params["spacing_percentage"]
+                    if 0.001 <= new_spacing <= 0.05:  # 0.1% to 5%
+                        self.base_spacing_percentage = Decimal(str(new_spacing))
+                        self.current_spacing_percentage = Decimal(str(new_spacing))
+                
+                log.debug(f"[{self.symbol}] Applied AI decision: levels={self.num_levels}, spacing={float(self.current_spacing_percentage)*100:.3f}%")
+            else:
+                log.debug(f"[{self.symbol}] AI decision parameters not valid, using RL/defaults")
 
         # 1. Check if grid needs (re)definition
         if not self.grid_levels:
@@ -2107,7 +2139,7 @@ class GridLogic:
                 else:
                     # Se as variações são consistentes dentro de cada grupo, considerar válido
                     if (len(buy_spacings) >= 2 and all(abs(s - avg_buy_spacing) / avg_buy_spacing < 0.30 for s in buy_spacings)) or \
-                       (len(sell_spacings) >= 2 and all(abs(s - avg_sell_spacing) / avg_sell_spacing < 0.30 for s in sell_spacings)):
+                       (len(sell_spacings) >= 2 and all(abs(s - avg_sell_spacing) / avg_sellSpacing < 0.30 for s in sell_spacings)):
                         log.info(f"[{self.symbol}] ✅ Grid spacing is consistent within buy/sell groups")
                         return avg_spacing
                     
@@ -2431,9 +2463,3 @@ class GridLogic:
             
         except Exception as e:
             log.error(f"[{self.symbol}] Error during cancel_all_orders: {e}")
-
-
-# Example usage (for testing structure)
-# if __name__ == '__main__':
-#     # Requires mocking APIClient and config
-#     print("GridLogic class defined.")

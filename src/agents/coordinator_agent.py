@@ -400,6 +400,10 @@ class CoordinatorAgent:
                 # Update global state
                 self._update_global_state()
                 
+                # Process market overview for AI efficiency (every 5 cycles)
+                if self.performance_metrics['coordination_cycles'] % 5 == 0:
+                    self._process_market_overview()
+                
                 # Check for system-wide issues
                 self._check_system_issues()
                 
@@ -552,3 +556,100 @@ class CoordinatorAgent:
     def broadcast_message(self, message: str, level: str = "INFO") -> None:
         """Broadcast a message through the alerter."""
         self.alerter.send_message(message, level=level)
+
+    def _process_market_overview(self) -> None:
+        """
+        Processa visão geral do mercado usando dados agregados dos 471 pares USDT.
+        Evita sobrecarga da IA analisando cada par individualmente.
+        """
+        try:
+            if 'ai' not in self.agents:
+                log.debug("AI agent not available for market overview")
+                return
+                
+            ai_agent = self.agents['ai']
+            if not ai_agent.is_available:
+                log.debug("AI agent not ready for market overview")
+                return
+            
+            # Obter resumo agregado do mercado via PairSelector
+            if hasattr(self, '_pair_selector') and self._pair_selector:
+                market_summary = self._pair_selector.get_market_summary()
+            else:
+                # Fallback: criar PairSelector temporário se necessário
+                from core.pair_selector import PairSelector
+                temp_selector = PairSelector(self.config, self.api_client)
+                market_summary = temp_selector.get_market_summary()
+            
+            # Usar SmartTradingDecisionEngine para análise eficiente
+            if hasattr(self, '_smart_engine') and self._smart_engine:
+                import asyncio
+                
+                # Executar análise de visão geral do mercado
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    
+                    overview_analysis = loop.run_until_complete(
+                        self._smart_engine.get_market_overview_analysis(market_summary)
+                    )
+                    
+                    if overview_analysis:
+                        # Armazenar resultado no estado global
+                        with self.state_lock:
+                            self.global_state['market_overview'] = {
+                                'analysis': overview_analysis,
+                                'summary_data': market_summary,
+                                'timestamp': time.time()
+                            }
+                        
+                        # Log resultado da análise
+                        trend = overview_analysis.get('overall_trend', 'neutral')
+                        strength = overview_analysis.get('market_strength', 0.5)
+                        confidence = overview_analysis.get('confidence', 0.5)
+                        
+                        log.info(f"Market Overview - Trend: {trend}, Strength: {strength:.2f}, "
+                               f"Confidence: {confidence:.2f}, Total pairs: {market_summary.get('total_pairs', 0)}")
+                        
+                        # Enviar alerta se mudança significativa
+                        if confidence > 0.7 and (strength > 0.8 or strength < 0.2):
+                            self.alerter.send_message(
+                                f"📊 Market Overview Alert: {trend.upper()} trend detected "
+                                f"(strength: {strength:.2f}, confidence: {confidence:.2f})"
+                            )
+                        
+                        self.performance_metrics['market_overviews_processed'] = \
+                            self.performance_metrics.get('market_overviews_processed', 0) + 1
+                    
+                    loop.close()
+                    
+                except Exception as async_error:
+                    log.error(f"Error in async market overview analysis: {async_error}")
+            else:
+                log.debug("SmartTradingDecisionEngine not available for market overview")
+                
+        except Exception as e:
+            log.error(f"Error processing market overview: {e}")
+            self.performance_metrics['market_overview_errors'] = \
+                self.performance_metrics.get('market_overview_errors', 0) + 1
+
+    def initialize_smart_engine(self) -> None:
+        """Inicializa o SmartTradingDecisionEngine para análise eficiente de mercado."""
+        try:
+            if 'ai' not in self.agents:
+                log.warning("Cannot initialize SmartTradingDecisionEngine: AI agent not available")
+                return
+                
+            from integrations.ai_trading_integration import SmartTradingDecisionEngine
+            
+            self._smart_engine = SmartTradingDecisionEngine(
+                ai_agent=self.agents['ai'],
+                api_client=self.api_client,
+                config=self.config
+            )
+            
+            log.info("SmartTradingDecisionEngine initialized for efficient market analysis")
+            
+        except Exception as e:
+            log.error(f"Error initializing SmartTradingDecisionEngine: {e}")
+            self._smart_engine = None

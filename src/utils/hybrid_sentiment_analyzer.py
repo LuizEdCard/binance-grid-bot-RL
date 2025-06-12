@@ -1,18 +1,11 @@
-# Hybrid Sentiment Analyzer - Combines ONNX and Gemma-3-1b-it
-# Provides intelligent routing between fast ONNX and accurate Gemma-3 analysis
+# Hybrid Sentiment Analyzer - Uses Gemma-3-1b-it and fallback support
+# Provides intelligent sentiment analysis with local and online model support
 
 import time
 from typing import Dict, List, Optional, Union
 from .logger import log
 
-# Import both analyzers
-try:
-    from .sentiment_analyzer import SentimentAnalyzer as ONNXSentimentAnalyzer
-    onnx_available = True
-except ImportError:
-    log.warning("ONNX Sentiment Analyzer not available")
-    onnx_available = False
-
+# Import sentiment analyzers
 try:
     from .gemma3_sentiment_analyzer import Gemma3SentimentAnalyzer
     gemma3_available = True
@@ -23,27 +16,23 @@ except ImportError:
 
 class HybridSentimentAnalyzer:
     """
-    Intelligent hybrid sentiment analyzer that combines ONNX and Gemma-3-1b-it.
+    Intelligent sentiment analyzer using Gemma-3-1b-it with fallback support.
     
     Strategy:
-    - Use Gemma-3 for crypto-specific content (high accuracy)
-    - Use ONNX for generic content (high speed)
-    - Automatic fallback between models
+    - Use Gemma-3 for all sentiment analysis (high accuracy)
+    - Support for future online API integrations
     - Smart caching and batch processing
     """
     
-    def __init__(self, prefer_gemma3: bool = True, onnx_fallback: bool = True):
+    def __init__(self, prefer_gemma3: bool = True):
         self.prefer_gemma3 = prefer_gemma3
-        self.onnx_fallback = onnx_fallback
         
         # Initialize analyzers
         self.gemma3_analyzer = None
-        self.onnx_analyzer = None
         
         # Performance tracking
         self.stats = {
             "gemma3_used": 0,
-            "onnx_used": 0,
             "fallbacks": 0,
             "total_analyses": 0,
             "avg_latency": 0.0
@@ -83,26 +72,9 @@ class HybridSentimentAnalyzer:
                 log.error(f"Failed to initialize Gemma-3 analyzer: {e}")
                 self.gemma3_analyzer = None
         
-        # Initialize ONNX as fallback
-        if onnx_available and self.onnx_fallback:
-            try:
-                log.info("Initializing ONNX sentiment analyzer as fallback...")
-                self.onnx_analyzer = ONNXSentimentAnalyzer()
-                
-                if self.onnx_analyzer.session:
-                    log.info("ONNX sentiment analyzer ready")
-                else:
-                    log.warning("ONNX failed to load properly")
-                    self.onnx_analyzer = None
-                    
-            except Exception as e:
-                log.error(f"Failed to initialize ONNX analyzer: {e}")
-                self.onnx_analyzer = None
-        
         # Log final status
         gemma3_status = "✅" if self.gemma3_analyzer else "❌"
-        onnx_status = "✅" if self.onnx_analyzer else "❌"
-        log.info(f"Hybrid Sentiment Analyzer Status: Gemma-3 {gemma3_status} | ONNX {onnx_status}")
+        log.info(f"Hybrid Sentiment Analyzer Status: Gemma-3 {gemma3_status}")
     
     def _calculate_crypto_relevance(self, text: str) -> float:
         """Calculate how crypto-relevant a text is (0.0 to 1.0)."""
@@ -119,13 +91,8 @@ class HybridSentimentAnalyzer:
     
     def _should_use_gemma3(self, text: str) -> bool:
         """Determine if Gemma-3 should be used for this text."""
-        if not self.gemma3_analyzer:
-            return False
-        
-        relevance = self._calculate_crypto_relevance(text)
-        
-        # Use Gemma-3 for crypto-relevant content
-        return relevance >= 0.3
+        # Always use Gemma-3 if available (no ONNX fallback)
+        return self.gemma3_analyzer is not None
     
     def _normalize_response(self, response: Dict, analyzer_type: str) -> Dict:
         """Normalize responses from different analyzers to consistent format."""
@@ -146,8 +113,8 @@ class HybridSentimentAnalyzer:
                 "reasoning": response.get("reasoning", "gemma3_analysis")
             }
         
-        # Handle ONNX response
-        elif analyzer_type == "onnx":
+        # Handle online API response (future extension)
+        elif analyzer_type == "online_api":
             sentiment = response.get("sentiment", "neutral").lower()
             
             # Map common sentiment values
@@ -159,9 +126,9 @@ class HybridSentimentAnalyzer:
             
             return {
                 "sentiment": sentiment_mapping.get(sentiment, sentiment),
-                "confidence": 0.7,  # Default confidence for ONNX
-                "analyzer_used": "onnx",
-                "reasoning": "onnx_analysis"
+                "confidence": response.get("confidence", 0.7),
+                "analyzer_used": "online_api",
+                "reasoning": "online_api_analysis"
             }
         
         return response
@@ -184,11 +151,8 @@ class HybridSentimentAnalyzer:
         analyzer_used = None
         
         try:
-            # Decide which analyzer to use
-            use_gemma3 = self._should_use_gemma3(text)
-            
-            if use_gemma3 and self.gemma3_analyzer:
-                # Use Gemma-3 for crypto content
+            # Use Gemma-3 analyzer
+            if self.gemma3_analyzer:
                 try:
                     result = self.gemma3_analyzer.analyze(text)
                     analyzer_used = "gemma3"
@@ -197,20 +161,7 @@ class HybridSentimentAnalyzer:
                 except Exception as e:
                     log.warning(f"Gemma-3 analysis failed: {e}")
                     result = None
-            
-            # Fallback to ONNX if needed
-            if not result and self.onnx_analyzer:
-                try:
-                    result = self.onnx_analyzer.analyze(text)
-                    analyzer_used = "onnx"
-                    self.stats["onnx_used"] += 1
-                    
-                    if use_gemma3:  # This was a fallback
-                        self.stats["fallbacks"] += 1
-                        
-                except Exception as e:
-                    log.warning(f"ONNX analysis failed: {e}")
-                    result = None
+                    self.stats["fallbacks"] += 1
             
             # Normalize response
             if result:
@@ -237,47 +188,21 @@ class HybridSentimentAnalyzer:
             return []
         
         results = []
-        crypto_texts = []
-        generic_texts = []
-        crypto_indices = []
-        generic_indices = []
-        
-        # Separate crypto-relevant from generic texts
-        for i, text in enumerate(texts):
-            if self._should_use_gemma3(text):
-                crypto_texts.append(text)
-                crypto_indices.append(i)
-            else:
-                generic_texts.append(text)
-                generic_indices.append(i)
         
         # Initialize results array
         results = [None] * len(texts)
         
-        # Process crypto texts with Gemma-3
-        if crypto_texts and self.gemma3_analyzer:
+        # Process all texts with Gemma-3
+        if self.gemma3_analyzer:
             try:
-                crypto_results = self.gemma3_analyzer.analyze_batch(crypto_texts)
-                for idx, result in zip(crypto_indices, crypto_results):
+                batch_results = self.gemma3_analyzer.analyze_batch(texts)
+                for idx, result in enumerate(batch_results):
                     results[idx] = self._normalize_response(result, "gemma3")
                     self.stats["gemma3_used"] += 1
             except Exception as e:
                 log.warning(f"Gemma-3 batch analysis failed: {e}")
-                # Fallback individual analysis
-                for idx, text in zip(crypto_indices, crypto_texts):
-                    results[idx] = self.analyze(text)
-        
-        # Process generic texts with ONNX
-        if generic_texts and self.onnx_analyzer:
-            try:
-                for idx, text in zip(generic_indices, generic_texts):
-                    result = self.onnx_analyzer.analyze(text)
-                    results[idx] = self._normalize_response(result, "onnx")
-                    self.stats["onnx_used"] += 1
-            except Exception as e:
-                log.warning(f"ONNX batch analysis failed: {e}")
-                # Fallback individual analysis
-                for idx, text in zip(generic_indices, generic_texts):
+                # Fallback to individual analysis
+                for idx, text in enumerate(texts):
                     results[idx] = self.analyze(text)
         
         # Handle any remaining None results
@@ -294,11 +219,9 @@ class HybridSentimentAnalyzer:
         return {
             "total_analyses": total_analyses,
             "gemma3_usage": f"{(self.stats['gemma3_used'] / max(total_analyses, 1)) * 100:.1f}%",
-            "onnx_usage": f"{(self.stats['onnx_used'] / max(total_analyses, 1)) * 100:.1f}%",
             "fallback_rate": f"{(self.stats['fallbacks'] / max(total_analyses, 1)) * 100:.1f}%",
             "avg_latency_ms": f"{self.stats['avg_latency'] * 1000:.1f}ms",
-            "gemma3_available": self.gemma3_analyzer is not None,
-            "onnx_available": self.onnx_analyzer is not None
+            "gemma3_available": self.gemma3_analyzer is not None
         }
     
     def get_model_status(self) -> Dict:
@@ -308,20 +231,12 @@ class HybridSentimentAnalyzer:
                 "available": self.gemma3_analyzer is not None,
                 "loaded": False,
                 "stats": {}
-            },
-            "onnx": {
-                "available": self.onnx_analyzer is not None,
-                "loaded": False,
-                "stats": {}
             }
         }
         
         if self.gemma3_analyzer:
             status["gemma3"]["loaded"] = self.gemma3_analyzer.available
             status["gemma3"]["stats"] = self.gemma3_analyzer.get_stats()
-        
-        if self.onnx_analyzer:
-            status["onnx"]["loaded"] = self.onnx_analyzer.session is not None
         
         return status
 

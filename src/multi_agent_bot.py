@@ -1,4 +1,5 @@
 # Multi-Agent Trading Bot - Main entry point using specialized agents
+import asyncio
 import multiprocessing
 import os
 import signal
@@ -20,7 +21,7 @@ from agents.data_agent import DataAgent
 from agents.risk_agent import RiskAgent
 from agents.sentiment_agent import SentimentAgent
 from agents.ai_agent import AIAgent
-from integrations.ai_trading_integration import AITradingIntegration
+from integrations.ai_trading_integration import AITradingIntegration, SmartTradingDecisionEngine
 from core.capital_management import CapitalManager
 from core.grid_logic import GridLogic
 from core.pair_selector import PairSelector
@@ -71,6 +72,7 @@ class MultiAgentTradingBot:
         self.risk_agent = None
         self.ai_agent = None
         self.ai_integration = None
+        self.smart_decision_engine = None
         
         # Trading components
         self.pair_selector = None
@@ -183,10 +185,15 @@ class MultiAgentTradingBot:
             if self.ai_agent:
                 try:
                     self.ai_integration = AITradingIntegration(self.ai_agent)
-                    log.info("AI Trading Integration initialized")
+                    # Initialize Smart Decision Engine
+                    self.smart_decision_engine = SmartTradingDecisionEngine(
+                        self.ai_agent, self.api_client, self.config
+                    )
+                    log.info("AI Trading Integration and Smart Decision Engine initialized")
                 except Exception as e:
                     log.warning(f"Failed to initialize AI Integration: {e}")
                     self.ai_integration = None
+                    self.smart_decision_engine = None
                     log.info("System will continue without AI integration")
             else:
                 log.info("AI agent not available, skipping AI integration")
@@ -224,6 +231,10 @@ class MultiAgentTradingBot:
             
             # Start coordinator (this starts data and sentiment agents)
             self.coordinator.start_coordination()
+            
+            # Initialize smart engine for efficient market analysis
+            self.coordinator._pair_selector = self.pair_selector
+            self.coordinator.initialize_smart_engine()
             
             # Start risk agent
             self.risk_agent.start()
@@ -334,10 +345,16 @@ class MultiAgentTradingBot:
                 log.warning(f"Max concurrent pairs ({max_concurrent}) reached. Cannot start worker for {symbol}")
                 return
             
+            # Prepare shared resources for worker
+            shared_resources = {
+                "ai_agent": self.ai_agent,
+                "smart_decision_engine": self.smart_decision_engine
+            }
+            
             # Create worker process
             process = multiprocessing.Process(
                 target=self._trading_worker_main,
-                args=(symbol, self.config, self.stop_event, self.global_trade_counter),
+                args=(symbol, self.config, self.stop_event, self.global_trade_counter, shared_resources),
                 daemon=True,
                 name=f"TradingWorker-{symbol}"
             )
@@ -382,7 +399,8 @@ class MultiAgentTradingBot:
         symbol: str,
         config: dict,
         stop_event: multiprocessing.Event,
-        global_trade_counter: multiprocessing.Value
+        global_trade_counter: multiprocessing.Value,
+        shared_resources: dict = None
     ) -> None:
         """Main function for trading worker process."""
         # Setup logging for worker
@@ -445,29 +463,73 @@ class MultiAgentTradingBot:
                 try:
                     log.info(f"[{symbol}] Starting trading cycle...")
                     
-                    # Get market state for RL
-                    market_state = grid_logic.get_market_state()
+                    # Get smart trading decision (AI + Dynamic Sizing)
                     rl_action = None
+                    ai_decision = None
                     
-                    if market_state is not None:
+                    # Get current market data
+                    ticker = grid_logic._get_ticker()
+                    current_price = grid_logic._get_current_price_from_ticker(ticker) if ticker else 0
+                    market_data = {
+                        "current_price": float(current_price),
+                        "volume_24h": getattr(grid_logic, 'volume_24h', 0),
+                        "price_change_24h": getattr(grid_logic, 'price_change_24h', 0),
+                        "rsi": getattr(grid_logic, 'current_rsi', 50),
+                        "atr_percentage": getattr(grid_logic, 'current_atr_percentage', 1.0),
+                        "adx": getattr(grid_logic, 'current_adx', 25)
+                    }
+                    
+                    current_grid_params = {
+                        "num_levels": grid_logic.num_levels,
+                        "spacing_perc": float(grid_logic.current_spacing_percentage),
+                        "recent_pnl": float(grid_logic.total_realized_pnl)
+                    }
+                    
+                    # Get available balance
+                    balances = capital_manager.get_available_balances()
+                    available_balance = balances["futures_usdt"] + balances["spot_usdt"]
+                    
+                    # Try Smart Decision Engine first (AI + Dynamic Sizer)
+                    if shared_resources and shared_resources.get("smart_decision_engine"):
                         try:
-                            # Get sentiment if available
-                            sentiment_config = config.get("sentiment_analysis", {})
-                            if sentiment_config.get("rl_feature", {}).get("enabled", False):
-                                # In a real implementation, we'd get this from shared memory or IPC
-                                # For now, use a default value
-                                sentiment_score = 0.0
-                                rl_action = rl_agent.predict_action(market_state, sentiment_score=sentiment_score)
-                            else:
-                                rl_action = rl_agent.predict_action(market_state)
+                            # Get async smart decision
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            ai_decision = loop.run_until_complete(
+                                shared_resources["smart_decision_engine"].get_smart_trading_action(
+                                    symbol, market_data, current_grid_params, available_balance
+                                )
+                            )
+                            loop.close()
                             
-                            log.debug(f"[{symbol}] RL action: {rl_action}")
-                        
+                            if ai_decision and ai_decision.get("action") is not None:
+                                rl_action = ai_decision["action"]
+                                log.info(f"[{symbol}] AI Decision: action={rl_action}, confidence={ai_decision.get('confidence', 0):.2f}, "
+                                        f"reasoning={ai_decision.get('reasoning', 'N/A')}")
                         except Exception as e:
-                            log.error(f"[{symbol}] Error getting RL action: {e}")
+                            log.error(f"[{symbol}] Error getting AI decision: {e}")
                     
-                    # Execute trading logic
-                    grid_logic.run_cycle(rl_action=rl_action)
+                    # Fallback to traditional RL if AI decision failed
+                    if rl_action is None:
+                        market_state = grid_logic.get_market_state()
+                        if market_state is not None:
+                            try:
+                                # Get sentiment if available
+                                sentiment_config = config.get("sentiment_analysis", {})
+                                if sentiment_config.get("rl_feature", {}).get("enabled", False):
+                                    sentiment_score = 0.0
+                                    rl_action = rl_agent.predict_action(market_state, sentiment_score=sentiment_score)
+                                else:
+                                    rl_action = rl_agent.predict_action(market_state)
+                                
+                                log.debug(f"[{symbol}] Fallback RL action: {rl_action}")
+                            
+                            except Exception as e:
+                                log.error(f"[{symbol}] Error getting RL action: {e}")
+                                rl_action = 0  # Safe fallback
+                    
+                    # Execute trading logic with AI/RL decision
+                    grid_logic.run_cycle(rl_action=rl_action, ai_decision=ai_decision)
                     
                     # Update trade counter
                     new_trade_count = grid_logic.total_trades
@@ -584,8 +646,15 @@ class MultiAgentTradingBot:
     
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
+        # Prevent multiple signal handling
+        if hasattr(self, '_shutdown_started') and self._shutdown_started:
+            return
+        
         signal_name = signal.Signals(signum).name
         log.warning(f"Received signal {signal_name}. Initiating graceful shutdown...")
+        
+        # Mark shutdown as started
+        self._shutdown_started = True
         
         # Set stop event immediately
         self.stop_event.set()
@@ -595,7 +664,7 @@ class MultiAgentTradingBot:
         shutdown_thread.start()
         
         # Wait a bit for graceful shutdown
-        shutdown_thread.join(timeout=10)
+        shutdown_thread.join(timeout=5)
         
         # Force exit if still running
         if shutdown_thread.is_alive():

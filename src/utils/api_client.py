@@ -275,6 +275,10 @@ class APIClient:
         log.debug(f"Getting exchange info ({self.operation_mode.upper()})")
         return self._make_request(self.client.futures_exchange_info)
 
+    def futures_exchange_info(self):
+        """Alias para get_exchange_info() - compatibilidade com DynamicOrderSizer."""
+        return self.get_exchange_info()
+
     # --- Métodos para Mercado Spot --- #
 
     def get_spot_account_balance(self):
@@ -369,6 +373,10 @@ class APIClient:
         """Obtém informações de exchange do mercado Spot."""
         log.debug(f"Obtendo informações de exchange Spot ({self.operation_mode.upper()})")
         return self._make_request(self.client.get_exchange_info)
+
+    def spot_exchange_info(self):
+        """Alias para get_spot_exchange_info() - compatibilidade com DynamicOrderSizer."""
+        return self.get_spot_exchange_info()
 
     def get_futures_position_info(self, symbol=None):
         """Obtém informações de posição do mercado Futuros."""
