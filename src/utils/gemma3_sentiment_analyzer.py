@@ -83,6 +83,64 @@ class Gemma3SentimentAnalyzer:
                 return False
         except Exception as e:
             log.warning(f"Ollama service not available: {e}")
+            # Try to auto-start Ollama if it's not running
+            if self._try_start_ollama():
+                # Wait a moment for service to start
+                import time
+                time.sleep(3)
+                return self._check_ollama_status_simple()
+            return False
+    
+    def _check_ollama_status_simple(self) -> bool:
+        """Simple check without auto-start to avoid recursion."""
+        try:
+            response = self.session.get(f"{self.ollama_host}/api/tags", timeout=5)
+            return response.status_code == 200
+        except:
+            return False
+    
+    def _try_start_ollama(self) -> bool:
+        """Attempt to start Ollama service automatically."""
+        try:
+            import subprocess
+            import shutil
+            
+            # Check if systemctl is available (most Linux distributions)
+            if shutil.which("systemctl"):
+                log.info("Attempting to start Ollama via systemctl...")
+                result = subprocess.run(
+                    ["systemctl", "start", "ollama"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode == 0:
+                    log.info("Successfully started Ollama service via systemctl")
+                    return True
+                else:
+                    log.warning(f"Failed to start Ollama via systemctl: {result.stderr}")
+            
+            # Fallback: try to start ollama directly
+            if shutil.which("ollama"):
+                log.info("Attempting to start Ollama directly...")
+                # Start ollama serve in background
+                subprocess.Popen(
+                    ["ollama", "serve"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+                log.info("Started Ollama serve in background")
+                return True
+            
+            log.error("Could not find method to start Ollama")
+            return False
+            
+        except subprocess.TimeoutExpired:
+            log.warning("Timeout while trying to start Ollama")
+            return False
+        except Exception as e:
+            log.error(f"Error trying to start Ollama: {e}")
             return False
     
     def _ensure_model_available(self) -> bool:

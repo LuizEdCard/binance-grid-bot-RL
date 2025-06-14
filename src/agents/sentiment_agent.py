@@ -561,3 +561,10 @@ class SentimentAgent:
             "source_statistics": source_stats,
             "latest_sentiment": self.get_detailed_sentiment()
         }
+    
+    def get_sentiment_history(self, limit: int = 20) -> Dict:
+        """Get recent sentiment history from the aggregator."""
+        history = {}
+        for source_name, source_history in self.aggregator.source_history.items():
+            history[source_name] = list(source_history)[-limit:]
+        return history

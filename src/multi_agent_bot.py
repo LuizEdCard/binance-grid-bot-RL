@@ -25,12 +25,29 @@ from integrations.ai_trading_integration import AITradingIntegration, SmartTradi
 from core.capital_management import CapitalManager
 from core.grid_logic import GridLogic
 from core.pair_selector import PairSelector
-from core.rl_agent import RLAgent
 from utils.alerter import Alerter
 from utils.api_client import APIClient
 from utils.async_client import AsyncAPIClient
 from utils.intelligent_cache import IntelligentCache, get_global_cache
 from utils.logger import log, setup_logger
+from utils.pair_logger import get_multi_pair_logger, get_pair_logger
+
+# Conditional import of RLAgent (after logger is imported)
+try:
+    from core.rl_agent import RLAgent
+    RL_AVAILABLE = True
+except ImportError as e:
+    RL_AVAILABLE = False
+    RLAgent = None
+    log.warning(f"RL Agent not available: {e}")
+from utils.simple_websocket import SimpleBinanceWebSocket, get_global_websocket
+# Conditional import of model_api (may contain RL dependencies)
+try:
+    from routes import model_api
+    MODEL_API_AVAILABLE = True
+except ImportError as e:
+    MODEL_API_AVAILABLE = False
+    log.warning(f"Model API not available: {e}")
 
 # Configuration
 ROOT_DIR = os.path.dirname(SRC_DIR)
@@ -61,9 +78,16 @@ class MultiAgentTradingBot:
         self.api_client = APIClient(self.config, operation_mode=self.operation_mode)
         self.alerter = Alerter(self.api_client)
         
+        # Real-time WebSocket client for low-latency data
+        testnet = self.operation_mode == "shadow"
+        self.ws_client = SimpleBinanceWebSocket(testnet=testnet)
+        
         # Initialize intelligent cache
         self.cache = get_global_cache()
         self._setup_cache_callbacks()
+        
+        # Sistema de logging por pares
+        self.multi_pair_logger = get_multi_pair_logger()
         
         # Agents
         self.coordinator = None
@@ -205,6 +229,23 @@ class MultiAgentTradingBot:
                 get_sentiment_score_func=self._get_sentiment_score
             )
             
+            # Register all agents with the API
+            all_agents = {
+                "coordinator": self.coordinator,
+                "data": self.data_agent,
+                "sentiment": self.sentiment_agent,
+                "risk": self.risk_agent,
+            }
+            if self.ai_agent:
+                all_agents["ai"] = self.ai_agent
+            
+            # Register agents with model API (if available)
+            if MODEL_API_AVAILABLE:
+                model_api.set_agents(all_agents)
+                log.info("All agents registered with the API")
+            else:
+                log.info("Model API not available, skipping agent registration")
+            
             log.info("All agents initialized successfully")
             
         except Exception as e:
@@ -229,6 +270,10 @@ class MultiAgentTradingBot:
             # Initialize agents
             self.initialize_agents()
             
+            # Start real-time WebSocket for low-latency data
+            log.info("Starting real-time WebSocket connection...")
+            self.ws_client.start()
+            
             # Start coordinator (this starts data and sentiment agents)
             self.coordinator.start_coordination()
             
@@ -240,6 +285,9 @@ class MultiAgentTradingBot:
             self.risk_agent.start()
             
             # Send startup notification
+            self.multi_pair_logger.log_system_event(
+                f"🚀 Multi-Agent Trading System iniciado em modo {self.operation_mode.upper()}", "SUCCESS"
+            )
             self.alerter.send_message(
                 f"🚀 Multi-Agent Trading System Started - {self.operation_mode.upper()} Mode 🚀"
             )
@@ -258,6 +306,8 @@ class MultiAgentTradingBot:
         last_pair_update = 0
         stats_update_interval = 300  # 5 minutes
         last_stats_update = 0
+        status_summary_interval = 180  # 3 minutes
+        last_status_summary = 0
         
         while not self.stop_event.is_set():
             loop_start = time.time()
@@ -274,6 +324,11 @@ class MultiAgentTradingBot:
                 if current_time - last_stats_update > stats_update_interval:
                     self._update_system_stats()
                     last_stats_update = current_time
+                
+                # Print status summary
+                if current_time - last_status_summary > status_summary_interval:
+                    self.multi_pair_logger.print_status_summary()
+                    last_status_summary = current_time
                 
                 # Monitor worker processes
                 self._monitor_workers()
@@ -298,8 +353,8 @@ class MultiAgentTradingBot:
         log.info("Updating trading pairs...")
         
         try:
-            # Get selected pairs from pair selector
-            selected_pairs = self.pair_selector.get_selected_pairs(force_update=True)
+            # Get selected pairs from pair selector (use cache if available)
+            selected_pairs = self.pair_selector.get_selected_pairs(force_update=False)
             
             if not selected_pairs:
                 log.warning("No pairs selected for trading")
@@ -324,6 +379,11 @@ class MultiAgentTradingBot:
             # Add pairs to risk monitoring
             for pair in selected_pairs:
                 self.risk_agent.add_symbol_monitoring(pair)
+            
+            # Subscribe to real-time data for active pairs
+            for pair in selected_pairs:
+                log.info(f"Subscribing to real-time data for {pair}")
+                self.ws_client.subscribe_ticker(pair)
             
             # Remove pairs from risk monitoring
             for pair in pairs_to_stop:
@@ -417,22 +477,70 @@ class MultiAgentTradingBot:
             # Initialize capital manager and validate symbol before grid initialization
             capital_manager = CapitalManager(api_client, config)
             
-            # Check if we have sufficient capital for this symbol
+            # Check if we have sufficient capital for this symbol, but allow recovery of existing positions
             min_capital = capital_manager.min_capital_per_pair_usd
-            if not capital_manager.can_trade_symbol(symbol, min_capital):
+            has_existing_position = False
+            
+            # Quick check for existing positions/orders before capital validation
+            try:
+                # Check for existing grid state file
+                state_file = f"data/grid_states/{symbol}_state.json"
+                if os.path.exists(state_file):
+                    has_existing_position = True
+                    log.info(f"[{symbol}] Found existing grid state - allowing recovery despite low capital")
+                
+                # Also check for existing positions in the exchange
+                if not has_existing_position:
+                    positions = api_client.get_futures_positions()
+                    if positions:
+                        for pos in positions:
+                            if pos.get('symbol') == symbol and float(pos.get('positionAmt', 0)) != 0:
+                                has_existing_position = True
+                                log.info(f"[{symbol}] Found existing position in exchange - allowing recovery")
+                                break
+            except Exception as e:
+                log.warning(f"[{symbol}] Error checking for existing positions: {e}")
+            
+            # Only enforce capital requirements for new positions
+            if not has_existing_position and not capital_manager.can_trade_symbol(symbol, min_capital):
                 log.error(f"[{symbol}] Insufficient capital to trade. Minimum required: ${min_capital:.2f}")
                 capital_manager.log_capital_status()
                 return
+            elif has_existing_position:
+                log.info(f"[{symbol}] Existing position detected - proceeding with recovery mode")
             
             # Get capital allocation for this symbol
             allocation = capital_manager.get_allocation_for_symbol(symbol)
             if not allocation:
-                # Calculate allocation for single symbol
-                allocations = capital_manager.calculate_optimal_allocations([symbol])
-                if not allocations:
-                    log.error(f"[{symbol}] No capital can be allocated for trading")
-                    return
-                allocation = allocations[0]
+                if has_existing_position:
+                    # For existing positions, create minimal allocation for recovery
+                    class SimpleAllocation:
+                        def __init__(self, symbol, allocated_amount, grid_levels, spacing_percentage, max_position_size, market_type, leverage=10):
+                            self.symbol = symbol
+                            self.allocated_amount = allocated_amount
+                            self.grid_levels = grid_levels
+                            self.spacing_percentage = spacing_percentage
+                            self.max_position_size = max_position_size
+                            self.market_type = market_type
+                            self.leverage = leverage
+                    
+                    allocation = SimpleAllocation(
+                        symbol=symbol,
+                        allocated_amount=1.0,  # Minimal amount for recovery
+                        grid_levels=5,
+                        spacing_percentage=0.005,
+                        max_position_size=0.5,
+                        market_type="futures",
+                        leverage=10
+                    )
+                    log.info(f"[{symbol}] Created minimal allocation for position recovery")
+                else:
+                    # Calculate allocation for single symbol
+                    allocations = capital_manager.calculate_optimal_allocations([symbol])
+                    if not allocations:
+                        log.error(f"[{symbol}] No capital can be allocated for trading")
+                        return
+                    allocation = allocations[0]
             
             log.info(f"[{symbol}] Capital allocated: ${allocation.allocated_amount:.2f} ({allocation.market_type}, {allocation.grid_levels} levels)")
             
@@ -443,26 +551,58 @@ class MultiAgentTradingBot:
             adapted_config['initial_spacing_perc'] = str(allocation.spacing_percentage)
             adapted_config['max_position_size_usd'] = allocation.max_position_size
             
-            grid_logic = GridLogic(symbol, adapted_config, api_client, 
-                                 operation_mode=operation_mode, 
-                                 market_type=allocation.market_type)
-            
-            # Initialize RL agent
-            rl_agent = RLAgent(config, symbol)
-            if not rl_agent.setup_agent(training=False):
-                log.error(f"[{symbol}] Failed to setup RL agent")
+            # Validate symbol exists in target market before proceeding
+            if not capital_manager.is_symbol_valid(symbol, allocation.market_type):
+                log.error(f"[{symbol}] Symbol not valid for {allocation.market_type} market. Skipping.")
                 return
+            
+            # Use global WebSocket client for real-time data
+            worker_ws_client = get_global_websocket()
+            worker_ws_client.subscribe_ticker(symbol)
+            log.info(f"[{symbol}] Subscribed to real-time WebSocket data")
+            
+            try:
+                grid_logic = GridLogic(symbol, adapted_config, api_client, 
+                                     operation_mode=operation_mode, 
+                                     market_type=allocation.market_type,
+                                     ws_client=worker_ws_client)
+            except ValueError as e:
+                log.error(f"[{symbol}] Failed to initialize GridLogic: {e}")
+                log.info(f"[{symbol}] Skipping this symbol and shutting down worker")
+                return
+            
+            # Initialize RL agent (if enabled and available)
+            rl_agent = None
+            rl_enabled = config.get("rl_agent", {}).get("enabled", True)
+            if rl_enabled and RL_AVAILABLE and RLAgent is not None:
+                try:
+                    rl_agent = RLAgent(config, symbol)
+                    if not rl_agent.setup_agent(training=False):
+                        log.warning(f"[{symbol}] Failed to setup RL agent, continuing without RL")
+                        rl_agent = None
+                except Exception as e:
+                    log.warning(f"[{symbol}] RL agent initialization failed: {e}, continuing without RL")
+                    rl_agent = None
+            else:
+                if not RL_AVAILABLE:
+                    log.info(f"[{symbol}] RL agent not available (missing dependencies)")
+                elif not rl_enabled:
+                    log.info(f"[{symbol}] RL agent disabled in configuration")
+                else:
+                    log.info(f"[{symbol}] RL agent module not found")
             
             # Trading loop
             cycle_interval = config.get("trading", {}).get("cycle_interval_seconds", 60)
             local_trade_count = 0
             
+            # Initialize pair logger
+            pair_logger = get_pair_logger(symbol)
+            pair_logger.log_info(f"Iniciando sistema de trading para {symbol}")
+            
             while not stop_event.is_set():
                 cycle_start = time.time()
                 
                 try:
-                    log.info(f"[{symbol}] Starting trading cycle...")
-                    
                     # Get smart trading decision (AI + Dynamic Sizing)
                     rl_action = None
                     ai_decision = None
@@ -478,6 +618,47 @@ class MultiAgentTradingBot:
                         "atr_percentage": getattr(grid_logic, 'current_atr_percentage', 1.0),
                         "adx": getattr(grid_logic, 'current_adx', 25)
                     }
+                    
+                    # Get position info
+                    try:
+                        position = api_client.get_futures_position(symbol)
+                        position_size = float(position.get('positionAmt', 0)) if position else 0
+                        entry_price = float(position.get('entryPrice', 0)) if position else 0
+                        unrealized_pnl = float(position.get('unrealizedPnl', 0)) if position else 0
+                        position_side = "LONG" if position_size > 0 else "SHORT" if position_size < 0 else "NONE"
+                    except:
+                        position_size = 0
+                        entry_price = 0
+                        unrealized_pnl = 0
+                        position_side = "NONE"
+                    
+                    # Get grid info
+                    active_orders = len(getattr(grid_logic, 'active_orders', []))
+                    filled_orders = getattr(grid_logic, 'total_trades', 0)
+                    grid_profit = float(getattr(grid_logic, 'total_realized_pnl', 0))
+                    
+                    # Update metrics no pair logger
+                    pair_logger.update_metrics(
+                        current_price=float(current_price),
+                        entry_price=entry_price,
+                        tp_price=0,  # Será atualizado se houver TP/SL
+                        sl_price=0,
+                        unrealized_pnl=unrealized_pnl,
+                        realized_pnl=grid_profit,
+                        position_size=position_size,
+                        leverage=allocation.leverage if allocation else 10,
+                        rsi=market_data["rsi"],
+                        atr=market_data["atr_percentage"] * current_price / 100,
+                        adx=market_data["adx"],
+                        volume_24h=market_data["volume_24h"],
+                        price_change_24h=market_data["price_change_24h"],
+                        grid_levels=grid_logic.num_levels,
+                        active_orders=active_orders,
+                        filled_orders=filled_orders,
+                        grid_profit=grid_profit,
+                        position_side=position_side,
+                        market_type=allocation.market_type if allocation else "FUTURES"
+                    )
                     
                     current_grid_params = {
                         "num_levels": grid_logic.num_levels,
@@ -509,8 +690,8 @@ class MultiAgentTradingBot:
                         except Exception as e:
                             log.error(f"[{symbol}] Error getting AI decision: {e}")
                     
-                    # Fallback to traditional RL if AI decision failed
-                    if rl_action is None:
+                    # Fallback to traditional RL if AI decision failed and RL is available
+                    if rl_action is None and rl_agent is not None:
                         market_state = grid_logic.get_market_state()
                         if market_state is not None:
                             try:
@@ -528,8 +709,17 @@ class MultiAgentTradingBot:
                                 log.error(f"[{symbol}] Error getting RL action: {e}")
                                 rl_action = 0  # Safe fallback
                     
+                    # Log trading cycle with detailed metrics
+                    pair_logger.log_trading_cycle()
+                    
                     # Execute trading logic with AI/RL decision
+                    previous_orders = len(getattr(grid_logic, 'active_orders', []))
                     grid_logic.run_cycle(rl_action=rl_action, ai_decision=ai_decision)
+                    current_orders = len(getattr(grid_logic, 'active_orders', []))
+                    
+                    # Check for new orders
+                    if current_orders > previous_orders:
+                        pair_logger.log_info(f"Novas ordens criadas: {current_orders - previous_orders}")
                     
                     # Update trade counter
                     new_trade_count = grid_logic.total_trades
@@ -538,10 +728,25 @@ class MultiAgentTradingBot:
                         with global_trade_counter.get_lock():
                             global_trade_counter.value += trades_made
                         local_trade_count = new_trade_count
+                        
+                        # Log trade completion
+                        pair_logger.log_info(f"✅ {trades_made} trade(s) executado(s)! Total: {new_trade_count}")
                     
-                    log.debug(f"[{symbol}] Trading cycle completed")
+                    # Check for position changes
+                    try:
+                        new_position = api_client.get_futures_position(symbol)
+                        new_position_size = float(new_position.get('positionAmt', 0)) if new_position else 0
+                        new_unrealized_pnl = float(new_position.get('unrealizedPnl', 0)) if new_position else 0
+                        
+                        if abs(new_position_size - position_size) > 0.0001:  # Position changed
+                            new_side = "LONG" if new_position_size > 0 else "SHORT" if new_position_size < 0 else "NONE"
+                            new_entry = float(new_position.get('entryPrice', 0)) if new_position else 0
+                            pair_logger.log_position_update(new_side, new_entry, new_position_size, new_unrealized_pnl)
+                    except Exception as pos_error:
+                        pass  # Ignore position check errors
                 
                 except Exception as e:
+                    pair_logger.log_error(f"Erro no ciclo de trading: {e}")
                     log.error(f"[{symbol}] Error in trading cycle: {e}", exc_info=True)
                     alerter.send_critical_alert(f"Error in {symbol} trading cycle: {e}")
                 

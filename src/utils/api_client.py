@@ -194,7 +194,7 @@ class APIClient:
         return self._make_request(self.client.futures_position_information)
 
     def place_futures_order(
-        self, symbol, side, order_type, quantity, price=None, timeInForce=None, **kwargs
+        self, symbol, side, order_type, quantity, price=None, time_in_force=None, **kwargs
     ):
         params = {
             "symbol": symbol,
@@ -204,8 +204,10 @@ class APIClient:
         }
         if price and order_type == "LIMIT":
             params["price"] = price
-        if timeInForce and order_type == "LIMIT":
-            params["timeInForce"] = timeInForce
+        if time_in_force and order_type == "LIMIT":
+            params["timeInForce"] = time_in_force  # Binance API espera timeInForce (camelCase)
+        elif order_type == "LIMIT" and not time_in_force:
+            params["timeInForce"] = "GTC"  # Default para LIMIT orders
         params.update(kwargs)
         log.info(f"Placing order ({self.operation_mode.upper()}): {params}")
         return self._make_request(self.client.futures_create_order, **params)
@@ -389,8 +391,16 @@ class APIClient:
         return self.get_futures_account_balance()
 
     def get_futures_position(self, symbol=None):
-        """Alias for get_futures_positions for compatibility."""
-        return self.get_futures_positions()
+        """Get specific futures position for a symbol."""
+        if symbol is None:
+            return self.get_futures_positions()
+        
+        positions = self.get_futures_positions()
+        if positions and isinstance(positions, list):
+            for position in positions:
+                if isinstance(position, dict) and position.get('symbol') == symbol:
+                    return position
+        return None
     
     def transfer_between_markets(self, asset: str, amount: float, transfer_type: str):
         """
@@ -429,6 +439,232 @@ class APIClient:
                 
         except Exception as e:
             log.error(f"Error during transfer: {e}")
+            return None
+    
+    def change_leverage(self, symbol: str, leverage: int):
+        """
+        Altera a alavancagem para um símbolo no mercado de futuros.
+        
+        Args:
+            symbol: Símbolo (ex: 'ADAUSDT')
+            leverage: Nova alavancagem (ex: 10)
+        """
+        log.info(f"Changing leverage for {symbol} to {leverage}x ({self.operation_mode.upper()})")
+        
+        if self.operation_mode == "shadow":
+            log.info(f"[SHADOW MODE] Simulated leverage change: {symbol} -> {leverage}x")
+            return {
+                "leverage": leverage,
+                "symbol": symbol,
+                "maxNotionalValue": "1000000"
+            }
+        
+        try:
+            result = self._make_request(
+                self.client.futures_change_leverage,
+                symbol=symbol,
+                leverage=leverage
+            )
+            
+            if result and result.get("leverage"):
+                log.info(f"Leverage changed successfully: {symbol} -> {leverage}x")
+                return result
+            else:
+                log.error(f"Failed to change leverage: {result}")
+                return None
+                
+        except Exception as e:
+            log.error(f"Error changing leverage for {symbol}: {e}")
+            return None
+
+    def place_stop_limit_order(self, symbol: str, side: str, quantity: str, 
+                              stop_price: str, price: str, time_in_force: str = "GTC",
+                              close_position: bool = False, reduce_only: bool = False):
+        """
+        Coloca ordem STOP_LIMIT para melhor controle de slippage.
+        
+        Args:
+            symbol: Par de trading (ex: 'BTCUSDT')
+            side: 'BUY' ou 'SELL'
+            quantity: Quantidade da ordem
+            stop_price: Preço de ativação do stop
+            price: Preço limite da ordem
+            time_in_force: 'GTC', 'IOC', 'FOK'
+            close_position: Se deve fechar a posição inteira
+            reduce_only: Se a ordem deve apenas reduzir posição
+        """
+        log.info(f"Placing STOP_LIMIT order: {symbol} {side} {quantity} @ stop:{stop_price} limit:{price} ({self.operation_mode.upper()})")
+        
+        if self.operation_mode == "shadow":
+            shadow_order = {
+                "orderId": f"SHADOW_STOP_LIMIT_{int(time.time())}",
+                "symbol": symbol,
+                "status": "NEW",
+                "type": "STOP",
+                "side": side,
+                "origQty": quantity,
+                "stopPrice": stop_price,
+                "price": price,
+                "timeInForce": time_in_force,
+                "closePosition": close_position,
+                "reduceOnly": reduce_only
+            }
+            log.info(f"[SHADOW MODE] Simulated STOP_LIMIT order: {shadow_order}")
+            return shadow_order
+        
+        try:
+            order_params = {
+                "symbol": symbol,
+                "side": side,
+                "type": "STOP",  # STOP_LIMIT no Binance é type="STOP"
+                "quantity": quantity,
+                "stopPrice": stop_price,
+                "price": price,
+                "timeInForce": time_in_force
+            }
+            
+            if close_position:
+                order_params["closePosition"] = True
+            
+            if reduce_only:
+                order_params["reduceOnly"] = True
+            
+            result = self._make_request(
+                self.client.futures_create_order,
+                **order_params
+            )
+            
+            if result and result.get("orderId"):
+                log.info(f"STOP_LIMIT order placed successfully: {result['orderId']}")
+                return result
+            else:
+                log.error(f"Failed to place STOP_LIMIT order: {result}")
+                return None
+                
+        except Exception as e:
+            log.error(f"Error placing STOP_LIMIT order for {symbol}: {e}")
+            return None
+
+    def place_conditional_order(self, symbol: str, side: str, order_type: str,
+                               quantity: str, price: str = None, stop_price: str = None,
+                               activation_price: str = None, callback_rate: str = None,
+                               time_in_force: str = "GTC", working_type: str = "MARK_PRICE"):
+        """
+        Coloca ordem condicional (TAKE_PROFIT, STOP_MARKET, TRAILING_STOP).
+        
+        Args:
+            symbol: Par de trading
+            side: 'BUY' ou 'SELL'
+            order_type: 'TAKE_PROFIT', 'STOP_MARKET', 'TRAILING_STOP_MARKET'
+            quantity: Quantidade da ordem
+            price: Preço limite (para TAKE_PROFIT)
+            stop_price: Preço de ativação
+            activation_price: Preço de ativação para trailing stop
+            callback_rate: Taxa de callback para trailing stop (0.1 = 0.1%)
+            time_in_force: 'GTC', 'IOC', 'FOK'
+            working_type: 'MARK_PRICE' ou 'CONTRACT_PRICE'
+        """
+        log.info(f"Placing conditional order: {symbol} {side} {order_type} {quantity} ({self.operation_mode.upper()})")
+        
+        if self.operation_mode == "shadow":
+            shadow_order = {
+                "orderId": f"SHADOW_CONDITIONAL_{int(time.time())}",
+                "symbol": symbol,
+                "status": "NEW",
+                "type": order_type,
+                "side": side,
+                "origQty": quantity,
+                "stopPrice": stop_price,
+                "price": price,
+                "activationPrice": activation_price,
+                "callbackRate": callback_rate,
+                "timeInForce": time_in_force,
+                "workingType": working_type
+            }
+            log.info(f"[SHADOW MODE] Simulated conditional order: {shadow_order}")
+            return shadow_order
+        
+        try:
+            order_params = {
+                "symbol": symbol,
+                "side": side,
+                "type": order_type,
+                "quantity": quantity,
+                "timeInForce": time_in_force,
+                "workingType": working_type
+            }
+            
+            # Adicionar parâmetros específicos por tipo
+            if price:
+                order_params["price"] = price
+            if stop_price:
+                order_params["stopPrice"] = stop_price
+            if activation_price:
+                order_params["activationPrice"] = activation_price
+            if callback_rate:
+                order_params["callbackRate"] = callback_rate
+            
+            result = self._make_request(
+                self.client.futures_create_order,
+                **order_params
+            )
+            
+            if result and result.get("orderId"):
+                log.info(f"Conditional order placed successfully: {result['orderId']}")
+                return result
+            else:
+                log.error(f"Failed to place conditional order: {result}")
+                return None
+                
+        except Exception as e:
+            log.error(f"Error placing conditional order for {symbol}: {e}")
+            return None
+
+    def get_order_book_depth(self, symbol: str, limit: int = 20):
+        """
+        Obtém profundidade do order book para análise de liquidez.
+        
+        Args:
+            symbol: Par de trading
+            limit: Número de níveis (5, 10, 20, 50, 100, 500, 1000)
+        """
+        try:
+            result = self._make_request(
+                self.client.futures_order_book,
+                symbol=symbol,
+                limit=limit
+            )
+            
+            if result:
+                # Calcular estatísticas úteis
+                bids = result.get("bids", [])
+                asks = result.get("asks", [])
+                
+                if bids and asks:
+                    best_bid = float(bids[0][0])
+                    best_ask = float(asks[0][0])
+                    spread = best_ask - best_bid
+                    spread_pct = (spread / best_ask) * 100
+                    
+                    # Calcular liquidez total nos primeiros 5 níveis
+                    bid_liquidity = sum(float(bid[1]) * float(bid[0]) for bid in bids[:5])
+                    ask_liquidity = sum(float(ask[1]) * float(ask[0]) for ask in asks[:5])
+                    
+                    result["analysis"] = {
+                        "best_bid": best_bid,
+                        "best_ask": best_ask,
+                        "spread": spread,
+                        "spread_percentage": spread_pct,
+                        "bid_liquidity_usdt": bid_liquidity,
+                        "ask_liquidity_usdt": ask_liquidity,
+                        "total_liquidity_usdt": bid_liquidity + ask_liquidity,
+                        "liquidity_imbalance": (bid_liquidity - ask_liquidity) / (bid_liquidity + ask_liquidity)
+                    }
+                
+                return result
+            
+        except Exception as e:
+            log.error(f"Error getting order book depth for {symbol}: {e}")
             return None
 
 

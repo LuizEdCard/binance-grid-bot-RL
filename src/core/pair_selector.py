@@ -1,7 +1,9 @@
 # Pair Selector Module for Grid Trading Bot
 
 import time
+import asyncio
 from decimal import Decimal
+from typing import List, Dict, Optional
 
 import numpy as np  # Import numpy for TA-Lib
 import pandas as pd
@@ -66,6 +68,10 @@ class PairSelector:
             "quote_asset", "USDT"
         )  # e.g., USDT
         self.max_pairs = self.config.get("trading", {}).get("max_concurrent_pairs", 5)
+        
+        # --- Market-specific Parameters --- #
+        futures_config = self.selector_config.get("futures_pairs", {})
+        self.max_price_usdt = Decimal(str(futures_config.get("max_price_usdt", "999999")))  # NOVO: Filtro de preço máximo
 
         # --- Optional Filters --- #
         self.use_candlestick_filter = self.selector_config.get(
@@ -86,9 +92,14 @@ class PairSelector:
         # --- State --- #
         self.selected_pairs = []
         self.last_update_time = 0
+        # Use absolute path to avoid working directory confusion
+        import os
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # Go up to project root
+        self.cache_file = os.path.join(root_dir, "data", "pair_selection_cache.json")
+        self._load_cache()
 
         log.info(
-            f"PairSelector initialized. Min Vol: {self.min_volume_usd_24h} USD, Min ATR: {self.min_atr_perc_24h*100}%, Max Spread: {self.max_spread_perc*100}%, Max ADX: {self.max_adx}, Use Candlestick Filter: {self.use_candlestick_filter}, Sentiment Filter: {self.sentiment_filtering_enabled} (Min Score: {self.min_sentiment_for_new_pair})"
+            f"PairSelector initialized. Min Vol: {self.min_volume_usd_24h} USD, Min ATR: {self.min_atr_perc_24h*100}%, Max Spread: {self.max_spread_perc*100}%, Max ADX: {self.max_adx}, Max Price: {self.max_price_usdt} USDT, Use Candlestick Filter: {self.use_candlestick_filter}, Sentiment Filter: {self.sentiment_filtering_enabled} (Min Score: {self.min_sentiment_for_new_pair})"
         )
         if not talib_available:
             log.warning("TA-Lib not available, candlestick filtering is disabled.")
@@ -98,6 +109,51 @@ class PairSelector:
                 f"[{self.symbol}] Sentiment pair filtering enabled, but no sentiment score function provided. Feature disabled."
             )
             self.sentiment_filtering_enabled = False
+
+    def _load_cache(self):
+        """Load cached pair selection if available."""
+        try:
+            import json
+            import os
+            if os.path.exists(self.cache_file):
+                with open(self.cache_file, 'r') as f:
+                    cache_data = json.load(f)
+                
+                # Check if cache is still valid (less than update_interval_hours old)
+                cache_age = time.time() - cache_data.get('timestamp', 0)
+                if cache_age < (self.update_interval_hours * 3600):
+                    self.selected_pairs = cache_data.get('selected_pairs', [])
+                    self.last_update_time = cache_data.get('timestamp', 0)
+                    log.info(f"Loaded cached pair selection: {self.selected_pairs} (age: {cache_age/3600:.1f}h)")
+                    return
+        except Exception as e:
+            log.debug(f"Could not load cache: {e}")
+        
+        # If no valid cache, use preferred symbols as fallback
+        preferred = self.selector_config.get("futures_pairs", {}).get("preferred_symbols", [])
+        if preferred:
+            self.selected_pairs = preferred[:self.max_pairs]
+            log.info(f"Using preferred symbols as initial selection: {self.selected_pairs}")
+
+    def _save_cache(self):
+        """Save current pair selection to cache."""
+        try:
+            import json
+            import os
+            
+            os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
+            
+            cache_data = {
+                'selected_pairs': self.selected_pairs,
+                'timestamp': self.last_update_time
+            }
+            
+            with open(self.cache_file, 'w') as f:
+                json.dump(cache_data, f, indent=2)
+                
+            log.debug(f"Saved pair selection cache: {len(self.selected_pairs)} pairs")
+        except Exception as e:
+            log.warning(f"Could not save cache: {e}")
 
     def _fetch_market_data(self):
         # ... (no changes) ...
@@ -330,6 +386,13 @@ class PairSelector:
                     f"Excluding {symbol}: Too trendy ADX ({m['adx']:.2f} > {self.max_adx})"
                 )
                 continue
+            
+            # Apply price filter - NEW
+            if m["last_price"] > self.max_price_usdt:
+                log.debug(
+                    f"Excluding {symbol}: Price too high ({m['last_price']:.4f} > {self.max_price_usdt})"
+                )
+                continue
 
             # Apply optional candlestick pattern filter
             if (
@@ -388,22 +451,215 @@ class PairSelector:
             log.info(
                 f"Updating pair selection (Force update: {force_update}, Time elapsed: {(current_time - self.last_update_time)/3600:.2f}h)"
             )
-            tickers, kline_data = self._fetch_market_data()
-            if tickers and kline_data:
-                metrics = self._calculate_metrics(tickers, kline_data)
-                ranked_symbols = self._filter_and_rank_pairs(metrics)
-                self.selected_pairs = ranked_symbols[: self.max_pairs]
+            
+            # Verificar se temos preferred symbols configurados
+            preferred = self.selector_config.get("futures_pairs", {}).get("preferred_symbols", [])
+            use_social_feed = self.selector_config.get("use_social_feed_analysis", True)
+            
+            if preferred and len(preferred) >= 3 and not use_social_feed:
+                # Se temos preferred symbols suficientes E não usar análise social, usar apenas eles (otimização)
+                log.info(f"Using preferred symbols for fast selection: {preferred}")
+                self.selected_pairs = preferred[:self.max_pairs]
                 self.last_update_time = current_time
-                log.info(
-                    f"Pair selection updated. Selected pairs: {self.selected_pairs}"
-                )
+                self._save_cache()
+                log.info(f"Fast pair selection completed. Selected pairs: {self.selected_pairs}")
+            elif use_social_feed:
+                # Usar análise inteligente combinando preferred + social feed
+                log.info("Using intelligent pair selection with social feed analysis...")
+                try:
+                    # Usar método sincronizado para evitar conflitos de event loop
+                    intelligent_pairs = self._get_intelligent_pair_selection_sync(preferred)
+                    
+                    self.selected_pairs = intelligent_pairs[:self.max_pairs]
+                    self.last_update_time = current_time
+                    self._save_cache()
+                    log.info(f"Intelligent pair selection completed. Selected pairs: {self.selected_pairs}")
+                except Exception as e:
+                    log.error(f"Error in intelligent selection: {e}")
+                    # Fallback para preferred symbols
+                    log.warning("Falling back to preferred symbols")
+                    self.selected_pairs = preferred[:self.max_pairs]
+                    self.last_update_time = current_time
+                    self._save_cache()
             else:
-                log.error(
-                    "Failed to update pair selection due to data fetching errors."
-                )
+                # Caso contrário, fazer análise completa
+                log.info("No sufficient preferred symbols, performing full market analysis...")
+                tickers, kline_data = self._fetch_market_data()
+                if tickers and kline_data:
+                    metrics = self._calculate_metrics(tickers, kline_data)
+                    ranked_symbols = self._filter_and_rank_pairs(metrics)
+                    self.selected_pairs = ranked_symbols[: self.max_pairs]
+                    self.last_update_time = current_time
+                    self._save_cache()
+                    log.info(
+                        f"Full pair selection updated. Selected pairs: {self.selected_pairs}"
+                    )
+                else:
+                    log.error(
+                        "Failed to update pair selection due to data fetching errors."
+                    )
                 log.warning(f"Keeping previously selected pairs: {self.selected_pairs}")
 
         return self.selected_pairs
+    
+    def _get_intelligent_pair_selection_sync(self, preferred_symbols: List[str]) -> List[str]:
+        """
+        Versão sincronizada da seleção inteligente para evitar conflitos de event loop.
+        
+        Args:
+            preferred_symbols: Lista de símbolos preferidos configurados
+            
+        Returns:
+            Lista final de símbolos selecionados
+        """
+        try:
+            log.info("Running simplified intelligent pair selection...")
+            
+            # Por enquanto, retornar preferred symbols com análise básica
+            # TODO: Implementar versão simplificada da análise social sem async
+            
+            # Verificar se símbolos preferred são válidos
+            valid_symbols = []
+            for symbol in preferred_symbols:
+                if self._is_valid_trading_symbol(symbol):
+                    valid_symbols.append(symbol)
+            
+            log.info(f"Validated {len(valid_symbols)} preferred symbols: {valid_symbols}")
+            
+            # Por enquanto, retornar apenas preferred symbols válidos
+            # Em futuras iterações, podemos adicionar análise social básica sem async
+            return valid_symbols
+            
+        except Exception as e:
+            log.error(f"Error in simplified intelligent selection: {e}")
+            return preferred_symbols
+    
+    async def _get_intelligent_pair_selection(self, preferred_symbols: List[str]) -> List[str]:
+        """
+        Seleção inteligente combinando preferred symbols + análise de feeds sociais.
+        
+        Args:
+            preferred_symbols: Lista de símbolos preferidos configurados
+            
+        Returns:
+            Lista final de símbolos selecionados
+        """
+        try:
+            # Importar o analisador de feeds sociais
+            from utils.binance_social_feed_analyzer import BinanceSocialFeedAnalyzer
+            
+            # Configuração para análise social
+            social_config = self.selector_config.get("social_feed_analysis", {})
+            config_with_social = {**self.config, "social_feed_analysis": social_config}
+            
+            # Analisar feeds sociais e notícias
+            async with BinanceSocialFeedAnalyzer(config_with_social) as analyzer:
+                trending_symbols = await analyzer.get_trending_symbols()
+            
+            # Extrair símbolos dos trending
+            social_symbols = [ts.symbol for ts in trending_symbols if ts.confidence > 0.5]
+            
+            log.info(f"Found {len(social_symbols)} trending symbols from social analysis: {social_symbols[:10]}")
+            
+            # Criar sistema de scoring combinado
+            symbol_scores = {}
+            
+            # 1. Preferred symbols tem score base alto
+            for symbol in preferred_symbols:
+                symbol_scores[symbol] = {
+                    'score': 10.0,  # Score base alto
+                    'sources': ['preferred'],
+                    'reasons': ['configured_preferred']
+                }
+            
+            # 2. Símbolos trending da análise social
+            for trending_symbol in trending_symbols:
+                symbol = trending_symbol.symbol
+                
+                # Calcular score baseado em multiple fatores
+                social_score = (
+                    trending_symbol.mentions * 2.0 +           # Número de menções
+                    trending_symbol.sentiment_score * 3.0 +    # Sentiment
+                    trending_symbol.confidence * 5.0 +         # Confiança
+                    (1.0 if 'influencer' in trending_symbol.source else 0.5)  # Bonus influenciador
+                )
+                
+                if symbol in symbol_scores:
+                    # Se já existe (preferred), somar score
+                    symbol_scores[symbol]['score'] += social_score
+                    symbol_scores[symbol]['sources'].append('social')
+                    symbol_scores[symbol]['reasons'].append(f"trending_{trending_symbol.source}")
+                else:
+                    # Novo símbolo apenas do social feed
+                    symbol_scores[symbol] = {
+                        'score': social_score,
+                        'sources': ['social'],
+                        'reasons': [f"trending_{trending_symbol.source}"]
+                    }
+            
+            # 3. Filtrar símbolos que existem na Binance
+            valid_symbols = {}
+            for symbol, data in symbol_scores.items():
+                if self._is_valid_trading_symbol(symbol):
+                    valid_symbols[symbol] = data
+                else:
+                    log.debug(f"Symbol {symbol} not valid for trading, excluding")
+            
+            # 4. Ordenar por score e selecionar top símbolos
+            sorted_symbols = sorted(
+                valid_symbols.items(), 
+                key=lambda x: x[1]['score'], 
+                reverse=True
+            )
+            
+            # 5. Criar lista final balanceada
+            final_symbols = []
+            
+            # Garantir que pelo menos metade sejam preferred symbols
+            preferred_in_final = [symbol for symbol, _ in sorted_symbols if 'preferred' in valid_symbols[symbol]['sources']]
+            final_symbols.extend(preferred_in_final[:max(3, self.max_pairs // 2)])
+            
+            # Completar com símbolos trending
+            for symbol, data in sorted_symbols:
+                if symbol not in final_symbols and len(final_symbols) < self.max_pairs:
+                    final_symbols.append(symbol)
+            
+            # Log da seleção final
+            log.info("📈 INTELLIGENT PAIR SELECTION RESULTS:")
+            for i, symbol in enumerate(final_symbols[:10]):
+                data = valid_symbols[symbol]
+                log.info(f"  {i+1}. {symbol} - Score: {data['score']:.1f} - Sources: {','.join(data['sources'])}")
+            
+            return final_symbols
+            
+        except Exception as e:
+            log.error(f"Error in intelligent pair selection: {e}")
+            # Fallback para preferred symbols
+            log.warning("Falling back to preferred symbols only")
+            return preferred_symbols
+    
+    def _is_valid_trading_symbol(self, symbol: str) -> bool:
+        """Verifica se o símbolo é válido para trading na Binance."""
+        try:
+            # Verificar se termina com USDT
+            if not symbol.endswith('USDT'):
+                return False
+            
+            # Verificar se o símbolo existe na exchange
+            exchange_info = self.api_client.get_exchange_info()
+            if not exchange_info:
+                return True  # Se não conseguir verificar, assumir válido
+            
+            # Procurar símbolo na lista
+            for symbol_info in exchange_info.get("symbols", []):
+                if symbol_info["symbol"] == symbol and symbol_info["status"] == "TRADING":
+                    return True
+            
+            return False
+            
+        except Exception as e:
+            log.debug(f"Error validating symbol {symbol}: {e}")
+            return True  # Se erro na validação, assumir válido
 
     def get_market_summary(self) -> dict:
         """

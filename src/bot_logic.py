@@ -175,7 +175,8 @@ def trading_pair_worker(
     global_trade_counter: multiprocessing.Value,
 ):
     """Function executed by each process to manage a single trading pair."""
-    worker_log = setup_logger(f"{symbol}_worker")
+    # Pass config to setup_logger
+    worker_log = setup_logger(config, f"{symbol}_worker")
     log.info(f"[{symbol}] Worker process started (PID: {os.getpid()}).")
 
     operation_mode = config.get("operation_mode", "Shadow").lower()
@@ -183,27 +184,76 @@ def trading_pair_worker(
 
     try:
         api_client = APIClient(config, operation_mode=operation_mode)
-        alerter = Alerter(api_client)
+        alerter = Alerter(config)
         
         # Initialize capital manager and validate symbol before grid initialization
         capital_manager = CapitalManager(api_client, config)
         
-        # Check if we have sufficient capital for this symbol
+        # Check if we have sufficient capital for this symbol, but allow recovery of existing positions
         min_capital = capital_manager.min_capital_per_pair_usd
-        if not capital_manager.can_trade_symbol(symbol, min_capital):
+        has_existing_position = False
+        
+        # Quick check for existing positions/orders before capital validation
+        try:
+            # Check for existing grid state file
+            import os
+            state_file = f"data/grid_states/{symbol}_state.json"
+            if os.path.exists(state_file):
+                has_existing_position = True
+                log.info(f"[{symbol}] Found existing grid state - allowing recovery despite low capital")
+            
+            # Also check for existing positions in the exchange
+            if not has_existing_position:
+                positions = api_client.get_futures_positions()
+                if positions:
+                    for pos in positions:
+                        if pos.get('symbol') == symbol and float(pos.get('positionAmt', 0)) != 0:
+                            has_existing_position = True
+                            log.info(f"[{symbol}] Found existing position in exchange - allowing recovery")
+                            break
+        except Exception as e:
+            log.warning(f"[{symbol}] Error checking for existing positions: {e}")
+        
+        # Only enforce capital requirements for new positions
+        if not has_existing_position and not capital_manager.can_trade_symbol(symbol, min_capital):
             log.error(f"[{symbol}] Insufficient capital to trade. Minimum required: ${min_capital:.2f}")
             capital_manager.log_capital_status()
             return
+        elif has_existing_position:
+            log.info(f"[{symbol}] Existing position detected - proceeding with recovery mode")
         
         # Get capital allocation for this symbol
         allocation = capital_manager.get_allocation_for_symbol(symbol)
         if not allocation:
-            # Calculate allocation for single symbol
-            allocations = capital_manager.calculate_optimal_allocations([symbol])
-            if not allocations:
-                log.error(f"[{symbol}] No capital can be allocated for trading")
-                return
-            allocation = allocations[0]
+            if has_existing_position:
+                # For existing positions, create minimal allocation for recovery
+                class SimpleAllocation:
+                    def __init__(self, symbol, allocated_amount, grid_levels, spacing_percentage, max_position_size, market_type, leverage=10):
+                        self.symbol = symbol
+                        self.allocated_amount = allocated_amount
+                        self.grid_levels = grid_levels
+                        self.spacing_percentage = spacing_percentage
+                        self.max_position_size = max_position_size
+                        self.market_type = market_type
+                        self.leverage = leverage
+                
+                allocation = SimpleAllocation(
+                    symbol=symbol,
+                    allocated_amount=1.0,  # Minimal amount for recovery
+                    grid_levels=5,
+                    spacing_percentage=0.005,
+                    max_position_size=0.5,
+                    market_type="futures",
+                    leverage=10
+                )
+                log.info(f"[{symbol}] Created minimal allocation for position recovery")
+            else:
+                # Calculate allocation for single symbol
+                allocations = capital_manager.calculate_optimal_allocations([symbol])
+                if not allocations:
+                    log.error(f"[{symbol}] No capital can be allocated for trading")
+                    return
+                allocation = allocations[0]
         
         log.info(f"[{symbol}] Capital allocated: ${allocation.allocated_amount:.2f} ({allocation.market_type}, {allocation.grid_levels} levels)")
         

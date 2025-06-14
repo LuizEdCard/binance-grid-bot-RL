@@ -1,9 +1,25 @@
 #!/bin/bash
 
-# Script para instalar dependências pesadas gradualmente
-# Executa em etapas para evitar problemas de espaço/timeout
+# DEPRECATED: Este script instalava dependências pesadas que foram removidas
+# O sistema agora opera sem TensorFlow, PyTorch, ONNX, Stable Baselines3
 
-echo "🚀 Instalando dependências pesadas do sistema multi-agente..."
+echo "⚠️  SCRIPT DESCONTINUADO - DEPENDÊNCIAS PESADAS REMOVIDAS"
+echo "========================================================"
+echo ""
+echo "Este script foi descontinuado. As dependências pesadas foram removidas para otimização:"
+echo "❌ TensorFlow (RL desabilitado)"
+echo "❌ PyTorch (não usado)"
+echo "❌ ONNX Runtime (sentiment via Ollama)"
+echo "❌ Stable Baselines3 (RL desabilitado)"
+echo ""
+echo "🎯 SISTEMA OTIMIZADO:"
+echo "✅ 74% menos dependências"
+echo "✅ Sistema mais leve e rápido"
+echo "✅ Foco em trading tradicional + AI local"
+echo ""
+echo "💡 Use: ./start_multi_agent_bot.sh (usa requirements_multi_agent.txt limpo)"
+echo ""
+exit 1
 
 # Ativar ambiente virtual
 source venv/bin/activate

@@ -653,3 +653,62 @@ class CoordinatorAgent:
         except Exception as e:
             log.error(f"Error initializing SmartTradingDecisionEngine: {e}")
             self._smart_engine = None
+    
+    def get_coordination_history(self, limit: int = 20) -> List[Dict]:
+        """Get recent coordination events and decisions."""
+        coordination_events = []
+        
+        try:
+            current_time = time.time()
+            
+            # Recent agent health events
+            for agent_name in self.agents.keys():
+                health = self.health_monitor.check_agent_health(agent_name)
+                coordination_events.append({
+                    "timestamp": current_time,
+                    "event_type": "health_check",
+                    "agent": agent_name,
+                    "health_status": "healthy" if health["is_healthy"] else "unhealthy",
+                    "performance_score": health["performance_score"],
+                    "issues": health["issues"]
+                })
+            
+            # Recent load balancing events
+            load_stats = self.load_balancer.get_load_stats()
+            coordination_events.append({
+                "timestamp": current_time,
+                "event_type": "load_balancing",
+                "utilization_percentage": load_stats.get("utilization_percentage", 0),
+                "active_tasks": load_stats.get("active_tasks", 0),
+                "queue_size": load_stats.get("queue_size", 0)
+            })
+            
+            # Recent market overview analysis
+            if hasattr(self, '_smart_engine') and self._smart_engine:
+                coordination_events.append({
+                    "timestamp": current_time,
+                    "event_type": "market_analysis", 
+                    "analysis_status": "active",
+                    "ai_available": self.agents.get('ai', {}).is_available if 'ai' in self.agents else False
+                })
+            
+            # Performance metrics as coordination events
+            coordination_events.append({
+                "timestamp": current_time,
+                "event_type": "performance_metrics",
+                "coordination_cycles": self.performance_metrics["coordination_cycles"],
+                "agent_restarts": self.performance_metrics["agent_restarts"],
+                "load_balancing_events": self.performance_metrics["load_balancing_events"]
+            })
+            
+            # Sort by timestamp and return latest entries
+            coordination_events.sort(key=lambda x: x["timestamp"], reverse=True)
+            return coordination_events[:limit]
+            
+        except Exception as e:
+            log.error(f"Error getting coordination history: {e}")
+            return [{
+                "timestamp": time.time(),
+                "event_type": "error",
+                "error": str(e)
+            }]

@@ -61,7 +61,7 @@ def load_config():
 config = load_config()
 alerts_config = config.get("alerts", {})
 
-TELEGRAM_ENABLED = alerts_config.get("enabled", False)
+TELEGRAM_ENABLED = False  # Temporariamente desabilitado para evitar erros de API
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 

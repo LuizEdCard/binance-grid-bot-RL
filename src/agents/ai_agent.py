@@ -42,7 +42,7 @@ class QueuedRequest:
 class RequestQueue:
     """Thread-safe request queue with priority handling."""
     
-    def __init__(self, max_concurrent: int = 1):
+    def __init__(self, max_concurrent: int = 3):
         self.queue = Queue()
         self.priority_queue = []  # For priority-based sorting
         self.semaphore = Semaphore(max_concurrent)
@@ -116,15 +116,15 @@ class RequestQueue:
 class CPUResourceManager:
     """Manages CPU resources for AI requests to prevent overload."""
     
-    def __init__(self, max_concurrent: int = 1, max_queue_size: int = 10):
+    def __init__(self, max_concurrent: int = 3, max_queue_size: int = 15):
         self.max_concurrent = max_concurrent
         self.max_queue_size = max_queue_size
         self.request_queue = RequestQueue(max_concurrent)
         self.rate_limiter = asyncio.Semaphore(max_concurrent)
         
-        # Rate limiting (requests per time window)
+        # Rate limiting (requests per time window) - Optimized settings
         self.rate_limit_window = 60  # seconds
-        self.max_requests_per_window = 20  # Conservative for CPU-only
+        self.max_requests_per_window = 50  # Increased for better throughput
         self.request_timestamps = deque()
         
         # Background processor
@@ -312,8 +312,8 @@ class LocalAIClient:
         self.resource_manager = None
         if enable_cpu_management:
             # Conservative settings for CPU-only systems
-            max_concurrent = 1  # Only 1 request at a time
-            max_queue_size = 5  # Small queue to prevent backlog
+            max_concurrent = 3  # Allow 3 concurrent requests for better performance
+            max_queue_size = 15  # Larger queue for better throughput
             self.resource_manager = CPUResourceManager(max_concurrent, max_queue_size)
             # Set reference to this client for actual request execution
             self.resource_manager._ai_client_ref = self
@@ -383,6 +383,68 @@ class LocalAIClient:
                 return response.status == 200
         except Exception as e:
             log.debug(f"AI health check failed: {e}")
+            # Try to auto-start Ollama if connection failed
+            if await self._try_start_ollama():
+                # Wait a moment for service to start
+                import asyncio
+                await asyncio.sleep(3)
+                return await self._health_check_simple()
+            return False
+    
+    async def _health_check_simple(self) -> bool:
+        """Simple health check without auto-start to avoid recursion."""
+        try:
+            if not self.session:
+                await self.start_session()
+            async with self.session.get(f"{self.base_url}/api/tags") as response:
+                return response.status == 200
+        except:
+            return False
+    
+    async def _try_start_ollama(self) -> bool:
+        """Attempt to start Ollama service automatically."""
+        try:
+            import subprocess
+            import shutil
+            import asyncio
+            
+            # Check if systemctl is available (most Linux distributions)
+            if shutil.which("systemctl"):
+                log.info("Attempting to start Ollama via systemctl...")
+                process = await asyncio.create_subprocess_exec(
+                    "systemctl", "start", "ollama",
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=10)
+                
+                if process.returncode == 0:
+                    log.info("Successfully started Ollama service via systemctl")
+                    return True
+                else:
+                    log.warning(f"Failed to start Ollama via systemctl: {stderr.decode()}")
+            
+            # Fallback: try to start ollama directly
+            if shutil.which("ollama"):
+                log.info("Attempting to start Ollama directly...")
+                # Start ollama serve in background
+                await asyncio.create_subprocess_exec(
+                    "ollama", "serve",
+                    stdout=asyncio.subprocess.DEVNULL,
+                    stderr=asyncio.subprocess.DEVNULL,
+                    start_new_session=True
+                )
+                log.info("Started Ollama serve in background")
+                return True
+            
+            log.error("Could not find method to start Ollama")
+            return False
+            
+        except asyncio.TimeoutError:
+            log.warning("Timeout while trying to start Ollama")
+            return False
+        except Exception as e:
+            log.error(f"Error trying to start Ollama: {e}")
             return False
 
     async def get_running_model(self) -> str | None:
@@ -1610,8 +1672,8 @@ class AIAgent:
         
         try:
             async with self.ai_client:
-                # Use the market analysis component with a text prompt
-                response = await self.market_analysis.analyze_market_text(prompt)
+                # Use direct AI client for text analysis since MarketAnalysisAI doesn't have analyze_market_text
+                response = await self.ai_client.analyze(prompt)
                 
                 if response:
                     self.stats["analyses_performed"] += 1

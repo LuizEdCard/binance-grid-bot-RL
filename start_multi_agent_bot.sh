@@ -78,11 +78,16 @@ check_venv() {
 install_dependencies() {
     print_status "Installing/updating dependencies..."
     
-    if [ -f "requirements.txt" ]; then
+    # Prioritize the cleaned multi-agent requirements
+    if [ -f "requirements_multi_agent.txt" ]; then
+        pip install -r requirements_multi_agent.txt
+        print_status "Dependencies installed from requirements_multi_agent.txt (optimized)"
+    elif [ -f "requirements.txt" ]; then
+        print_warning "Using fallback requirements.txt (may include unnecessary dependencies)"
         pip install -r requirements.txt
         print_status "Dependencies installed from requirements.txt"
     else
-        print_warning "requirements.txt not found. Installing basic dependencies..."
+        print_warning "No requirements file found. Installing basic dependencies..."
         pip install numpy pandas pyyaml python-dotenv aiohttp
     fi
 }
