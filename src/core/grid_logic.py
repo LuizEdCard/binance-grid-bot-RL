@@ -2,7 +2,7 @@
 # Suporta mercado Spot e Futuros, com RL decidindo entre os mercados
 
 import time
-from decimal import ROUND_DOWN, Decimal
+from decimal import ROUND_DOWN, ROUND_UP, Decimal
 
 import numpy as np  # Importa numpy para TA-Lib
 import pandas as pd  # Importa pandas para manipulação de dados
@@ -53,10 +53,12 @@ class GridLogic:
         api_client: APIClient,
         operation_mode: str = "production",
         market_type: str = "futures",  # "futures" ou "spot"
+        ws_client=None,  # WebSocket client for real-time data
     ):
         self.symbol = symbol
         self.config = config
         self.api_client = api_client
+        self.ws_client = ws_client  # WebSocket for real-time price updates
         self.operation_mode = operation_mode.lower()
         self.market_type = market_type.lower()  # "futures" ou "spot"
         self.grid_config = config.get("grid", {})
@@ -109,6 +111,17 @@ class GridLogic:
         self.use_dynamic_spacing = self.grid_config.get("use_dynamic_spacing", False)
         self.dynamic_spacing_atr_period = self.grid_config.get("dynamic_spacing_atr_period", 14)
         self.dynamic_spacing_multiplier = Decimal(str(self.grid_config.get("dynamic_spacing_multiplier", "0.5")))
+        
+        # Extrair base e quote assets do símbolo
+        self.base_asset = symbol.replace('USDT', '').replace('BUSD', '').replace('BTC', '').replace('ETH', '')
+        if symbol.endswith('BTC'):
+            self.quote_asset = 'BTC'
+        elif symbol.endswith('ETH'):
+            self.quote_asset = 'ETH'
+        elif symbol.endswith('BUSD'):
+            self.quote_asset = 'BUSD'
+        else:
+            self.quote_asset = 'USDT'
 
         log.info(
             f"[{self.symbol}] GridLogic inicializado no modo {self.operation_mode.upper()} para mercado {self.market_type.upper()}. Espaçamento Dinâmico (ATR): {self.use_dynamic_spacing}"
@@ -252,8 +265,9 @@ class GridLogic:
         if self.step_size is None or self.quantity_precision is None:
             return None
         try:
+            # Use ROUND_UP for quantities to ensure minimum notional is always met
             adjusted_quantity = (Decimal(str(quantity)) / self.step_size).quantize(
-                Decimal("1"), rounding=ROUND_DOWN
+                Decimal("1"), rounding=ROUND_UP
             ) * self.step_size
             if adjusted_quantity == Decimal("0") and Decimal(str(quantity)) > Decimal(
                 "0"
@@ -304,6 +318,22 @@ class GridLogic:
             return float(ticker["lastPrice"])
         elif "price" in ticker:
             return float(ticker["price"])
+        
+        return None
+
+    def _get_real_time_price(self):
+        """Get real-time price from WebSocket if available, otherwise fallback to API."""
+        if self.ws_client:
+            # Try to get real-time price from simple WebSocket
+            price = self.ws_client.get_price(self.symbol)
+            if price is not None:
+                log.debug(f"[{self.symbol}] Using WebSocket real-time price: ${price}")
+                return price
+        
+        # Fallback to API ticker
+        ticker = self._get_ticker()
+        if ticker:
+            return self._get_current_price_from_ticker(ticker)
         
         return None
 
@@ -599,6 +629,13 @@ class GridLogic:
         capital_per_grid = total_capital_usd / Decimal(str(num_grids))
         exposure_per_grid = capital_per_grid * leverage
         quantity = exposure_per_grid / current_price
+        
+        # Ensure minimum notional value is met (minimum $5 per order)
+        min_notional = self.min_notional if self.min_notional else Decimal("5")
+        min_quantity = min_notional / current_price
+        if quantity < min_quantity:
+            log.info(f"[{self.symbol}] Adjusting quantity from {quantity} to {min_quantity} to meet minimum notional ${min_notional}")
+            quantity = min_quantity
         formatted_qty_str = self._format_quantity(quantity)
         if not formatted_qty_str:
             log.error(f"[{self.symbol}] Failed to format quantity {quantity}.")
@@ -620,8 +657,11 @@ class GridLogic:
             log.warning(f"[{self.symbol}] Initial grid orders seem active. Skipping.")
             return
 
-        ticker = self._get_ticker()
-        current_price_float = self._get_current_price_from_ticker(ticker)
+        # Try real-time price first, fallback to API
+        current_price_float = self._get_real_time_price()
+        if current_price_float is None:
+            ticker = self._get_ticker()
+            current_price_float = self._get_current_price_from_ticker(ticker)
         if current_price_float is None:
             log.error(f"[{self.symbol}] Não foi possível obter preço atual.")
             return
@@ -736,14 +776,16 @@ class GridLogic:
                     log.warning(
                         f"[{self.symbol}] Could not get status for order {order_id}. Assuming still open."
                     )
-                    # Keep old data
-                    still_open_orders[order_id] = self.open_orders[order_id]
+                    # Keep old data se existir
+                    if order_id in self.open_orders:
+                        still_open_orders[order_id] = self.open_orders[order_id]
             except Exception as e:
                 log.error(
                     f"[{self.symbol}] Error checking status for order {order_id}: {e}"
                 )
-                # Keep old data on error
-                still_open_orders[order_id] = self.open_orders[order_id]
+                # Keep old data on error se existir
+                if order_id in self.open_orders:
+                    still_open_orders[order_id] = self.open_orders[order_id]
 
         self.open_orders = still_open_orders  # Update open orders list
         log.info(
@@ -1524,10 +1566,107 @@ class GridLogic:
         # 2. Check for filled orders
         self.check_and_handle_fills()
 
-        # 3. (Optional) Add other checks like risk management triggers (handled
+        # 3. Check for automatic take profit opportunities
+        self._check_automatic_take_profit()
+
+        # 4. (Optional) Add other checks like risk management triggers (handled
         # externally for now)
 
         log.info(f"[{self.symbol}] Grid cycle finished.")
+
+    def _check_automatic_take_profit(self):
+        """Verifica e cria take profit automático para posições lucrativas sem ordens."""
+        try:
+            # Só para mercado futures
+            if self.market_type != "futures":
+                return
+            
+            # Atualizar informações da posição
+            self._update_position_info()
+            
+            # Verificar se há posição ativa
+            position_amt = float(self.position.get("positionAmt", 0))
+            if position_amt == 0:
+                return
+            
+            unrealized_pnl = float(self.position.get("unRealizedProfit", 0))
+            profit_threshold = 0.01  # $0.01 mínimo
+            
+            # Verificar se há lucro suficiente
+            if unrealized_pnl <= profit_threshold:
+                return
+            
+            # Verificar se já tem ordens ativas (take profit)
+            open_orders = self.api_client.get_open_futures_orders(self.symbol)
+            if open_orders:
+                # Verificar se já tem take profit
+                has_take_profit = False
+                for order in open_orders:
+                    order_side = order.get('side')
+                    if (position_amt > 0 and order_side == 'SELL') or (position_amt < 0 and order_side == 'BUY'):
+                        has_take_profit = True
+                        break
+                
+                if has_take_profit:
+                    return  # Já tem take profit
+            
+            # Criar take profit automático
+            log.info(f"[{self.symbol}] 💰 Auto take profit - PnL: ${unrealized_pnl:.4f}")
+            
+            entry_price = float(self.position.get("entryPrice", 0))
+            mark_price = float(self.position.get("markPrice", 0))
+            
+            if position_amt > 0:  # Long position
+                side = SIDE_SELL
+                # Take profit com 80% do lucro atual para garantir execução
+                profit_margin = (mark_price - entry_price) * 0.8
+                take_profit_price = entry_price + profit_margin
+            else:  # Short position
+                side = SIDE_BUY
+                profit_margin = (entry_price - mark_price) * 0.8
+                take_profit_price = entry_price - profit_margin
+            
+            # Ajustar precisão
+            take_profit_price = self._round_price(take_profit_price)
+            quantity = self._round_quantity(abs(position_amt))
+            
+            log.info(f"[{self.symbol}] Creating auto take profit: {side} {quantity} @ {take_profit_price}")
+            
+            # Criar ordem de take profit
+            if self.operation_mode == "shadow":
+                log.info(f"[{self.symbol}] [SHADOW] Auto take profit simulated")
+                return
+            
+            order_result = self.api_client.place_futures_order(
+                symbol=self.symbol,
+                side=side,
+                order_type=ORDER_TYPE_LIMIT,
+                quantity=quantity,
+                price=take_profit_price,
+                time_in_force=TIME_IN_FORCE_GTC
+            )
+            
+            if order_result:
+                order_id = order_result.get('orderId')
+                log.info(f"[{self.symbol}] ✅ Auto take profit created: ID {order_id}")
+                
+                # Adicionar às ordens abertas
+                self.open_orders[order_id] = {
+                    'orderId': order_id,
+                    'symbol': self.symbol,
+                    'side': side,
+                    'type': 'LIMIT',
+                    'origQty': str(quantity),
+                    'price': str(take_profit_price),
+                    'status': 'NEW',
+                    'timeInForce': 'GTC',
+                    'auto_take_profit': True
+                }
+            else:
+                log.warning(f"[{self.symbol}] Failed to create auto take profit")
+                
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error in auto take profit: {e}")
 
     def get_status(self) -> dict:
         """Retorna status atual do bot de grid trading."""
@@ -1678,6 +1817,14 @@ class GridLogic:
 
             if not active_orders:
                 log.info(f"[{self.symbol}] Nenhuma ordem ativa encontrada em nenhum mercado")
+                
+                # Check for existing positions (filled orders)
+                existing_position = self._check_existing_position()
+                if existing_position:
+                    log.info(f"[{self.symbol}] ✅ Posição existente detectada - iniciando grid complementar")
+                    self._grid_recovered = True
+                    return True
+                
                 self._grid_recovered = False
                 return False
             
@@ -2428,6 +2575,102 @@ class GridLogic:
         except Exception as e:
             log.error(f"[{self.symbol}] ❌ Erro durante diagnóstico: {e}")
 
+    def _check_existing_position(self):
+        """
+        Verifica se há posições existentes que indicam um grid ativo.
+        Retorna informações da posição encontrada ou None.
+        """
+        try:
+            log.info(f"[{self.symbol}] 🔍 Verificando posições existentes...")
+            
+            # Verificar posições futures primeiro
+            if self.market_type == "futures":
+                try:
+                    positions = self.api_client.get_futures_positions()
+                    for position in positions:
+                        if position.get('symbol') == self.symbol:
+                            position_amt = float(position.get('positionAmt', 0))
+                            if position_amt != 0:
+                                entry_price = float(position.get('entryPrice', 0))
+                                mark_price = float(position.get('markPrice', 0))
+                                unrealized_pnl = float(position.get('unRealizedProfit', 0))
+                                
+                                log.info(f"[{self.symbol}] ✅ Posição FUTURES encontrada:")
+                                log.info(f"  - Quantidade: {position_amt}")
+                                log.info(f"  - Preço de entrada: ${entry_price}")
+                                log.info(f"  - Preço atual: ${mark_price}")
+                                log.info(f"  - PnL não realizado: ${unrealized_pnl}")
+                                
+                                # Atualizar estado interno da posição
+                                self.position = {
+                                    'positionAmt': str(position_amt),
+                                    'entryPrice': str(entry_price),
+                                    'markPrice': str(mark_price),
+                                    'unRealizedProfit': str(unrealized_pnl)
+                                }
+                                
+                                # Se há posição, significa que o grid estava ativo
+                                # Inicializar espaçamento básico para retomar o grid
+                                self.current_spacing_percentage = self.base_spacing_percentage
+                                
+                                return {
+                                    'symbol': self.symbol,
+                                    'position_amt': position_amt,
+                                    'entry_price': entry_price,
+                                    'mark_price': mark_price,
+                                    'unrealized_pnl': unrealized_pnl,
+                                    'market_type': 'futures'
+                                }
+                except Exception as e:
+                    log.warning(f"[{self.symbol}] Erro ao verificar posições FUTURES: {e}")
+            
+            # Verificar saldo spot se não encontrou posição futures
+            if self.market_type == "spot":
+                try:
+                    # Extrair base asset do símbolo (ex: ADAUSDT -> ADA)
+                    base_asset = self.symbol.replace('USDT', '').replace('BUSD', '').replace('BTC', '').replace('ETH', '')
+                    if self.symbol.endswith('BTC'):
+                        base_asset = self.symbol.replace('BTC', '')
+                    elif self.symbol.endswith('ETH'):
+                        base_asset = self.symbol.replace('ETH', '')
+                    else:
+                        base_asset = self.symbol.replace('USDT', '').replace('BUSD', '')
+                    
+                    account_info = self.api_client.get_spot_account()
+                    if account_info and 'balances' in account_info:
+                        for balance in account_info['balances']:
+                            if balance['asset'] == base_asset:
+                                free_balance = float(balance['free'])
+                                locked_balance = float(balance['locked'])
+                                total_balance = free_balance + locked_balance
+                                
+                                if total_balance > 0:
+                                    log.info(f"[{self.symbol}] ✅ Saldo SPOT encontrado para {base_asset}:")
+                                    log.info(f"  - Saldo livre: {free_balance}")
+                                    log.info(f"  - Saldo bloqueado: {locked_balance}")
+                                    log.info(f"  - Total: {total_balance}")
+                                    
+                                    # Se há saldo do ativo, pode indicar grid anterior
+                                    self.current_spacing_percentage = self.base_spacing_percentage
+                                    
+                                    return {
+                                        'symbol': self.symbol,
+                                        'base_asset': base_asset,
+                                        'free_balance': free_balance,
+                                        'locked_balance': locked_balance,
+                                        'total_balance': total_balance,
+                                        'market_type': 'spot'
+                                    }
+                except Exception as e:
+                    log.warning(f"[{self.symbol}] Erro ao verificar saldos SPOT: {e}")
+            
+            log.info(f"[{self.symbol}] ❌ Nenhuma posição existente encontrada")
+            return None
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao verificar posições existentes: {e}")
+            return None
+
     def cancel_all_orders(self):
         """Cancel all active orders for the current symbol in both markets."""
         try:
@@ -2463,3 +2706,29 @@ class GridLogic:
             
         except Exception as e:
             log.error(f"[{self.symbol}] Error during cancel_all_orders: {e}")
+    
+    def _round_price(self, price: float) -> float:
+        """Round price to appropriate precision for the symbol."""
+        try:
+            if self.market_type == "futures":
+                # For futures, round to reasonable decimal places
+                return round(price, 8)
+            else:
+                # For spot, round to reasonable decimal places  
+                return round(price, 8)
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error rounding price {price}: {e}")
+            return float(price)
+    
+    def _round_quantity(self, quantity: float) -> float:
+        """Round quantity to appropriate precision for the symbol."""
+        try:
+            if self.market_type == "futures":
+                # For futures, round to reasonable decimal places
+                return round(quantity, 6)
+            else:
+                # For spot, round to reasonable decimal places
+                return round(quantity, 6)
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error rounding quantity {quantity}: {e}")
+            return float(quantity)

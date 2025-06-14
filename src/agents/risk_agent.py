@@ -457,6 +457,10 @@ class RiskAgent:
             try:
                 # Get position data
                 position = self.api_client.get_futures_position(symbol)
+                # Check if position is a list (multiple positions) and get the first one
+                if isinstance(position, list):
+                    position = position[0] if position else None
+                
                 if not position or Decimal(position.get("positionAmt", "0")) == 0:
                     continue
                 
@@ -515,7 +519,19 @@ class RiskAgent:
             position_value = abs(Decimal(position.get("notional", "0")))
             account_balance = self.api_client.get_futures_balance()
             if account_balance:
-                total_balance = Decimal(account_balance.get("totalWalletBalance", "0"))
+                # Handle both list and dict response formats for account balance
+                if isinstance(account_balance, list):
+                    # Find USDT balance in list format
+                    usdt_balance = None
+                    for asset in account_balance:
+                        if asset.get("asset") == "USDT":
+                            usdt_balance = asset
+                            break
+                    total_balance = Decimal(usdt_balance.get("totalWalletBalance", "0")) if usdt_balance else Decimal("0")
+                else:
+                    # Handle dict format
+                    total_balance = Decimal(account_balance.get("totalWalletBalance", "0"))
+                
                 if total_balance > 0:
                     position_ratio = position_value / total_balance
                     if position_ratio > Decimal("0.5"):  # 50% of account in single position
@@ -535,6 +551,10 @@ class RiskAgent:
             positions = {}
             for symbol in self.monitored_symbols:
                 position = self.api_client.get_futures_position(symbol)
+                # Check if position is a list and get the first one
+                if isinstance(position, list):
+                    position = position[0] if position else None
+                
                 if position and Decimal(position.get("positionAmt", "0")) != 0:
                     positions[symbol] = position
             
@@ -646,7 +666,7 @@ class RiskAgent:
             if level == "CRITICAL":
                 self.alerter.send_critical_alert(f"[{context}] {message}")
             else:
-                self.alerter.send_message(f"⚠️ [{context}] {message}", level=level)
+                self.alerter.send_message(f"⚠️ [{context}] {message}")
             
             self.alert_cooldown[alert_key] = current_time
             self.stats["alerts_sent"] += 1
@@ -686,6 +706,10 @@ class RiskAgent:
             positions = {}
             for symbol in self.monitored_symbols:
                 position = self.api_client.get_futures_position(symbol)
+                # Check if position is a list and get the first one
+                if isinstance(position, list):
+                    position = position[0] if position else None
+                
                 if position and Decimal(position.get("positionAmt", "0")) != 0:
                     positions[symbol] = position
             
@@ -713,3 +737,19 @@ class RiskAgent:
         except Exception as e:
             log.error(f"Error getting risk summary: {e}")
             return {}
+    
+    def get_risk_history(self, limit: int = 20) -> Dict:
+        """Get recent risk alert history."""
+        history = {}
+        for alert_key, timestamp in self.alert_cooldown.items():
+            context, message = alert_key.split("_", 1)
+            if context not in history:
+                history[context] = []
+            history[context].append({"message": message, "timestamp": timestamp})
+        
+        # Sort by timestamp and limit
+        for context in history:
+            history[context].sort(key=lambda x: x['timestamp'], reverse=True)
+            history[context] = history[context][:limit]
+            
+        return history

@@ -22,6 +22,7 @@ class CapitalAllocation:
     grid_levels: int
     spacing_percentage: float
     market_type: str  # 'spot' ou 'futures'
+    leverage: int = 1  # Alavancagem padrão
     
     def to_dict(self) -> dict:
         return {
@@ -30,7 +31,8 @@ class CapitalAllocation:
             "max_position_size": self.max_position_size,
             "grid_levels": self.grid_levels,
             "spacing_percentage": self.spacing_percentage,
-            "market_type": self.market_type
+            "market_type": self.market_type,
+            "leverage": self.leverage
         }
 
 
@@ -55,7 +57,7 @@ class CapitalManager:
         # Configurações de risco
         self.risk_config = config.get("risk_management", {})
         self.max_capital_per_pair_percentage = 30.0  # Máximo 30% do capital por par
-        self.min_capital_per_pair_usd = 5.0  # Mínimo $5 por par
+        self.min_capital_per_pair_usd = 5.0  # Mínimo $5 por par conforme requisito da Binance
         self.safety_buffer_percentage = 10.0  # 10% de buffer de segurança
         
         # Cache
@@ -82,9 +84,9 @@ class CapitalManager:
             
             # Saldo Spot
             try:
-                spot_balance = self.api_client.get_account_balance()
-                if isinstance(spot_balance, list):
-                    for asset in spot_balance:
+                spot_balance = self.api_client.get_spot_account_balance()
+                if spot_balance and 'balances' in spot_balance:
+                    for asset in spot_balance['balances']:
                         if asset.get("asset") == "USDT":
                             balances["spot_usdt"] = float(asset.get("free", "0"))
                             break
@@ -236,7 +238,8 @@ class CapitalManager:
     def calculate_optimal_allocations(self, 
                                     symbols: List[str], 
                                     market_types: Dict[str, str] = None,
-                                    use_proportional_allocation: bool = True) -> List[CapitalAllocation]:
+                                    use_proportional_allocation: bool = True,
+                                    include_existing_positions: bool = True) -> List[CapitalAllocation]:
         """
         Calcula alocações ótimas de capital baseadas no saldo disponível.
         
@@ -253,8 +256,16 @@ class CapitalManager:
         balances = self.get_available_balances()
         total_capital = balances["total_usdt"]
         
+        # Verificar se há posições existentes que devem ser consideradas
+        existing_positions = self._get_existing_positions_value()
+        if existing_positions > 0:
+            log.info(f"📊 POSIÇÕES EXISTENTES: ${existing_positions:.2f} em capital já alocado")
+            log.info(f"💡 CAPITAL DISPONÍVEL REAL: ${total_capital:.2f} (saldo livre) + ${existing_positions:.2f} (posições) = ${total_capital + existing_positions:.2f} total")
+        
         if total_capital < self.min_capital_per_pair_usd:
-            log.warning(f"Insufficient capital: ${total_capital:.2f} < ${self.min_capital_per_pair_usd:.2f} minimum")
+            log.warning(f"❌ CAPITAL INSUFICIENTE: ${total_capital:.2f} < ${self.min_capital_per_pair_usd:.2f} mínimo da Binance")
+            log.warning(f"🛑 SISTEMA PAUSADO: Não é possível operar novos pares sem risco de erro 'notional'")
+            log.info(f"💡 SOLUÇÃO: Deposite mais fundos ou aguarde lucros de posições existentes")
             self.stats["insufficient_capital_events"] += 1
             return []
         
@@ -266,7 +277,9 @@ class CapitalManager:
         effective_max_pairs = min(self.max_concurrent_pairs, max_pairs_by_capital, len(symbols))
         
         if effective_max_pairs == 0:
-            log.warning(f"Cannot trade any pairs with available capital: ${available_capital:.2f}")
+            log.warning(f"❌ NENHUM PAR PODE SER OPERADO: Capital disponível ${available_capital:.2f} insuficiente")
+            log.info(f"📊 STATUS: Capital total: ${total_capital:.2f} | Buffer segurança: {self.safety_buffer_percentage}% | Mínimo por par: ${self.min_capital_per_pair_usd}")
+            log.info(f"🎯 NECESSÁRIO: Mínimo ${self.min_capital_per_pair_usd + (self.min_capital_per_pair_usd * self.safety_buffer_percentage / 100):.2f} para operar 1 par com segurança")
             return []
         
         # Selecionar símbolos prioritários (primeiros da lista)
@@ -362,8 +375,8 @@ class CapitalManager:
             if transfer_attempted:
                 log.info(f"[{symbol}] Successfully allocated to {market_type} after transfer")
             
-            # Adaptar parâmetros do grid baseado no capital
-            grid_params = self._calculate_grid_parameters(capital_per_pair)
+            # Adaptar parâmetros do grid baseado no capital e tipo de mercado
+            grid_params = self._calculate_grid_parameters(capital_per_pair, market_type)
             
             allocation = CapitalAllocation(
                 symbol=symbol,
@@ -371,7 +384,8 @@ class CapitalManager:
                 max_position_size=grid_params["max_position_size"],
                 grid_levels=grid_params["grid_levels"],
                 spacing_percentage=grid_params["spacing_percentage"],
-                market_type=market_type
+                market_type=market_type,
+                leverage=grid_params.get("leverage", 1)
             )
             
             allocations.append(allocation)
@@ -388,8 +402,14 @@ class CapitalManager:
         self.current_allocations = {alloc.symbol: alloc for alloc in allocations}
         self.stats["allocation_updates"] += 1
         
-        log.info(f"Calculated {len(allocations)} capital allocations from {len(symbols)} requested symbols")
-        log.info(f"Capital per pair: ${capital_per_pair:.2f}, Total allocated: ${sum(a.allocated_amount for a in allocations):.2f}")
+        log.info(f"✅ ALOCAÇÃO CALCULADA: {len(allocations)} pares de {len(symbols)} solicitados")
+        log.info(f"💰 CAPITAL: ${capital_per_pair:.2f} por par | Total alocado: ${sum(a.allocated_amount for a in allocations):.2f} | Disponível: ${total_capital:.2f}")
+        
+        if len(allocations) < len(symbols):
+            missing_pairs = len(symbols) - len(allocations)
+            additional_capital_needed = missing_pairs * self.min_capital_per_pair_usd
+            log.warning(f"⚠️  {missing_pairs} pares NÃO INCLUÍDOS por falta de capital")
+            log.info(f"💡 Para operar TODOS os pares, seriam necessários +${additional_capital_needed:.2f}")
         
         # Log distribuição entre mercados
         if allocations:
@@ -405,34 +425,55 @@ class CapitalManager:
         
         return allocations
     
-    def _calculate_grid_parameters(self, allocated_capital: float) -> Dict:
-        """Calcula parâmetros do grid baseados no capital alocado."""
+    def _calculate_grid_parameters(self, allocated_capital: float, market_type: str = "spot") -> Dict:
+        """Calcula parâmetros do grid baseados no capital alocado e tipo de mercado."""
         
         # Configurações base do grid
         base_grid_levels = self.config.get("grid", {}).get("initial_levels", 10)
         base_spacing = float(self.config.get("grid", {}).get("initial_spacing_perc", "0.005"))
         
-        # Adaptar número de níveis baseado no capital
-        if allocated_capital < 10:
-            # Capital baixo: grid mais simples
-            grid_levels = max(5, base_grid_levels // 2)
-            spacing_percentage = base_spacing * 1.5  # Spacing maior para menos níveis
-            max_position_size = allocated_capital * 0.8  # 80% do capital
-        elif allocated_capital < 50:
-            # Capital médio: grid padrão
-            grid_levels = base_grid_levels
-            spacing_percentage = base_spacing
-            max_position_size = allocated_capital * 0.7  # 70% do capital
-        else:
-            # Capital alto: grid mais denso
-            grid_levels = min(20, base_grid_levels + 5)
-            spacing_percentage = base_spacing * 0.8  # Spacing menor para mais níveis
-            max_position_size = allocated_capital * 0.6  # 60% do capital
+        # Para futures, considerar alavancagem
+        if market_type == "futures":
+            leverage = self.config.get("grid", {}).get("futures", {}).get("leverage", 10)
+            effective_capital = allocated_capital * leverage
+            
+            log.info(f"Futures market - Capital: ${allocated_capital:.2f}, Leverage: {leverage}x, Effective: ${effective_capital:.2f}")
+            
+            # Com alavancagem, podemos ter grids mais densos
+            if effective_capital < 50:
+                grid_levels = max(8, base_grid_levels)
+                spacing_percentage = base_spacing * 0.5  # Spacing menor com alavancagem
+                max_position_size = allocated_capital * 0.9  # 90% do capital real
+            elif effective_capital < 200:
+                grid_levels = base_grid_levels + 5
+                spacing_percentage = base_spacing * 0.3  # Spacing bem menor
+                max_position_size = allocated_capital * 0.8
+            else:
+                grid_levels = min(25, base_grid_levels + 10)
+                spacing_percentage = base_spacing * 0.2  # Spacing muito pequeno
+                max_position_size = allocated_capital * 0.7
+                
+        else:  # spot
+            # Para spot, usar lógica original
+            if allocated_capital < 10:
+                grid_levels = max(5, base_grid_levels // 2)
+                spacing_percentage = base_spacing * 1.5
+                max_position_size = allocated_capital * 0.8
+            elif allocated_capital < 50:
+                grid_levels = base_grid_levels
+                spacing_percentage = base_spacing
+                max_position_size = allocated_capital * 0.7
+            else:
+                grid_levels = min(20, base_grid_levels + 5)
+                spacing_percentage = base_spacing * 0.8
+                max_position_size = allocated_capital * 0.6
         
         return {
             "grid_levels": grid_levels,
             "spacing_percentage": spacing_percentage,
-            "max_position_size": max_position_size
+            "max_position_size": max_position_size,
+            "market_type": market_type,
+            "leverage": leverage if market_type == "futures" else 1
         }
     
     def get_allocation_for_symbol(self, symbol: str) -> Optional[CapitalAllocation]:
@@ -458,11 +499,22 @@ class CapitalManager:
             log.error(f"Erro ao checar existência do símbolo {symbol} no mercado {market_type}: {e}")
             return False
 
-    def can_trade_symbol(self, symbol: str, required_capital: float = None, market_type: str = "spot") -> bool:
+    def can_trade_symbol(self, symbol: str, required_capital: float = None, market_type: str = None) -> bool:
         """Verifica se há capital suficiente e se o símbolo existe para operar."""
+        # If market_type not specified, try to determine optimal market
+        if market_type is None:
+            market_type = self.decide_optimal_market_for_symbol(symbol)
+        
+        # Try the specified market first
         if not self.symbol_exists_on_market(symbol, market_type):
-            log.warning(f"Não é possível operar {symbol}: símbolo não existe no mercado {market_type}.")
-            return False
+            # If symbol doesn't exist in specified market, try the other market
+            alternative_market = "futures" if market_type == "spot" else "spot"
+            if self.symbol_exists_on_market(symbol, alternative_market):
+                log.info(f"Symbol {symbol} not found in {market_type}, but exists in {alternative_market}")
+                market_type = alternative_market
+            else:
+                log.warning(f"Não é possível operar {symbol}: símbolo não existe em nenhum mercado.")
+                return False
         if required_capital is None:
             required_capital = self.min_capital_per_pair_usd
             
@@ -483,6 +535,9 @@ class CapitalManager:
     
     def get_statistics(self) -> Dict:
         """Retorna estatísticas do gerenciador de capital."""
+        # Ensure we have fresh balance data
+        if not self.cached_balances or time.time() - self.last_balance_check > 60:
+            self.get_available_balances()
         balances = self.cached_balances
         total_allocated = sum(alloc.allocated_amount for alloc in self.current_allocations.values())
         
@@ -574,6 +629,57 @@ class CapitalManager:
             transfers_successful = True  # Não é um erro, apenas não necessário
         
         return transfers_successful
+    
+    def _get_existing_positions_value(self) -> float:
+        """Calcula o valor total das posições existentes."""
+        try:
+            total_position_value = 0.0
+            
+            # Verificar posições em Futures
+            try:
+                futures_positions = self.api_client.get_futures_account_balance()
+                if isinstance(futures_positions, list):
+                    for asset in futures_positions:
+                        if asset.get("asset") == "USDT":
+                            # Valor em posições = balance - availableBalance
+                            total_balance = float(asset.get("balance", "0"))
+                            available_balance = float(asset.get("availableBalance", "0"))
+                            position_value = total_balance - available_balance
+                            total_position_value += max(0, position_value)
+                            break
+                elif isinstance(futures_positions, dict):
+                    # Formato alternativo
+                    total_balance = float(futures_positions.get("totalWalletBalance", "0"))
+                    available_balance = float(futures_positions.get("availableBalance", "0"))
+                    position_value = total_balance - available_balance
+                    total_position_value += max(0, position_value)
+            except Exception as e:
+                log.warning(f"Error checking futures positions value: {e}")
+            
+            # Verificar posições em Spot (saldos não-USDT)
+            try:
+                spot_account = self.api_client.get_spot_account_balance()
+                if spot_account and 'balances' in spot_account:
+                    for asset in spot_account['balances']:
+                        if asset.get("asset") != "USDT":
+                            free_balance = float(asset.get("free", "0"))
+                            locked_balance = float(asset.get("locked", "0"))
+                            if free_balance > 0 or locked_balance > 0:
+                                # Estimar valor em USDT (simplificado)
+                                # Em um sistema real, buscaríamos o preço atual
+                                asset_total = free_balance + locked_balance
+                                if asset_total > 1:  # Ignorar quantidades muito pequenas
+                                    log.debug(f"Detected spot position: {asset_total} {asset.get('asset')}")
+                                    # Estimativa conservadora: assumir que vale pelo menos algum USDT
+                                    total_position_value += 1.0  # Placeholder
+            except Exception as e:
+                log.warning(f"Error checking spot positions value: {e}")
+            
+            return total_position_value
+            
+        except Exception as e:
+            log.error(f"Error calculating existing positions value: {e}")
+            return 0.0
     
     def decide_optimal_market_for_symbol(self, symbol: str, current_market_conditions: dict = None) -> str:
         """

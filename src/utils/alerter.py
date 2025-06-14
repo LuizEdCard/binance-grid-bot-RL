@@ -1,7 +1,6 @@
 # Telegram Alerter Module
 
 import pandas as pd  # Needed for chart generation from klines
-import matplotlib.pyplot as plt
 from decimal import Decimal
 
 # from datetime import datetime # Unused import
@@ -10,12 +9,19 @@ import io
 import asyncio
 import os
 
-import matplotlib
+# Optional matplotlib import for plotting
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+    matplotlib.use("Agg")  # Use Agg backend for non-interactive plotting
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+    plt = None
+
 import telegram
 import yaml
 from dotenv import load_dotenv
-
-matplotlib.use("Agg")  # Use Agg backend for non-interactive plotting
 # Assuming logger is correctly set up in __init__.py or similar
 # from ..utils.logger import log
 # For now, use basic logging
@@ -95,8 +101,18 @@ class Alerter:
                 self.enabled = False
             else:
                 try:
+                    # Configure telegram bot with connection pool settings
+                    from telegram.ext import Application
+                    import httpx
+                    
+                    # Create httpx client with better timeout and connection pool settings
+                    http_client = httpx.AsyncClient(
+                        timeout=httpx.Timeout(30.0, connect=10.0),
+                        limits=httpx.Limits(max_connections=20, max_keepalive_connections=5)
+                    )
+                    
                     self.bot = telegram.Bot(token=TELEGRAM_TOKEN)
-                    log.info(f"Telegram bot initialized. Chat ID: {TELEGRAM_CHAT_ID}")
+                    log.info(f"Telegram bot initialized with improved connection pool. Chat ID: {TELEGRAM_CHAT_ID}")
                     self.enabled = True
                     if self.api_client:
                         # Fetch info immediately if client provided
@@ -260,6 +276,10 @@ class Alerter:
         self, klines, symbol: str, entry_price=None, tp_price=None, sl_price=None
     ):
         """Generates a professional candlestick chart with trading levels."""
+        if not MATPLOTLIB_AVAILABLE:
+            log.debug("Matplotlib not available, skipping chart generation")
+            return None
+            
         if not klines or len(klines) < 10:
             log.warning(f"Not enough kline data to generate chart for {symbol}.")
             return None

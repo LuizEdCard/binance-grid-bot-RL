@@ -5,7 +5,7 @@ alerts:
 api:
   key: ${BINANCE_API_KEY}
   secret: ${BINANCE_API_SECRET}
-default_market_type: spot
+default_market_type: futures
 exchange:
   name: binance
   supported_markets:
@@ -13,15 +13,16 @@ exchange:
   - spot
 grid:
   futures:
-    leverage: 1
+    leverage: 10  # Alavancagem inicial 10x para maximizar capital
+    max_leverage: 15  # Máximo 15x permitido
     position_side: BOTH
     use_isolated_margin: false
-  initial_levels: 10
-  initial_spacing_perc: '0.005'
+  initial_levels: 5  # Reduzido para 5 níveis para maior capital por ordem
+  initial_spacing_perc: '0.002'  # 0.2% spacing para melhor spread
   leverage: 1
   spot:
     max_base_asset_allocation: 0.5
-    min_order_size_usd: 10
+    min_order_size_usd: 5  # Mínimo $5 conforme requisito da Binance
 logging:
   level: INFO
   log_file: logs/bot.log
@@ -32,16 +33,48 @@ operation_mode: Production
 pair_selection:
   blacklist:
   - EXAMPLE/USDT
+  - 1000000BOBUSDT
+  - HOMEUSDT
+  - SQDUSDT
+  - RVNUSDT
+  - BTCUSDT    # Removido por preço muito alto
+  - ETHUSDT    # Removido por preço muito alto
+  - BNBUSDT    # Removido por preço muito alto
+  - SOLUSDT    # Removido por preço muito alto
+  use_social_feed_analysis: false  # Temporariamente desabilitado para estabilidade
   futures_pairs:
-    min_open_interest_usd: 50000000
+    min_open_interest_usd: 20000000  # Reduzido para incluir mais pares
+    max_price_usdt: 1.0             # NOVO: Excluir pares com preço > 1 USDT
     preferred_symbols:
-    - BTCUSDT
-    - ETHUSDT
-    - ADAUSDT
-  max_adx: 25
-  max_spread_perc: 0.1
-  min_atr_perc_24h: 2.0
-  min_volume_usd_24h: 100000000
+    # Pares com alta liquidez e preço < 1 USDT
+    - XRPUSDT    # ~$0.5-0.7, alta liquidez
+    - ADAUSDT    # ~$0.3-0.5, alta liquidez  
+    - DOGEUSDT   # ~$0.05-0.1, muito alta liquidez
+    - TRXUSDT    # ~$0.05-0.1, boa liquidez
+    - XLMUSDT    # ~$0.05-0.1, boa liquidez
+    - MATICUSDT  # ~$0.3-0.8, alta liquidez
+    - FTMUSDT    # ~$0.2-0.8, boa liquidez
+    - ALGOUSDT   # ~$0.1-0.3, boa liquidez
+    - VETUSDT    # ~$0.02-0.05, alta liquidez
+    - ZILUSDT    # ~$0.01-0.03, boa liquidez
+    - ONTUSDT    # ~$0.1-0.3, média liquidez
+    - ICXUSDT    # ~$0.1-0.3, média liquidez
+    - IOTAUSDT   # ~$0.1-0.3, média liquidez
+    - EOSUSDT    # ~$0.4-1.2, limite do preço
+    - CELRUSDT   # ~$0.01-0.03, boa liquidez
+    - DENTUSDT   # ~$0.001-0.002, muito baixo preço
+    - HOTUSDT    # ~$0.001-0.003, muito baixo preço
+    - WINUSDT    # ~$0.00008-0.0002, extremamente baixo
+    - BTTCUSDT   # ~$0.0000008-0.000002, extremamente baixo
+    - SHIBUSDT   # ~$0.000007-0.00002, extremamente baixo
+    - PEPEUSDT   # ~$0.000001-0.000008, extremamente baixo
+    - FLOKIUSDT  # ~$0.00008-0.0003, muito baixo preço
+    - 1000BONKUSDT # ~$0.01-0.03, baixo preço (1000x)
+    - 1000PEPEUSDT # ~$0.008-0.02, baixo preço (1000x)
+  max_adx: 30                       # Aumentado para incluir mais pares
+  max_spread_perc: 0.15            # Aumentado para incluir mais pares
+  min_atr_perc_24h: 0.8            # Reduzido para incluir mais pares
+  min_volume_usd_24h: 5000000      # Reduzido para incluir mais pares
   spot_pairs:
     min_liquidity_depth: 1000000
     preferred_symbols:
@@ -49,6 +82,15 @@ pair_selection:
     - ETHUSDT
     - BNBUSDT
   update_interval_hours: 6
+  # Configuração para análise de feeds sociais e notícias
+  social_feed_analysis:
+    max_news_hours: 24                    # Analisar notícias das últimas 24h
+    max_feed_items: 50                    # Máximo 50 posts do feed social
+    min_mentions_threshold: 2             # Mínimo 2 menções para considerar trending
+    symbol_confidence_threshold: 0.4      # Confiança mínima 40%
+    influencer_weight_multiplier: 2.0     # Dar 2x mais peso para posts de influenciadores
+    news_weight_multiplier: 1.5           # Dar 1.5x mais peso para notícias oficiais
+    use_ai_analysis: true                 # Usar IA local para análise avançada de feeds
 risk_management:
   api_failure_timeout_minutes: 5
   dynamic_sl_profit_lock_perc: 80.0
@@ -62,11 +104,31 @@ risk_management:
     max_asset_allocation_perc: 70.0
     min_stable_balance_perc: 30.0
   tp_sl_ratio: 3.0
+  # Configuração do Trailing Stop
+  trailing_stop:
+    enabled: true                    # Ativar trailing stop
+    trail_amount: 1.0               # 1% de trailing distance
+    trail_type: "percentage"        # "percentage" ou "fixed"
+    activation_threshold: 0.5       # 0.5% de lucro para ativar trailing
+    min_trail_distance: 0.001       # Distância mínima (0.1%)
+    max_trail_distance: 0.05        # Distância máxima (5%)
+    update_frequency: 5             # Atualizar a cada 5 segundos
+  # Configuração de Ordens Condicionais
+  conditional_orders:
+    enabled: true                   # Ativar ordens condicionais
+    check_interval_seconds: 10      # Intervalo de verificação
+    max_orders_per_symbol: 5        # Máximo de ordens por símbolo
+    default_expiry_minutes: 60      # Expiração padrão (60 min)
+    rsi_oversold_threshold: 30      # RSI oversold padrão
+    rsi_overbought_threshold: 70    # RSI overbought padrão
+    volume_spike_multiplier: 2.0    # Multiplicador para spike de volume
+    use_stop_limit_orders: true     # Preferir STOP_LIMIT ao invés de STOP_MARKET
 rl_agent:
+  enabled: false  # RL desabilitado para reduzir dependências
   algorithm: PPO
   experience_replay_buffer_size: 10000
   market_decision:
-    enabled: true
+    enabled: false
     market_consistency_bonus: 0.05
     market_switch_reward_bonus: 0.1
   retraining_trade_threshold: 100
@@ -92,7 +154,7 @@ sentiment_analysis:
   enabled: true
   fetch_interval_minutes: 60
   pair_filtering:
-    enabled: true
+    enabled: false
     min_sentiment_for_new_pair: -0.3
   reddit:
     comments_limit_per_post: 5
@@ -121,13 +183,13 @@ sentiment_analysis:
   smoothing_window: 10
 trading:
   allow_market_switching: true
-  capital_per_pair_usd: '8'  # Reduzido de 10 para 8 USD
+  capital_per_pair_usd: '5'  # Mínimo $5 conforme requisito da Binance
   cycle_interval_seconds: 60
   market_allocation:
     futures_percentage: 60
     spot_percentage: 40
   market_switch_cooldown_minutes: 30
-  max_concurrent_pairs: 2  # Reduzido de 3 para 2 pares simultâneos
+  max_concurrent_pairs: 25  # 25 pares simultâneos - máxima diversificação
 ai_agent:
   enabled: true
   base_url: "http://127.0.0.1:11434"
