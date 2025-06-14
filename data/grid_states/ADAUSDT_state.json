@@ -1,76 +1,48 @@
 {
   "symbol": "ADAUSDT",
   "market_type": "futures",
-  "num_levels": 10,
-  "current_spacing_percentage": 0.005072384855529353,
-  "base_spacing_percentage": 0.005072384855529353,
+  "num_levels": 5,
+  "current_spacing_percentage": 0.005,
+  "base_spacing_percentage": 0.005,
   "grid_levels": [
     {
-      "price": 0.6564,
+      "price": 0.629,
       "type": "buy",
-      "quantity": 14.0,
-      "order_id": 54514134169,
+      "quantity": 8.0,
+      "order_id": 54880337983,
       "status": "active",
       "recovered": true
     },
     {
-      "price": 0.6597,
+      "price": 0.6322,
       "type": "buy",
-      "quantity": 14.0,
-      "order_id": 54514134492,
+      "quantity": 8.0,
+      "order_id": 54880338027,
       "status": "active",
       "recovered": true
     },
     {
-      "price": 0.6631,
-      "type": "buy",
-      "quantity": 14.0,
-      "order_id": 54514134613,
-      "status": "active",
-      "recovered": true
-    },
-    {
-      "price": 0.6665,
-      "type": "buy",
-      "quantity": 14.0,
-      "order_id": 54514135036,
-      "status": "active",
-      "recovered": true
-    },
-    {
-      "price": 0.6699,
-      "type": "buy",
-      "quantity": 14.0,
-      "order_id": 54514135489,
-      "status": "active",
-      "recovered": true
-    },
-    {
-      "price": 0.6866,
+      "price": 0.6385,
       "type": "sell",
-      "quantity": 14.0,
-      "order_id": 54514136245,
+      "quantity": 8.0,
+      "order_id": 54880338049,
       "status": "active",
       "recovered": true
     },
     {
-      "price": 0.69,
+      "price": 0.6416,
       "type": "sell",
-      "quantity": 14.0,
-      "order_id": 54514136396,
+      "quantity": 8.0,
+      "order_id": 54880338073,
       "status": "active",
       "recovered": true
     }
   ],
   "active_grid_orders": {
-    "0.6564": 54514134169,
-    "0.6597": 54514134492,
-    "0.6631": 54514134613,
-    "0.6665": 54514135036,
-    "0.6699": 54514135489,
-    "0.6866": 54514136245,
-    "0.69": 54514136396
+    "0.629": 54880337983,
+    "0.6385": 54881574654,
+    "0.6416": 54880338073
   },
-  "last_updated": 1748753576.6618445,
+  "last_updated": 1749903607.9765668,
   "operation_mode": "production"
 }

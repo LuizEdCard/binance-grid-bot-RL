@@ -396,3 +396,8 @@ class DataAgent:
             'api_calls_saved': self.stats['api_calls_saved'],
             'data_updates': self.stats['data_updates']
         }
+    def get_data_history(self, symbol: str, limit: int = 10) -> List[Dict]:
+        """Get recent data history for a symbol."""
+        if symbol in self.market_data_history:
+            return list(self.market_data_history[symbol])[-limit:]
+        return []

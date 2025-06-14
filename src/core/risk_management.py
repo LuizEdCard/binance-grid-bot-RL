@@ -3,6 +3,7 @@
 
 import time
 from decimal import Decimal
+from typing import Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,8 @@ from binance.enums import SIDE_SELL, SIDE_BUY, FUTURE_ORDER_TYPE_STOP_MARKET
 
 from utils.api_client import APIClient
 from utils.logger import setup_logger
+from utils.trailing_stop import TrailingStopManager, TrailingStopConfig, PositionSide
+from utils.conditional_orders import ConditionalOrderManager, ConditionalOrderConfig, OrderType, ConditionType
 log = setup_logger("risk_management")
 
 # Tentativa de importar TA-Lib
@@ -134,6 +137,19 @@ class RiskManager:
         self.initial_balance = None
         self.last_atr_value = None  # Store last calculated ATR
         self.last_applied_leverage = None  # Track leverage applied by this module
+        
+        # --- Trailing Stop Manager --- #
+        self.trailing_stop_manager = TrailingStopManager(api_client, alerter)
+        self.trailing_stop_enabled = self.risk_config.get("trailing_stop", {}).get("enabled", True)
+        self.trailing_stop_config = self._create_trailing_stop_config()
+        
+        # --- Conditional Orders Manager --- #
+        self.conditional_order_manager = ConditionalOrderManager(api_client, alerter)
+        self.conditional_orders_enabled = self.risk_config.get("conditional_orders", {}).get("enabled", True)
+        
+        # Iniciar monitoramento de ordens condicionais
+        if self.conditional_orders_enabled:
+            self.conditional_order_manager.start_monitoring()
 
         log.info(
             f"[{self.symbol}] RiskManager inicializado para mercado {self.market_type.upper()}. Max Drawdown: {self.max_drawdown_perc*100}%, Use ATR SL: {self.use_atr_stop_loss}, Check Reversal Patterns: {self.check_reversal_patterns_sl}, Sentiment Risk Adj: {self.sentiment_risk_adj_enabled}"
@@ -151,6 +167,19 @@ class RiskManager:
                 f"[{self.symbol}] Ajuste de risco por sentimento habilitado, mas nenhuma função de score de sentimento fornecida. Recurso desabilitado."
             )
             self.sentiment_risk_adj_enabled = False
+
+    def _create_trailing_stop_config(self) -> TrailingStopConfig:
+        """Cria configuração do trailing stop baseada no config do sistema"""
+        trailing_config = self.risk_config.get("trailing_stop", {})
+        
+        return TrailingStopConfig(
+            trail_amount=trailing_config.get("trail_amount", 1.0),  # 1% padrão
+            trail_type=trailing_config.get("trail_type", "percentage"),
+            activation_threshold=trailing_config.get("activation_threshold", 0.5),  # 0.5% para ativar
+            min_trail_distance=trailing_config.get("min_trail_distance", 0.001),
+            max_trail_distance=trailing_config.get("max_trail_distance", 0.05),
+            update_frequency=trailing_config.get("update_frequency", 5)
+        )
 
     def check_spot_market_risks(self, account_info: dict) -> bool:
         """Verifica riscos específicos do mercado Spot."""
@@ -722,6 +751,246 @@ class RiskManager:
                 exc_info=True,
             )
 
+    def start_trailing_stop(self, position_side: str, entry_price: float, initial_stop_price: float) -> bool:
+        """Inicia trailing stop para uma posição"""
+        if not self.trailing_stop_enabled:
+            return False
+            
+        try:
+            # Converter para o enum apropriado
+            if position_side.upper() in ["LONG", "BUY"]:
+                side = PositionSide.LONG
+            elif position_side.upper() in ["SHORT", "SELL"]:
+                side = PositionSide.SHORT
+            else:
+                log.warning(f"[{self.symbol}] Invalid position side for trailing stop: {position_side}")
+                return False
+            
+            success = self.trailing_stop_manager.add_trailing_stop(
+                symbol=self.symbol,
+                config=self.trailing_stop_config,
+                position_side=side,
+                entry_price=entry_price,
+                initial_stop_price=initial_stop_price
+            )
+            
+            if success:
+                log.info(f"[{self.symbol}] Trailing stop started for {side.value} position")
+            
+            return success
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error starting trailing stop: {e}")
+            return False
+
+    def update_trailing_stop(self, current_price: float) -> Optional[float]:
+        """Atualiza trailing stop com preço atual"""
+        if not self.trailing_stop_enabled:
+            return None
+            
+        try:
+            new_stop_price = self.trailing_stop_manager.update_trailing_stop(self.symbol, current_price)
+            
+            # Se o trailing stop foi acionado, verificar se deve fechar posição
+            if self.trailing_stop_manager.check_stop_triggered(self.symbol, current_price):
+                log.warning(f"[{self.symbol}] Trailing stop triggered at price {current_price}")
+                try:
+                    self.grid_logic.close_position_market()
+                    self.remove_trailing_stop()
+                    self.alerter.send_message(f"[{self.symbol}] Position closed by trailing stop")
+                except Exception as e:
+                    log.error(f"[{self.symbol}] Error closing position on trailing stop: {e}")
+            
+            return new_stop_price
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error updating trailing stop: {e}")
+            return None
+
+    def remove_trailing_stop(self) -> bool:
+        """Remove trailing stop da posição"""
+        try:
+            success = self.trailing_stop_manager.remove_trailing_stop(self.symbol)
+            if success:
+                log.info(f"[{self.symbol}] Trailing stop removed")
+            return success
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error removing trailing stop: {e}")
+            return False
+
+    def get_trailing_stop_info(self) -> Optional[Dict]:
+        """Retorna informações do trailing stop ativo"""
+        try:
+            return self.trailing_stop_manager.get_trailing_stop_info(self.symbol)
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error getting trailing stop info: {e}")
+            return None
+
+    def place_stop_limit_order(self, side: str, quantity: str, stop_price: str, 
+                              limit_price: str, reduce_only: bool = True) -> Optional[Dict]:
+        """Coloca ordem STOP_LIMIT para melhor controle de slippage"""
+        try:
+            if not self.conditional_orders_enabled:
+                log.warning(f"[{self.symbol}] Conditional orders disabled, using STOP_MARKET fallback")
+                return self._place_or_modify_stop_order(stop_price, Decimal(quantity))
+            
+            result = self.api_client.place_stop_limit_order(
+                symbol=self.symbol,
+                side=side,
+                quantity=quantity,
+                stop_price=stop_price,
+                price=limit_price,
+                reduce_only=reduce_only
+            )
+            
+            if result:
+                log.info(f"[{self.symbol}] STOP_LIMIT order placed: {result.get('orderId')}")
+                self.alerter.send_message(
+                    f"[{self.symbol}] 🛡️ STOP_LIMIT order placed\\n"
+                    f"Side: {side}, Qty: {quantity}\\n"
+                    f"Stop: {stop_price}, Limit: {limit_price}"
+                )
+            
+            return result
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error placing STOP_LIMIT order: {e}")
+            return None
+
+    def add_conditional_order(self, side: str, quantity: str, condition_type: ConditionType,
+                             condition_value: float, order_type: OrderType = OrderType.MARKET,
+                             price: str = None, stop_price: str = None,
+                             condition_params: Dict = None, expiry_minutes: int = 60) -> bool:
+        """Adiciona ordem condicional baseada em indicadores técnicos"""
+        try:
+            if not self.conditional_orders_enabled:
+                log.warning(f"[{self.symbol}] Conditional orders disabled")
+                return False
+            
+            order_id = f"{self.symbol}_{side}_{condition_type.value}_{int(time.time())}"
+            
+            config = ConditionalOrderConfig(
+                order_id=order_id,
+                symbol=self.symbol,
+                side=side,
+                order_type=order_type,
+                quantity=quantity,
+                price=price,
+                stop_price=stop_price,
+                condition_type=condition_type,
+                condition_value=condition_value,
+                condition_params=condition_params or {},
+                expiry_time=time.time() + (expiry_minutes * 60),
+                check_interval=10  # Verificar a cada 10 segundos
+            )
+            
+            success = self.conditional_order_manager.add_conditional_order(config)
+            
+            if success:
+                log.info(f"[{self.symbol}] Conditional order added: {order_id}")
+                self.alerter.send_message(
+                    f"[{self.symbol}] 📋 Conditional Order Created\\n"
+                    f"Condition: {condition_type.value}\\n"
+                    f"Trigger: {condition_value}\\n"
+                    f"Action: {side} {quantity} ({order_type.value})"
+                )
+            
+            return success
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error adding conditional order: {e}")
+            return False
+
+    def add_rsi_based_order(self, side: str, quantity: str, rsi_threshold: float = 30,
+                           order_type: OrderType = OrderType.MARKET, price: str = None) -> bool:
+        """Adiciona ordem baseada em RSI (oversold/overbought)"""
+        condition_type = ConditionType.RSI_OVERSOLD if rsi_threshold < 50 else ConditionType.RSI_OVERBOUGHT
+        condition_params = {"rsi_threshold": rsi_threshold}
+        
+        return self.add_conditional_order(
+            side=side,
+            quantity=quantity,
+            condition_type=condition_type,
+            condition_value=rsi_threshold,
+            order_type=order_type,
+            price=price,
+            condition_params=condition_params
+        )
+
+    def add_price_breakout_order(self, side: str, quantity: str, breakout_price: float,
+                                order_type: OrderType = OrderType.LIMIT, limit_price: str = None) -> bool:
+        """Adiciona ordem de breakout de preço"""
+        condition_type = ConditionType.PRICE_ABOVE if side == "BUY" else ConditionType.PRICE_BELOW
+        
+        return self.add_conditional_order(
+            side=side,
+            quantity=quantity,
+            condition_type=condition_type,
+            condition_value=breakout_price,
+            order_type=order_type,
+            price=limit_price or str(breakout_price)
+        )
+
+    def add_volume_spike_order(self, side: str, quantity: str, volume_multiplier: float = 2.0,
+                              order_type: OrderType = OrderType.MARKET) -> bool:
+        """Adiciona ordem baseada em spike de volume"""
+        condition_params = {"volume_multiplier": volume_multiplier}
+        
+        return self.add_conditional_order(
+            side=side,
+            quantity=quantity,
+            condition_type=ConditionType.VOLUME_SPIKE,
+            condition_value=volume_multiplier,
+            order_type=order_type,
+            condition_params=condition_params
+        )
+
+    def get_conditional_orders_info(self) -> Dict:
+        """Retorna informações das ordens condicionais ativas"""
+        try:
+            if not self.conditional_orders_enabled:
+                return {"enabled": False}
+            
+            active_orders = self.conditional_order_manager.get_active_orders()
+            statistics = self.conditional_order_manager.get_statistics()
+            
+            return {
+                "enabled": True,
+                "active_orders": active_orders,
+                "statistics": statistics
+            }
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error getting conditional orders info: {e}")
+            return {"enabled": False, "error": str(e)}
+
+    def remove_conditional_order(self, order_id: str) -> bool:
+        """Remove ordem condicional específica"""
+        try:
+            if not self.conditional_orders_enabled:
+                return False
+            
+            success = self.conditional_order_manager.remove_conditional_order(order_id)
+            
+            if success:
+                log.info(f"[{self.symbol}] Conditional order removed: {order_id}")
+                self.alerter.send_message(f"[{self.symbol}] ❌ Conditional order removed: {order_id}")
+            
+            return success
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error removing conditional order: {e}")
+            return False
+
+    def cleanup_conditional_orders(self):
+        """Limpa ordens condicionais ao finalizar"""
+        try:
+            if self.conditional_orders_enabled:
+                self.conditional_order_manager.stop_monitoring()
+                log.info(f"[{self.symbol}] Conditional orders cleanup completed")
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error during conditional orders cleanup: {e}")
+
     def run_checks(self):
         """Runs all risk management checks in sequence."""
         log.debug(f"[{self.symbol}] Running risk management checks...")
@@ -755,16 +1024,22 @@ class RiskManager:
                 self.grid_logic.trigger_shutdown(reason="Max Drawdown Circuit Breaker")
                 return  # Stop further checks if breaker tripped
 
-            # 4. Manage Stop Loss
+            # 4. Update Trailing Stop if enabled and position exists
+            if self.trailing_stop_enabled and position and Decimal(position.get("positionAmt", "0")) != 0:
+                current_price = float(position.get("markPrice", "0"))
+                if current_price > 0:
+                    self.update_trailing_stop(current_price)
+
+            # 5. Manage Stop Loss
             total_realized_pnl = position.get(
                 "realizedPnl", Decimal("0")
             )  # Get PNL from position info
             self.manage_stop_loss(position, total_realized_pnl)
 
-            # 5. Protect Realized Profit
+            # 6. Protect Realized Profit
             self.protect_realized_profit(position, total_realized_pnl)
 
-            # 6. Check for API Failure Timeout (Optional)
+            # 7. Check for API Failure Timeout (Optional)
             # if self.last_api_success_time and (time.time() - self.last_api_success_time) > self.api_failure_timeout_minutes * 60:
             #     log.critical(f"[{self.symbol}] CIRCUIT BREAKER TRIPPED: No successful API communication for {self.api_failure_timeout_minutes} minutes.")
             #     self.alerter.send_critical_alert(f"[{self.symbol}] CIRCUIT BREAKER: API Failure Timeout! Shutting down pair.")

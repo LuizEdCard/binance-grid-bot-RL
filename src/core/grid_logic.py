@@ -20,6 +20,7 @@ from binance.enums import (
 
 from utils.api_client import APIClient
 from utils.logger import setup_logger
+from utils.pair_logger import get_pair_logger
 log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
@@ -123,6 +124,15 @@ class GridLogic:
         else:
             self.quote_asset = 'USDT'
 
+        # Initialize pair logger for detailed metrics logging
+        self.pair_logger = get_pair_logger(self.symbol)
+        
+        # Initialize metrics tracking variables
+        self.last_price_24h = None
+        self.current_rsi = 0.0
+        self.current_atr = 0.0
+        self.current_adx = 0.0
+
         log.info(
             f"[{self.symbol}] GridLogic inicializado no modo {self.operation_mode.upper()} para mercado {self.market_type.upper()}. Espaçamento Dinâmico (ATR): {self.use_dynamic_spacing}"
         )
@@ -155,7 +165,11 @@ class GridLogic:
                 self.symbol_info = item
                 break
         if not self.symbol_info:
-            log.error(f"[{self.symbol}] Informações do símbolo não encontradas nas informações de exchange.")
+            log.error(f"[{self.symbol}] Symbol not found in {self.market_type} market. Available symbols count: {len(self.exchange_info.get('symbols', []))}")
+            # Log some similar symbols for debugging
+            similar_symbols = [s['symbol'] for s in self.exchange_info.get('symbols', []) if self.symbol[:3] in s['symbol'] or self.symbol[-4:] in s['symbol']][:5]
+            if similar_symbols:
+                log.info(f"[{self.symbol}] Similar symbols found: {similar_symbols}")
             return False
 
         # Obter precisões dos dados do símbolo ou calcular dos filtros
@@ -378,6 +392,18 @@ class GridLogic:
                 )
                 # Armazena detalhes da ordem
                 self.open_orders[order_id] = order
+                
+                # Log order event to pair_logger
+                try:
+                    self.pair_logger.log_order_event(
+                        side=side,
+                        price=float(price_str),
+                        quantity=float(qty_str),
+                        order_type="GRID"
+                    )
+                except Exception as e:
+                    log.debug(f"[{self.symbol}] Erro ao registrar ordem no pair_logger: {e}")
+                
                 return order_id
             else:
                 log.error(
@@ -621,7 +647,7 @@ class GridLogic:
         total_capital_usd = Decimal(
             self.config.get("trading", {}).get("capital_per_pair_usd", "100")
         )
-        leverage = Decimal(self.grid_config.get("leverage", "1"))
+        leverage = Decimal(self.grid_config.get("leverage", "10"))
         num_grids = len(self.grid_levels) if self.grid_levels else self.num_levels
         if num_grids <= 0:
             log.error(f"[{self.symbol}] Num grids is zero.")
@@ -850,6 +876,19 @@ class GridLogic:
         log.info(
             f"[{self.symbol}] Updated Position: Amt={self.position['positionAmt']}, Entry={self.position['entryPrice']:.{self.price_precision}f}"
         )
+        
+        # Log position update to pair_logger
+        try:
+            position_side = "LONG" if float(new_pos_amt) > 0 else "SHORT" if float(new_pos_amt) < 0 else "NONE"
+            unrealized_pnl = self.position.get("unRealizedProfit", 0)
+            self.pair_logger.log_position_update(
+                side=position_side,
+                entry_price=float(new_entry_price),
+                size=abs(float(new_pos_amt)),
+                pnl=float(unrealized_pnl) if unrealized_pnl else 0.0
+            )
+        except Exception as e:
+            log.debug(f"[{self.symbol}] Erro ao registrar atualização de posição no pair_logger: {e}")
         # -------------------------------------
 
         # --- Calculate PnL for this fill (if closing part of a position) ---
@@ -1029,24 +1068,44 @@ class GridLogic:
         }
 
     def _update_market_data(self):
-        """Atualiza dados de mercado (preços, klines, volume)."""
+        """Atualiza dados de mercado (preços, klines, volume) e métricas do pair_logger."""
         try:
-            # 1. Atualizar preço atual
+            # 1. Atualizar preço atual e extrair métricas do ticker
             ticker = self._get_ticker()
-            if ticker and "price" in ticker:
-                new_price = float(ticker["price"])
-                self.current_price = new_price
-                
-                # Atualizar histórico de preços
-                if not hasattr(self, "price_history"):
-                    self.price_history = []
-                
-                self.price_history.insert(0, new_price)
-                # Manter apenas últimos 100 preços
-                if len(self.price_history) > 100:
-                    self.price_history = self.price_history[:100]
+            price_change_24h = 0.0
+            volume_24h = 0.0
+            
+            if ticker:
+                if "price" in ticker:
+                    new_price = float(ticker["price"])
+                    self.current_price = new_price
                     
-                log.debug(f"[{self.symbol}] Preço atualizado: {new_price}")
+                    # Atualizar histórico de preços
+                    if not hasattr(self, "price_history"):
+                        self.price_history = []
+                    
+                    self.price_history.insert(0, new_price)
+                    # Manter apenas últimos 100 preços
+                    if len(self.price_history) > 100:
+                        self.price_history = self.price_history[:100]
+                        
+                    log.debug(f"[{self.symbol}] Preço atualizado: {new_price}")
+                
+                # Extrair mudança de preço 24h do ticker
+                if "priceChangePercent" in ticker:
+                    price_change_24h = float(ticker["priceChangePercent"])
+                elif "priceChange" in ticker and "prevClosePrice" in ticker:
+                    # Calcular porcentagem manualmente se não disponível diretamente
+                    prev_price = float(ticker["prevClosePrice"])
+                    if prev_price > 0:
+                        price_change_24h = ((float(ticker["price"]) - prev_price) / prev_price) * 100
+                
+                # Extrair volume 24h do ticker
+                if "volume" in ticker:
+                    volume_24h = float(ticker["volume"])
+                elif "quoteVolume" in ticker:
+                    volume_24h = float(ticker["quoteVolume"])
+                    
             else:
                 log.warning(f"[{self.symbol}] Falha ao obter ticker")
             
@@ -1055,25 +1114,141 @@ class GridLogic:
             if klines and len(klines) > 0:
                 # Extrair preços de fechamento para indicadores
                 close_prices = []
+                high_prices = []
+                low_prices = []
+                
                 for kline in klines:
                     close_price = float(kline[4])  # Close price é o índice 4
+                    high_price = float(kline[2])   # High price é o índice 2
+                    low_price = float(kline[3])    # Low price é o índice 3
+                    
                     close_prices.append(close_price)
+                    high_prices.append(high_price)
+                    low_prices.append(low_price)
                 
                 # Reverter para ordem cronológica (mais antigo primeiro)
                 close_prices.reverse()
+                high_prices.reverse()
+                low_prices.reverse()
+                
                 self.kline_closes = close_prices
                 
-                # Calcular volume recente
-                if len(klines) >= 24:  # Últimas 24 horas
+                # Calcular volume recente se não obtido do ticker
+                if volume_24h == 0.0 and len(klines) >= 24:  # Últimas 24 horas
                     volumes = [float(kline[5]) for kline in klines[:24]]
                     self.recent_volume = sum(volumes)
+                    volume_24h = self.recent_volume
+                else:
+                    self.recent_volume = volume_24h
+                
+                # 3. Calcular indicadores técnicos se TA-Lib disponível
+                if talib_available and len(close_prices) >= 20:
+                    # RSI
+                    try:
+                        rsi_values = talib.RSI(np.array(close_prices), timeperiod=14)
+                        if not np.isnan(rsi_values[-1]):
+                            self.current_rsi = float(rsi_values[-1])
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular RSI: {e}")
                     
-                log.debug(f"[{self.symbol}] Klines atualizados: {len(close_prices)} preços, volume 24h: {getattr(self, 'recent_volume', 0):.2f}")
+                    # ATR (Average True Range)
+                    try:
+                        atr_values = talib.ATR(
+                            np.array(high_prices), 
+                            np.array(low_prices), 
+                            np.array(close_prices), 
+                            timeperiod=14
+                        )
+                        if not np.isnan(atr_values[-1]):
+                            self.current_atr = float(atr_values[-1])
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular ATR: {e}")
+                    
+                    # ADX (Average Directional Index)
+                    try:
+                        adx_values = talib.ADX(
+                            np.array(high_prices), 
+                            np.array(low_prices), 
+                            np.array(close_prices), 
+                            timeperiod=14
+                        )
+                        if not np.isnan(adx_values[-1]):
+                            self.current_adx = float(adx_values[-1])
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular ADX: {e}")
+                
+                log.debug(f"[{self.symbol}] Klines atualizados: {len(close_prices)} preços, volume 24h: {volume_24h:.2f}")
             else:
                 log.warning(f"[{self.symbol}] Falha ao obter klines")
+            
+            # 4. Atualizar métricas do pair_logger
+            self._update_pair_logger_metrics(price_change_24h, volume_24h)
                 
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao atualizar dados de mercado: {e}", exc_info=True)
+    
+    def _update_pair_logger_metrics(self, price_change_24h: float, volume_24h: float):
+        """Atualiza métricas no pair_logger com dados de mercado atualizados."""
+        try:
+            # Obter dados de posição atual
+            position_side = "NONE"
+            position_size = 0.0
+            entry_price = 0.0
+            unrealized_pnl = 0.0
+            leverage = 10
+            
+            if self.market_type == "futures":
+                if hasattr(self, 'position') and self.position:
+                    position_amt = float(self.position.get("positionAmt", 0))
+                    if position_amt > 0:
+                        position_side = "LONG"
+                        position_size = position_amt
+                    elif position_amt < 0:
+                        position_side = "SHORT"
+                        position_size = abs(position_amt)
+                    
+                    entry_price = float(self.position.get("entryPrice", 0))
+                    unrealized_pnl = float(self.position.get("unRealizedProfit", 0))
+                    leverage = self.config.get("futures", {}).get("leverage", 10)
+            else:  # spot
+                if hasattr(self, 'position') and self.position:
+                    base_balance = float(self.position.get("base_balance", 0))
+                    if base_balance > 0:
+                        position_side = "LONG"
+                        position_size = base_balance
+                        entry_price = float(self.position.get("avg_buy_price", 0))
+                        unrealized_pnl = float(self.position.get("unrealized_pnl", 0))
+            
+            # Contar ordens ativas do grid
+            active_orders = len(self.active_grid_orders)
+            filled_orders = self.total_trades
+            grid_profit = float(self.total_realized_pnl)
+            
+            # Atualizar métricas no pair_logger
+            self.pair_logger.update_metrics(
+                current_price=self.current_price,
+                entry_price=entry_price,
+                unrealized_pnl=unrealized_pnl,
+                realized_pnl=grid_profit,
+                position_size=position_size,
+                position_side=position_side,
+                leverage=leverage,
+                rsi=self.current_rsi,
+                atr=self.current_atr,
+                adx=self.current_adx,
+                volume_24h=volume_24h,
+                price_change_24h=price_change_24h,
+                grid_levels=self.num_levels,
+                active_orders=active_orders,
+                filled_orders=filled_orders,
+                grid_profit=grid_profit,
+                market_type=self.market_type.upper()
+            )
+            
+            log.debug(f"[{self.symbol}] Métricas do pair_logger atualizadas: RSI={self.current_rsi:.1f}, ATR={self.current_atr:.4f}, Volume={volume_24h:.0f}")
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao atualizar métricas do pair_logger: {e}", exc_info=True)
     
     def _check_balance_for_trading(self):
         """Verifica se há saldo suficiente para operar."""
@@ -1572,10 +1747,16 @@ class GridLogic:
         # 4. (Optional) Add other checks like risk management triggers (handled
         # externally for now)
 
+        # 5. Log detailed trading cycle metrics to pair_logger
+        try:
+            self.pair_logger.log_trading_cycle()
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao registrar ciclo de trading no pair_logger: {e}")
+
         log.info(f"[{self.symbol}] Grid cycle finished.")
 
     def _check_automatic_take_profit(self):
-        """Verifica e cria take profit automático para posições lucrativas sem ordens."""
+        """Verifica e cria take profit automático inteligente para lucros pequenos e consistentes."""
         try:
             # Só para mercado futures
             if self.market_type != "futures":
@@ -1590,51 +1771,88 @@ class GridLogic:
                 return
             
             unrealized_pnl = float(self.position.get("unRealizedProfit", 0))
-            profit_threshold = 0.01  # $0.01 mínimo
+            
+            # Sistema de take profit inteligente para lucros pequenos (0.01-0.05 USDT)
+            small_profit_threshold = 0.008  # $0.008 para capturar lucros menores
+            medium_profit_threshold = 0.02   # $0.02 para lucros médios
+            large_profit_threshold = 0.05    # $0.05 para lucros maiores
             
             # Verificar se há lucro suficiente
-            if unrealized_pnl <= profit_threshold:
+            if unrealized_pnl <= small_profit_threshold:
                 return
             
             # Verificar se já tem ordens ativas (take profit)
             open_orders = self.api_client.get_open_futures_orders(self.symbol)
+            existing_tp_orders = []
             if open_orders:
-                # Verificar se já tem take profit
-                has_take_profit = False
                 for order in open_orders:
                     order_side = order.get('side')
                     if (position_amt > 0 and order_side == 'SELL') or (position_amt < 0 and order_side == 'BUY'):
-                        has_take_profit = True
-                        break
+                        if order.get('auto_take_profit') or 'TP' in order.get('clientOrderId', ''):
+                            existing_tp_orders.append(order)
                 
-                if has_take_profit:
-                    return  # Já tem take profit
+                # Se já tem take profit e PnL não mudou significativamente, retornar
+                if existing_tp_orders and unrealized_pnl < medium_profit_threshold:
+                    return
             
-            # Criar take profit automático
-            log.info(f"[{self.symbol}] 💰 Auto take profit - PnL: ${unrealized_pnl:.4f}")
-            
+            # Estratégia dinâmica baseada no tamanho do lucro
             entry_price = float(self.position.get("entryPrice", 0))
             mark_price = float(self.position.get("markPrice", 0))
             
+            # Determinar estratégia baseada no lucro
+            if unrealized_pnl <= medium_profit_threshold:
+                # Lucros pequenos (0.008-0.02): Take profit agressivo com 90% do lucro
+                profit_margin_pct = 0.90
+                tp_strategy = "SMALL_PROFIT"
+            elif unrealized_pnl <= large_profit_threshold:
+                # Lucros médios (0.02-0.05): Take profit moderado com 85% do lucro
+                profit_margin_pct = 0.85
+                tp_strategy = "MEDIUM_PROFIT"
+            else:
+                # Lucros grandes (>0.05): Take profit conservador com 75% do lucro
+                profit_margin_pct = 0.75
+                tp_strategy = "LARGE_PROFIT"
+            
+            # Calcular preço de take profit
             if position_amt > 0:  # Long position
                 side = SIDE_SELL
-                # Take profit com 80% do lucro atual para garantir execução
-                profit_margin = (mark_price - entry_price) * 0.8
+                profit_margin = (mark_price - entry_price) * profit_margin_pct
                 take_profit_price = entry_price + profit_margin
             else:  # Short position
                 side = SIDE_BUY
-                profit_margin = (entry_price - mark_price) * 0.8
+                profit_margin = (entry_price - mark_price) * profit_margin_pct
                 take_profit_price = entry_price - profit_margin
+            
+            # Para lucros pequenos, usar take profit parcial (50% da posição)
+            if tp_strategy == "SMALL_PROFIT":
+                quantity = self._round_quantity(abs(position_amt) * 0.5)  # 50% da posição
+                log.info(f"[{self.symbol}] 💰 Small profit TP - PnL: ${unrealized_pnl:.4f} (50% position)")
+            else:
+                quantity = self._round_quantity(abs(position_amt))  # Posição completa
+                log.info(f"[{self.symbol}] 💰 Auto take profit ({tp_strategy}) - PnL: ${unrealized_pnl:.4f}")
             
             # Ajustar precisão
             take_profit_price = self._round_price(take_profit_price)
-            quantity = self._round_quantity(abs(position_amt))
             
-            log.info(f"[{self.symbol}] Creating auto take profit: {side} {quantity} @ {take_profit_price}")
+            # Verificar se a quantidade atende ao mínimo nocional
+            if not self._check_min_notional(take_profit_price, quantity):
+                log.warning(f"[{self.symbol}] Take profit abaixo do mínimo nocional, usando posição completa")
+                quantity = self._round_quantity(abs(position_amt))
+            
+            log.info(f"[{self.symbol}] Creating {tp_strategy} take profit: {side} {quantity} @ {take_profit_price}")
+            
+            # Cancelar take profits existentes se for necessário atualizar
+            if existing_tp_orders and unrealized_pnl >= medium_profit_threshold:
+                for order in existing_tp_orders:
+                    try:
+                        self.api_client.cancel_futures_order(self.symbol, order.get('orderId'))
+                        log.info(f"[{self.symbol}] Cancelled outdated take profit order")
+                    except Exception as e:
+                        log.warning(f"[{self.symbol}] Failed to cancel existing TP order: {e}")
             
             # Criar ordem de take profit
             if self.operation_mode == "shadow":
-                log.info(f"[{self.symbol}] [SHADOW] Auto take profit simulated")
+                log.info(f"[{self.symbol}] [SHADOW] {tp_strategy} take profit simulated")
                 return
             
             order_result = self.api_client.place_futures_order(
@@ -1648,7 +1866,7 @@ class GridLogic:
             
             if order_result:
                 order_id = order_result.get('orderId')
-                log.info(f"[{self.symbol}] ✅ Auto take profit created: ID {order_id}")
+                log.info(f"[{self.symbol}] ✅ {tp_strategy} take profit created: ID {order_id}")
                 
                 # Adicionar às ordens abertas
                 self.open_orders[order_id] = {
@@ -1660,13 +1878,15 @@ class GridLogic:
                     'price': str(take_profit_price),
                     'status': 'NEW',
                     'timeInForce': 'GTC',
-                    'auto_take_profit': True
+                    'auto_take_profit': True,
+                    'tp_strategy': tp_strategy,
+                    'profit_margin_pct': profit_margin_pct
                 }
             else:
-                log.warning(f"[{self.symbol}] Failed to create auto take profit")
+                log.warning(f"[{self.symbol}] Failed to create {tp_strategy} take profit")
                 
         except Exception as e:
-            log.error(f"[{self.symbol}] Error in auto take profit: {e}")
+            log.error(f"[{self.symbol}] Error in automatic take profit: {e}")
 
     def get_status(self) -> dict:
         """Retorna status atual do bot de grid trading."""

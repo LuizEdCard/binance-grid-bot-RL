@@ -3,7 +3,22 @@
 from utils.logger import setup_logger
 from utils.api_client import APIClient
 from utils.alerter import Alerter
-from routes.model_api import model_api
+
+# Conditional import of model_api (may require RL dependencies)
+try:
+    from routes.model_api import model_api
+    MODEL_API_AVAILABLE = True
+except ImportError as e:
+    MODEL_API_AVAILABLE = False
+    print(f"Model API not available (RL dependencies missing): {e}")
+    # Create dummy blueprint to avoid Flask errors
+    from flask import Blueprint
+    model_api = Blueprint('model_api_disabled', __name__)
+    
+    @model_api.route('/status')
+    def disabled_status():
+        return {"status": "disabled", "reason": "RL dependencies not available"}
+
 from core.capital_management import CapitalManager
 from core.risk_management import RiskManager
 from core.grid_logic import GridLogic

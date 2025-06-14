@@ -22,7 +22,7 @@ class CapitalAllocation:
     grid_levels: int
     spacing_percentage: float
     market_type: str  # 'spot' ou 'futures'
-    leverage: int = 1  # Alavancagem padrão
+    leverage: int = 10  # Alavancagem padrão
     
     def to_dict(self) -> dict:
         return {
@@ -45,6 +45,13 @@ class CapitalManager:
     def __init__(self, api_client: APIClient, config: dict):
         self.api_client = api_client
         self.config = config
+        
+        # Cache for symbol validation
+        self.valid_symbols_cache = {
+            "spot": set(),
+            "futures": set(),
+            "last_update": 0
+        }
         
         # Configurações de trading
         self.trading_config = config.get("trading", {})
@@ -70,8 +77,47 @@ class CapitalManager:
             "balance_checks": 0,
             "allocation_updates": 0,
             "insufficient_capital_events": 0,
-            "last_total_balance": 0.0
         }
+    
+    def is_symbol_valid(self, symbol: str, market_type: str = "futures") -> bool:
+        """Valida se um símbolo existe no mercado especificado."""
+        import time
+        
+        # Cache expira em 1 hora
+        cache_expiry = 3600
+        current_time = time.time()
+        
+        if current_time - self.valid_symbols_cache["last_update"] > cache_expiry:
+            self._update_symbols_cache()
+        
+        return symbol in self.valid_symbols_cache.get(market_type, set())
+    
+    def _update_symbols_cache(self):
+        """Atualiza o cache de símbolos válidos."""
+        import time
+        
+        try:
+            # Obter símbolos do mercado spot
+            spot_info = self.api_client.get_spot_exchange_info()
+            if spot_info:
+                self.valid_symbols_cache["spot"] = {
+                    symbol["symbol"] for symbol in spot_info.get("symbols", [])
+                    if symbol.get("status") == "TRADING"
+                }
+            
+            # Obter símbolos do mercado futures
+            futures_info = self.api_client.get_exchange_info()
+            if futures_info:
+                self.valid_symbols_cache["futures"] = {
+                    symbol["symbol"] for symbol in futures_info.get("symbols", [])
+                    if symbol.get("status") == "TRADING"
+                }
+            
+            self.valid_symbols_cache["last_update"] = time.time()
+            log.info(f"Updated symbols cache: {len(self.valid_symbols_cache['spot'])} spot, {len(self.valid_symbols_cache['futures'])} futures")
+            
+        except Exception as e:
+            log.error(f"Failed to update symbols cache: {e}")
         
     def get_available_balances(self) -> Dict[str, float]:
         """Obtém saldos disponíveis para spot e futures."""
@@ -385,7 +431,7 @@ class CapitalManager:
                 grid_levels=grid_params["grid_levels"],
                 spacing_percentage=grid_params["spacing_percentage"],
                 market_type=market_type,
-                leverage=grid_params.get("leverage", 1)
+                leverage=grid_params.get("leverage", 10)
             )
             
             allocations.append(allocation)
@@ -473,7 +519,7 @@ class CapitalManager:
             "spacing_percentage": spacing_percentage,
             "max_position_size": max_position_size,
             "market_type": market_type,
-            "leverage": leverage if market_type == "futures" else 1
+            "leverage": leverage if market_type == "futures" else 10
         }
     
     def get_allocation_for_symbol(self, symbol: str) -> Optional[CapitalAllocation]:
