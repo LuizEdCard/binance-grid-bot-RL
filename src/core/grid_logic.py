@@ -2,7 +2,7 @@
 # Suporta mercado Spot e Futuros, com RL decidindo entre os mercados
 
 import time
-from decimal import ROUND_DOWN, ROUND_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_UP, ROUND_HALF_UP, Decimal
 
 import numpy as np  # Importa numpy para TA-Lib
 import pandas as pd  # Importa pandas para manipulação de dados
@@ -21,6 +21,9 @@ from binance.enums import (
 from utils.api_client import APIClient
 from utils.logger import setup_logger
 from utils.pair_logger import get_pair_logger
+from utils.trade_logger import get_trade_logger
+from utils.global_tp_sl_manager import get_global_tpsl_manager, add_position_to_global_tpsl, remove_position_from_global_tpsl
+from utils.trading_state_recovery import TradingStateRecovery
 log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
@@ -64,6 +67,9 @@ class GridLogic:
         self.market_type = market_type.lower()  # "futures" ou "spot"
         self.grid_config = config.get("grid", {})
         self.risk_config = config.get("risk_management", {})
+        
+        # Get kline interval from config
+        self.kline_interval = config.get("http_api", {}).get("default_kline_interval", "3m")
         self.exchange_info = None
         self.symbol_info = None
         self.tick_size = None
@@ -73,8 +79,13 @@ class GridLogic:
         self.price_precision = None
 
         # Parâmetros do grid - sempre priorizar valores do frontend
-        self.num_levels = int(config.get("initial_levels") or self.grid_config.get("initial_levels", 10))
-        self.base_spacing_percentage = Decimal(str(config.get("initial_spacing_perc") or self.grid_config.get("initial_spacing_perc", "0.005")))
+        initial_levels = int(config.get("initial_levels") or self.grid_config.get("initial_levels", 25))
+        self.min_levels = int(config.get("min_levels") or self.grid_config.get("min_levels", 15))
+        self.max_levels = int(config.get("max_levels") or self.grid_config.get("max_levels", 50))
+        
+        # Ensure initial levels is within min/max bounds
+        self.num_levels = max(self.min_levels, min(initial_levels, self.max_levels))
+        self.base_spacing_percentage = Decimal(str(config.get("initial_spacing_perc") or self.grid_config.get("initial_spacing_perc", "0.002")))
         # Usa estado real (production mode)
         if self.market_type == "spot":
             self.position = {
@@ -125,7 +136,29 @@ class GridLogic:
             self.quote_asset = 'USDT'
 
         # Initialize pair logger for detailed metrics logging
-        self.pair_logger = get_pair_logger(self.symbol)
+        from utils.pair_logger import get_multi_pair_logger
+        multi_pair_logger = get_multi_pair_logger()
+        self.pair_logger = multi_pair_logger.get_pair_logger(self.symbol)
+        
+        # Initialize trade logger for separate trade logs
+        self.trade_logger = get_trade_logger()
+        
+        # Initialize global TP/SL manager (singleton) - SEMPRE ATIVAR
+        self.tpsl_manager = get_global_tpsl_manager(self.api_client, self.config)
+        if self.tpsl_manager:
+            # O start_monitoring será chamado apenas uma vez pelo singleton
+            log.info(f"[{self.symbol}] Conectado ao Global TP/SL Manager com SL agressivo de 5%")
+        else:
+            log.warning(f"[{self.symbol}] Falha ao conectar com Global TP/SL Manager")
+        
+        # Initialize trading state recovery system
+        self.state_recovery = TradingStateRecovery(self.api_client)
+        self.recovered_state = None
+        self.recovery_initialized = False
+        
+        # Initialize TP/SL position tracking to prevent duplicates
+        self._active_tpsl_positions = set()
+        self._last_position_amt = Decimal("0")
         
         # Initialize metrics tracking variables
         self.last_price_24h = None
@@ -136,40 +169,96 @@ class GridLogic:
         log.info(
             f"[{self.symbol}] GridLogic inicializado no modo {self.operation_mode.upper()} para mercado {self.market_type.upper()}. Espaçamento Dinâmico (ATR): {self.use_dynamic_spacing}"
         )
+        
+        # Initialize leverage for futures trading
+        if self.market_type == "futures":
+            self._initialize_leverage()
+        
         if self.use_dynamic_spacing and not talib_available:
             log.warning(
                 f"[{self.symbol}] Espaçamento dinâmico solicitado mas TA-Lib não encontrado. Voltando para espaçamento fixo."
             )
             self.use_dynamic_spacing = False
 
+    def _initialize_leverage(self):
+        """Initialize leverage for futures trading to ensure proper configuration."""
+        try:
+            # Get leverage from config
+            leverage = self.config.get("grid", {}).get("futures", {}).get("leverage", 10)
+            
+            log.info(f"[{self.symbol}] Setting initial leverage to {leverage}x for futures trading")
+            
+            # Attempt to set leverage
+            result = self.api_client.change_leverage(self.symbol, leverage)
+            
+            if result:
+                actual_leverage = result.get("leverage", leverage)
+                log.info(f"[{self.symbol}] ✅ Leverage successfully set to {actual_leverage}x")
+                
+                # Verify the leverage was applied correctly
+                if int(actual_leverage) != int(leverage):
+                    log.warning(
+                        f"[{self.symbol}] ⚠️  Requested leverage {leverage}x but got {actual_leverage}x. "
+                        f"This might be due to Binance limits for this symbol."
+                    )
+            else:
+                log.error(f"[{self.symbol}] ❌ Failed to set leverage to {leverage}x")
+                
+        except Exception as e:
+            log.error(f"[{self.symbol}] Error initializing leverage: {e}")
+
         if not self._initialize_symbol_info():
             raise ValueError(
                 f"[{self.symbol}] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic."
             )
+        
+        # Initialize trading state recovery (run once per symbol)
+        self._initialize_state_recovery()
 
     def _initialize_symbol_info(self) -> bool:
-        """Inicializa informações do símbolo para Spot ou Futuros."""
+        """Inicializa informações do símbolo para Spot ou Futuros com validação melhorada."""
         log.info(f"[{self.symbol}] Inicializando informações de exchange para mercado {self.market_type.upper()}...")
         
-        # Busca informações de exchange baseado no tipo de mercado
-        if self.market_type == "spot":
-            self.exchange_info = self.api_client.get_spot_exchange_info()
-        else:  # futures
-            self.exchange_info = self.api_client.get_exchange_info()
-            
-        if not self.exchange_info:
-            log.error(f"[{self.symbol}] Falha ao buscar informações de exchange.")
+        # 1. Validação prévia do símbolo
+        if not self.symbol or len(self.symbol) < 3:
+            log.error(f"[{self.symbol}] Símbolo inválido ou muito curto")
             return False
+        
+        # 2. Busca informações de exchange baseado no tipo de mercado
+        try:
+            if self.market_type == "spot":
+                self.exchange_info = self.api_client.get_spot_exchange_info()
+            else:  # futures
+                self.exchange_info = self.api_client.get_exchange_info()
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao buscar exchange info: {e}")
+            return False
+            
+        if not self.exchange_info or 'symbols' not in self.exchange_info:
+            log.error(f"[{self.symbol}] Falha ao buscar informações de exchange ou dados inválidos.")
+            return False
+        
+        # 3. Buscar símbolo com validação de status
         for item in self.exchange_info.get("symbols", []):
             if item["symbol"] == self.symbol:
+                # Verificar se o símbolo está ativo
+                status = item.get("status", "").upper()
+                if status != "TRADING":
+                    log.error(f"[{self.symbol}] Símbolo não está em status TRADING. Status atual: {status}")
+                    return False
+                
                 self.symbol_info = item
+                log.info(f"[{self.symbol}] ✅ Símbolo encontrado e válido no mercado {self.market_type}")
                 break
+                
         if not self.symbol_info:
             log.error(f"[{self.symbol}] Symbol not found in {self.market_type} market. Available symbols count: {len(self.exchange_info.get('symbols', []))}")
             # Log some similar symbols for debugging
-            similar_symbols = [s['symbol'] for s in self.exchange_info.get('symbols', []) if self.symbol[:3] in s['symbol'] or self.symbol[-4:] in s['symbol']][:5]
+            similar_symbols = [s['symbol'] for s in self.exchange_info.get('symbols', []) 
+                             if (self.symbol[:3] in s['symbol'] or self.symbol[-4:] in s['symbol']) 
+                             and s.get('status', '').upper() == 'TRADING'][:5]
             if similar_symbols:
-                log.info(f"[{self.symbol}] Similar symbols found: {similar_symbols}")
+                log.info(f"[{self.symbol}] Similar active symbols found: {similar_symbols}")
             return False
 
         # Obter precisões dos dados do símbolo ou calcular dos filtros
@@ -260,47 +349,167 @@ class GridLogic:
             )
             return False
         return True
+    
+    def _initialize_state_recovery(self):
+        """
+        Inicializa recuperação de estado baseada no histórico real da Binance.
+        Recupera PnL, posições e capital investido das últimas 24h.
+        """
+        if self.recovery_initialized:
+            return  # Evitar múltiplas inicializações
+            
+        try:
+            log.info(f"[{self.symbol}] 🔄 Iniciando recuperação de estado do trading...")
+            
+            # Recuperar estado das últimas 24 horas
+            self.recovered_state = self.state_recovery.recover_trading_state(hours_back=24)
+            
+            if self.recovered_state and not self.recovered_state.get('fallback', False):
+                # Estado recuperado com sucesso
+                summary = self.recovered_state['trading_summary']
+                
+                log.info(f"[{self.symbol}] ✅ Estado recuperado com sucesso!")
+                log.info(f"[{self.symbol}] 💰 PnL Total: ${summary['total_pnl']:.2f} USDT")
+                log.info(f"[{self.symbol}] 💵 Capital Investido: ${summary['total_invested']:.2f} USDT")
+                log.info(f"[{self.symbol}] 📊 ROI: {summary['roi_percentage']:.2f}%")
+                log.info(f"[{self.symbol}] 📈 Posições: {summary['profitable_positions']} lucrativas, {summary['losing_positions']} com perda")
+                
+                # Atualizar métricas do pair_logger com dados reais
+                if self.symbol in self.recovered_state['positions']:
+                    position_metrics = self.state_recovery.update_position_metrics(
+                        self.symbol, self.recovered_state
+                    )
+                    
+                    # Atualizar pair_logger com dados reais recuperados
+                    self.pair_logger.update_metrics(
+                        realized_pnl=position_metrics.get('realized_pnl', 0.0),
+                        total_invested=position_metrics.get('total_invested', 0.0),
+                        total_orders=position_metrics.get('orders_count', 0),
+                        roi_percentage=position_metrics.get('roi_percentage', 0.0)
+                    )
+                    
+                    # Atualizar TP/SL se disponível
+                    tp_price = position_metrics.get('tp_price')
+                    sl_price = position_metrics.get('sl_price')
+                    if tp_price or sl_price:
+                        self.pair_logger.update_tp_sl(
+                            tp_price=tp_price,
+                            sl_price=sl_price
+                        )
+                    
+                    log.info(f"[{self.symbol}] 📋 Métricas atualizadas com dados reais da Binance")
+                
+            else:
+                log.warning(f"[{self.symbol}] ⚠️ Recuperação de estado falhou, usando dados padrão")
+                
+            self.recovery_initialized = True
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] ❌ Erro na recuperação de estado: {e}")
+            self.recovery_initialized = True  # Marcar como tentado
 
     def _format_price(self, price):
-        """Formata preço de acordo com as regras do símbolo."""
+        """Formata preço de acordo com as regras do símbolo com validação de precisão."""
         if self.tick_size is None or self.price_precision is None:
             return None
         try:
-            adjusted_price = (Decimal(str(price)) / self.tick_size).quantize(
-                Decimal("1"), rounding=ROUND_DOWN
+            # Use ROUND_HALF_UP para arredondar corretamente para o tick size mais próximo
+            price_decimal = Decimal(str(price))
+            adjusted_price = (price_decimal / self.tick_size).quantize(
+                Decimal("1"), rounding=ROUND_HALF_UP
             ) * self.tick_size
-            return f"{adjusted_price:.{self.price_precision}f}"
+            
+            # Use ONLY the price_precision from exchange info - never exceed it
+            # This prevents "Precision is over the maximum defined" errors
+            formatted_price = f"{adjusted_price:.{int(self.price_precision)}f}"
+            
+            # Only remove trailing zeros if it doesn't reduce precision below minimum
+            if '.' in formatted_price:
+                # Count decimal places after removing trailing zeros
+                test_format = formatted_price.rstrip('0').rstrip('.')
+                decimal_places = 0 if '.' not in test_format else len(test_format.split('.')[1])
+                
+                # Only use trimmed format if it maintains minimum precision for tick_size
+                tick_decimal_places = max(0, -self.tick_size.as_tuple().exponent)
+                if decimal_places >= tick_decimal_places:
+                    formatted_price = test_format
+            
+            return formatted_price
+            
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao formatar preço {price}: {e}")
             return None
 
-    def _format_quantity(self, quantity):
-        """Formata quantidade de acordo com as regras do símbolo."""
+    def _format_quantity(self, quantity, current_price=None):
+        """Formata quantidade de acordo com as regras do símbolo com verificação de notional."""
         if self.step_size is None or self.quantity_precision is None:
             return None
         try:
-            # Use ROUND_UP for quantities to ensure minimum notional is always met
-            adjusted_quantity = (Decimal(str(quantity)) / self.step_size).quantize(
-                Decimal("1"), rounding=ROUND_UP
-            ) * self.step_size
-            if adjusted_quantity == Decimal("0") and Decimal(str(quantity)) > Decimal(
-                "0"
-            ):
-                adjusted_quantity = self.step_size
-            return f"{adjusted_quantity:.{self.quantity_precision}f}"
+            # Calculate proper precision based on step_size
+            step_size_decimal = Decimal(str(self.step_size))
+            quantity_decimal = Decimal(str(quantity))
+            
+            # Calculate how many decimal places we need based on step_size
+            step_decimal_places = max(0, -step_size_decimal.as_tuple().exponent)
+            effective_precision = min(int(step_decimal_places), int(self.quantity_precision))
+            
+            # Adjust quantity to step_size (round down to avoid exceeding balance)
+            steps = (quantity_decimal / step_size_decimal).quantize(Decimal("1"), rounding=ROUND_DOWN)
+            adjusted_quantity = steps * step_size_decimal
+            
+            # Ensure minimum quantity
+            if adjusted_quantity == Decimal("0") and quantity_decimal > Decimal("0"):
+                adjusted_quantity = step_size_decimal
+            
+            # Check minimum notional if price provided
+            if current_price and adjusted_quantity > 0:
+                min_notional = self.min_notional if self.min_notional else Decimal("5")
+                notional_value = adjusted_quantity * Decimal(str(current_price))
+                
+                if notional_value < min_notional:
+                    # Calculate minimum quantity needed
+                    min_quantity_needed = (min_notional / Decimal(str(current_price)))
+                    min_steps = (min_quantity_needed / step_size_decimal).quantize(Decimal("1"), rounding=ROUND_UP)
+                    adjusted_quantity = min_steps * step_size_decimal
+                    
+                    log.info(f"[{self.symbol}] Adjusted quantity from {quantity} to {adjusted_quantity} to meet min_notional {min_notional}")
+            
+            # Use ONLY the quantity_precision from exchange info - never exceed it
+            formatted_quantity = f"{adjusted_quantity:.{int(self.quantity_precision)}f}"
+            
+            # Only remove trailing zeros if it doesn't reduce precision below minimum  
+            if '.' in formatted_quantity:
+                # Count decimal places after removing trailing zeros
+                test_format = formatted_quantity.rstrip('0').rstrip('.')
+                decimal_places = 0 if '.' not in test_format else len(test_format.split('.')[1])
+                
+                # Only use trimmed format if it maintains minimum precision for step_size
+                if decimal_places >= step_decimal_places:
+                    formatted_quantity = test_format
+            
+            return formatted_quantity
+            
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao formatar quantidade {quantity}: {e}")
             return None
 
     def _check_min_notional(self, price, quantity):
-        """Verifica se a ordem atende ao valor nocional mínimo (mínimo 5 USDT por regra da Binance)."""
+        """Verifica se a ordem atende ao valor nocional mínimo com logs detalhados."""
         min_notional = self.min_notional if self.min_notional else Decimal("5")
         try:
-            notional_value = Decimal(str(price)) * Decimal(str(quantity))
+            price_decimal = Decimal(str(price))
+            quantity_decimal = Decimal(str(quantity))
+            notional_value = price_decimal * quantity_decimal
             meets = notional_value >= min_notional
+            
             if not meets:
                 log.warning(
-                    f"[{self.symbol}] Nocional da ordem {notional_value:.4f} < min_notional {min_notional} (Preço: {price}, Qtd: {quantity})"
+                    f"[{self.symbol}] FAILED min_notional check: {notional_value:.8f} USDT < {min_notional} USDT "
+                    f"(Price: {price}, Qty: {quantity}, StepSize: {self.step_size})"
+                )
+            else:
+                log.debug(
+                    f"[{self.symbol}] PASSED min_notional check: {notional_value:.8f} USDT >= {min_notional} USDT"
                 )
             return meets
         except Exception as e:
@@ -359,11 +568,27 @@ class GridLogic:
             return self.api_client.get_futures_klines(symbol=self.symbol, interval=interval, limit=limit)
 
     def _place_order_unified(self, side, price_str, qty_str):
-        """Coloca ordem baseado no tipo de mercado."""
+        """Coloca ordem baseado no tipo de mercado com proteção contra margem insuficiente."""
         log.info(
             f"[{self.symbol} - {self.operation_mode.upper()}] Colocando ordem {side} LIMIT no mercado {self.market_type.upper()} em {price_str}, Qtd: {qty_str}"
         )
         try:
+            # NOVO: Verificar saldo antes de tentar colocar ordem
+            if self.market_type == "futures":
+                try:
+                    futures_balance = self.api_client.get_futures_balance()
+                    if futures_balance:
+                        for asset in futures_balance:
+                            if asset.get("asset") == "USDT":
+                                available = float(asset.get("availableBalance", "0"))
+                                if available < 1.0:  # Menos de $1 disponível
+                                    log.warning(f"[{self.symbol}] 🚨 MARGEM INSUFICIENTE: Apenas ${available:.2f} disponível - PAUSANDO colocação de ordens")
+                                    self.pair_logger.log_error(f"⚠️ Margem insuficiente: ${available:.2f} - Ordem cancelada")
+                                    return None
+                                break
+                except Exception as e:
+                    log.debug(f"[{self.symbol}] Erro ao verificar saldo futures: {e}")
+            
             if self.market_type == "spot":
                 # Ordem no mercado Spot
                 order = self.api_client.place_spot_order(
@@ -411,10 +636,23 @@ class GridLogic:
                 )
                 return None
         except Exception as e:
-            log.error(
-                f"[{self.symbol}] Exceção ao colocar ordem {side} em {price_str}: {e}"
-            )
-            return None
+            # NOVO: Tratamento específico para erro de margem insuficiente
+            error_str = str(e)
+            if "2019" in error_str or "Margin is insufficient" in error_str:
+                log.error(f"[{self.symbol}] 🚨 MARGEM INSUFICIENTE detectada - parando colocação de ordens")
+                self.pair_logger.log_error("🛑 Sistema pausado: Margem insuficiente detectada")
+                
+                # Marcar que este par tem problemas de margem
+                if not hasattr(self, '_margin_insufficient_flag'):
+                    self._margin_insufficient_flag = True
+                    log.error(f"[{self.symbol}] 💡 AÇÃO NECESSÁRIA: Transferir USDT para conta Futures ou fechar posições")
+                
+                return None
+            else:
+                log.error(
+                    f"[{self.symbol}] Exceção ao colocar ordem {side} em {price_str}: {e}"
+                )
+                return None
 
     def _cancel_order_unified(self, order_id):
         """Cancela ordem baseado no tipo de mercado."""
@@ -498,7 +736,9 @@ class GridLogic:
             # Busca klines recentes (ex: 1h, suficiente para cálculo de ATR)
             # Precisa de pelo menos atr_period + 1 candles
             limit = self.dynamic_spacing_atr_period + 5  # Adiciona buffer
-            klines = self._get_klines(interval="1h", limit=limit)
+            # Use configured interval from config
+            interval = getattr(self, 'kline_interval', '3m')
+            klines = self._get_klines(interval=interval, limit=limit)
             if not klines or len(klines) < self.dynamic_spacing_atr_period:
                 log.warning(
                     f"[{self.symbol}] Dados de kline insuficientes ({len(klines) if klines else 0}) para espaçamento ATR dinâmico. Usando espaçamento base."
@@ -572,26 +812,178 @@ class GridLogic:
             )
             self.current_spacing_percentage = self.base_spacing_percentage
 
+    def _get_hft_grid_range(self, current_price: float):
+        """Get optimal grid range using Bollinger Bands, Keltner Channels e VWAP para HFT."""
+        try:
+            upper_bound = current_price * 1.02  # Default fallback 2%
+            lower_bound = current_price * 0.98
+            center_price = current_price
+            
+            # 1. BOLLINGER BANDS como range primário
+            if hasattr(self, 'bb_upper') and hasattr(self, 'bb_lower') and hasattr(self, 'bb_middle'):
+                # Usar BB como range do grid se disponível
+                bb_range = (self.bb_upper - self.bb_lower) / self.bb_middle
+                
+                # Se BB width < 2%, expandir um pouco para HFT
+                if bb_range < 0.02:
+                    expansion_factor = 1.2
+                    bb_center = self.bb_middle
+                    bb_half_range = (self.bb_upper - self.bb_lower) / 2 * expansion_factor
+                    upper_bound = bb_center + bb_half_range
+                    lower_bound = bb_center - bb_half_range
+                else:
+                    upper_bound = self.bb_upper
+                    lower_bound = self.bb_lower
+                
+                center_price = self.bb_middle
+                log.debug(f"[{self.symbol}] BB Range: {lower_bound:.6f} - {upper_bound:.6f} (width: {bb_range:.1%})")
+            
+            # 2. KELTNER CHANNELS como confirmação/expansão
+            if hasattr(self, 'kc_upper') and hasattr(self, 'kc_lower'):
+                # Se KC é mais amplo que BB, usar KC para capture mais movimentos
+                kc_range = (self.kc_upper - self.kc_lower) / current_price
+                bb_range_calc = (upper_bound - lower_bound) / current_price
+                
+                if kc_range > bb_range_calc * 1.1:  # KC 10% maior que BB range
+                    upper_bound = self.kc_upper
+                    lower_bound = self.kc_lower
+                    log.debug(f"[{self.symbol}] Usando KC range (mais amplo): {lower_bound:.6f} - {upper_bound:.6f}")
+            
+            # 3. VWAP como referência de centro
+            if hasattr(self, 'vwap') and self.vwap > 0:
+                # Usar VWAP como centro se próximo do preço atual (dentro de 1%)
+                vwap_distance = abs(self.vwap - current_price) / current_price
+                if vwap_distance < 0.01:  # VWAP dentro de 1%
+                    center_price = self.vwap
+                    log.debug(f"[{self.symbol}] Using VWAP as center: {self.vwap:.6f}")
+            
+            # 4. ATR-based adjustment para spacing mais dinâmico
+            if hasattr(self, 'current_atr') and self.current_atr > 0:
+                atr_perc = self.current_atr / current_price
+                # Se ATR é alto, grid mais espaçado; se baixo, mais apertado
+                if atr_perc > 0.01:  # ATR > 1%
+                    # High volatility - expand range but keep levels
+                    range_expansion = 1.0 + (atr_perc - 0.01) * 2  # Scale expansion
+                    current_range = upper_bound - lower_bound
+                    range_center = (upper_bound + lower_bound) / 2
+                    half_expanded_range = (current_range * range_expansion) / 2
+                    upper_bound = range_center + half_expanded_range
+                    lower_bound = range_center - half_expanded_range
+                    log.debug(f"[{self.symbol}] ATR expansion: {atr_perc:.1%} -> range expanded by {range_expansion:.1f}x")
+            
+            # 5. Safety checks
+            max_range = current_price * 0.05  # Max 5% range
+            min_range = current_price * 0.004  # Min 0.4% range for HFT
+            
+            current_range = upper_bound - lower_bound
+            if current_range > max_range:
+                # Range too wide - compress
+                range_center = (upper_bound + lower_bound) / 2
+                upper_bound = range_center + max_range / 2
+                lower_bound = range_center - max_range / 2
+            elif current_range < min_range:
+                # Range too narrow - expand for HFT
+                range_center = (upper_bound + lower_bound) / 2
+                upper_bound = range_center + min_range / 2
+                lower_bound = range_center - min_range / 2
+            
+            return {
+                'upper_bound': upper_bound,
+                'lower_bound': lower_bound,
+                'center_price': center_price,
+                'range_percent': (upper_bound - lower_bound) / current_price * 100
+            }
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao calcular HFT grid range: {e}")
+            # Fallback para range básico
+            return {
+                'upper_bound': current_price * 1.015,  # 1.5% up
+                'lower_bound': current_price * 0.985,  # 1.5% down
+                'center_price': current_price,
+                'range_percent': 3.0
+            }
+
+    def _adjust_dynamic_levels(self, current_price: float):
+        """Adjust grid levels dynamically based on volatility and market conditions."""
+        try:
+            # Calculate current volatility from price history
+            volatility = 0.01  # Default volatility
+            if len(self.price_history) >= 20:
+                volatility = float(np.std(self.price_history[-20:]) / np.mean(self.price_history[-20:]))
+            
+            # Calculate number of orders currently active
+            active_orders = len([order for order in self.orders if order.get("status") == "NEW"])
+            
+            # Dynamic level calculation based on:
+            # 1. Volatility (higher volatility = more levels)
+            # 2. Performance (profitable pairs get more levels)
+            # 3. Available capital
+            
+            # Base calculation: volatility factor
+            volatility_factor = min(2.0, max(0.5, volatility * 50))  # Scale volatility to 0.5-2.0 range
+            
+            # Performance factor
+            performance_factor = 1.0
+            if hasattr(self, 'total_profit') and self.total_profit:
+                if float(self.total_profit) > 0:
+                    performance_factor = 1.3  # Increase levels for profitable pairs
+                elif float(self.total_profit) < -1:
+                    performance_factor = 0.8  # Decrease levels for losing pairs
+            
+            # Calculate new levels
+            base_levels = (self.min_levels + self.max_levels) // 2  # Start with middle value
+            adjusted_levels = int(base_levels * volatility_factor * performance_factor)
+            
+            # Ensure within bounds
+            new_levels = max(self.min_levels, min(adjusted_levels, self.max_levels))
+            
+            # Only update if significantly different (avoid constant changes)
+            if abs(new_levels - self.num_levels) >= 3:
+                old_levels = self.num_levels
+                self.num_levels = new_levels
+                log.info(
+                    f"[{self.symbol}] 📊 Grid dinâmico: {old_levels} → {new_levels} níveis "
+                    f"(vol: {volatility:.3f}, perf: {performance_factor:.1f})"
+                )
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao ajustar níveis dinâmicos: {e}")
+
     def define_grid_levels(self, current_price: float):
-        """Define níveis do grid baseado no preço atual."""
-        # Atualiza espaçamento dinâmico primeiro se habilitado
+        """Define níveis do grid baseado no preço atual usando HFT com Bollinger Bands."""
+        # Adjust grid levels dynamically based on volatility and market conditions
+        self._adjust_dynamic_levels(current_price)
+        
+        # 1. Obter range HFT usando Bollinger Bands, Keltner Channels e VWAP
+        hft_range = self._get_hft_grid_range(current_price)
+        
+        # 2. Atualiza espaçamento dinâmico primeiro se habilitado
         if self.use_dynamic_spacing:
             self._update_dynamic_spacing()
         else:
             self.current_spacing_percentage = self.base_spacing_percentage
 
+        # 3. Log do range HFT
+        upper_bound = hft_range['upper_bound']
+        lower_bound = hft_range['lower_bound']
+        center_price_hft = hft_range['center_price']
+        range_percent = hft_range['range_percent']
+        
         log.info(
-            f"[{self.symbol}] Definindo níveis do grid em torno do preço: {current_price} (Níveis: {self.num_levels}, Espaçamento: {self.current_spacing_percentage*100:.3f}%, Direção: {self.grid_direction})"
+            f"[{self.symbol}] 🎯 HFT Grid Range: {lower_bound:.6f} - {upper_bound:.6f} ({range_percent:.2f}%) | Níveis: {self.num_levels}, Espaçamento: {self.current_spacing_percentage*100:.3f}%"
             + (" (Dinâmico)" if self.use_dynamic_spacing else " (Fixo)")
         )
+        
         if self.num_levels <= 0:
             log.error(f"[{self.symbol}] Número de níveis <= 0. Não é possível definir grid.")
             self.grid_levels = []
             return
+        
         self.grid_levels = []
-        center_price_str = self._format_price(current_price)
+        center_price_str = self._format_price(center_price_hft)
         if not center_price_str:
-            log.error(f"[{self.symbol}] Não foi possível formatar preço central {current_price}.")
+            log.error(f"[{self.symbol}] Não foi possível formatar preço central {center_price_hft}.")
             return
         center_price = Decimal(center_price_str)
 
@@ -662,7 +1054,7 @@ class GridLogic:
         if quantity < min_quantity:
             log.info(f"[{self.symbol}] Adjusting quantity from {quantity} to {min_quantity} to meet minimum notional ${min_notional}")
             quantity = min_quantity
-        formatted_qty_str = self._format_quantity(quantity)
+        formatted_qty_str = self._format_quantity(quantity, current_price)
         if not formatted_qty_str:
             log.error(f"[{self.symbol}] Failed to format quantity {quantity}.")
             return Decimal("0")
@@ -705,7 +1097,7 @@ class GridLogic:
                 continue
 
             formatted_price_str = self._format_price(level_price)
-            formatted_qty_str = self._format_quantity(quantity_per_order)
+            formatted_qty_str = self._format_quantity(quantity_per_order, current_price)
             if not formatted_price_str or not formatted_qty_str:
                 continue
             if not self._check_min_notional(formatted_price_str, formatted_qty_str):
@@ -952,7 +1344,7 @@ class GridLogic:
 
         if tp_price and tp_side:
             formatted_tp_price_str = self._format_price(tp_price)
-            formatted_tp_qty_str = self._format_quantity(tp_qty)
+            formatted_tp_qty_str = self._format_quantity(tp_qty, current_price)
             if (
                 formatted_tp_price_str
                 and formatted_tp_qty_str
@@ -978,22 +1370,125 @@ class GridLogic:
                 f"[{self.symbol}] Could not determine TP level for filled order {fill_data['orderId']} at level {filled_level_price}. Maybe edge of grid?"
             )
 
+        # --- Add Position to TP/SL Manager (SMART - evita duplicatas) --- #
+        # Aplicar TP/SL agressivo para TODAS as posições abertas (spot e futures)
+        if abs(float(new_pos_amt)) > 0:
+            position_side = "LONG" if float(new_pos_amt) > 0 else "SHORT"
+            position_key = f"{self.symbol}_{position_side}_{float(new_entry_price):.6f}"
+            
+            # Only add if position size changed significantly (>1%) to avoid micro-changes
+            size_change_threshold = 0.01  # 1%
+            current_amt = float(self._last_position_amt)
+            new_amt = float(new_pos_amt)
+            size_change = abs(abs(new_amt) - abs(current_amt))
+            size_change_percent = size_change / max(abs(current_amt), abs(new_amt), 0.01) if max(abs(current_amt), abs(new_amt)) > 0 else 0
+            
+            # Add position only if significant size change AND not already tracked
+            if (size_change_percent > size_change_threshold and 
+                position_key not in self._active_tpsl_positions):
+                
+                try:
+                    position_id = add_position_to_global_tpsl(
+                        symbol=self.symbol,
+                        position_side=position_side,
+                        entry_price=new_entry_price,
+                        quantity=abs(new_pos_amt)
+                    )
+                    
+                    if position_id:  # Only proceed if position was successfully added
+                        self._active_tpsl_positions.add(position_key)
+                        log.info(f"[{self.symbol}] 🎯 Position added to TP/SL manager: {position_id} (size change: {size_change_percent:.1%})")
+                        log.info(f"[{self.symbol}] 🛡️ SL AGRESSIVO ATIVADO - Proteção de capital em 5%")
+                    else:
+                        log.warning(f"[{self.symbol}] 🚫 Could not add position to TP/SL: position does not exist on exchange")
+                    
+                except Exception as e:
+                    log.error(f"[{self.symbol}] Error adding position to TP/SL manager: {e}")
+            elif position_key in self._active_tpsl_positions:
+                log.debug(f"[{self.symbol}] Position {position_key} already tracked in TP/SL manager")
+        
+        # Record trade activity for rotation tracking
+        trade_volume = float(fill_data.get("cummulativeQuoteQty", 0))
+        trade_profit = float(realized_pnl) if realized_pnl else 0.0
+        
+        self._record_trade_activity({
+            "volume_usdt": trade_volume,
+            "profit": trade_profit,
+            "trade_type": "grid_fill",
+            "timestamp": time.time()
+        })
+        
+        # Clean up closed positions from tracking
+        if abs(float(new_pos_amt)) == 0 and len(self._active_tpsl_positions) > 0:
+            log.info(f"[{self.symbol}] Position closed, cleaning up TP/SL tracking")
+            self._active_tpsl_positions.clear()
+        
+        # Update last position amount for comparison
+        self._last_position_amt = Decimal(str(new_pos_amt))
+    
+    def _calculate_trade_profit(self, fill_data: dict, filled_level_price: float) -> float:
+        """Calcula lucro estimado de um trade de grid."""
+        try:
+            # Para grid trading, o lucro é a diferença entre preços de níveis
+            current_price = self._get_current_price_from_ticker()
+            if not current_price:
+                return 0.0
+            
+            side = fill_data.get("side", "")
+            exec_qty = float(fill_data.get("executedQty", 0))
+            avg_price = float(fill_data.get("avgPrice", 0))
+            
+            # Lucro estimado baseado na direção do trade
+            if side == "SELL":
+                # Venda: lucro = (preço_venda - preço_compra) * quantidade
+                estimated_profit = (avg_price - filled_level_price * 0.995) * exec_qty  # 0.5% spread estimado
+            else:  # BUY
+                # Compra: aguardando venda futura, lucro = 0 por enquanto
+                estimated_profit = 0.0
+            
+            return estimated_profit
+            
+        except Exception as e:
+            log.debug(f"[{self.symbol}] Erro ao calcular lucro do trade: {e}")
+            return 0.0
+    
+        
+        # Continue with trade record processing
+        self._handle_filled_order_continuation(fill_data, filled_level_price, 
+                                             side, avg_price, filled_qty, realized_pnl, 
+                                             commission, commission_asset)
+    
+    def _handle_filled_order_continuation(self, fill_data: dict, filled_level_price: float,
+                                        side: str, avg_price: float, filled_qty: float, 
+                                        realized_pnl: float, commission: float, commission_asset: str):
+        """Continuação do processamento após atualização de posição."""
         # --- Record Trade --- #
-        self.trade_history.append(
-            {
-                "timestamp": fill_data.get("updateTime", int(time.time() * 1000)),
-                "orderId": fill_data["orderId"],
-                "side": side,
-                "price": avg_price,
-                "quantity": filled_qty,
-                "realizedPnl": realized_pnl,
-                "commission": commission,
-                "commissionAsset": commission_asset,
-                "positionAmtAfter": self.position["positionAmt"],
-            }
-        )
+        trade_record = {
+            "timestamp": fill_data.get("updateTime", int(time.time() * 1000)),
+            "orderId": fill_data["orderId"],
+            "side": side,
+            "price": avg_price,
+            "quantity": filled_qty,
+            "realizedPnl": realized_pnl,
+            "commission": commission,
+            "commissionAsset": commission_asset,
+            "positionAmtAfter": self.position["positionAmt"],
+        }
+        self.trade_history.append(trade_record)
         self.total_trades += 1
-        log.info(f"[{self.symbol}] Trade recorded. Total trades: {self.total_trades}")
+        
+        # LOG DETALHADO da ordem executada
+        log.info(f"[{self.symbol}] 📊 ORDEM EXECUTADA:")
+        log.info(f"[{self.symbol}] 🆔 Order ID: {fill_data['orderId']}")
+        log.info(f"[{self.symbol}] 📈 Side: {side} | Qty: {filled_qty} | Price: ${avg_price}")
+        log.info(f"[{self.symbol}] 💰 PnL: {realized_pnl} USDT | Comissão: {commission} {commission_asset}")
+        log.info(f"[{self.symbol}] 📊 Nova Posição: {self.position['positionAmt']} | Total Trades: {self.total_trades}")
+        
+        # Log no trade logger para arquivo separado
+        self.trade_logger.log_trade_execution(
+            self.symbol, side, str(filled_qty), str(avg_price), 
+            str(realized_pnl), str(commission), commission_asset
+        )
 
         # --- Check for RL Retraining Trigger --- #
         retrain_threshold = self.config.get("rl", {}).get("retrain_after_trades", 0)
@@ -1110,7 +1605,9 @@ class GridLogic:
                 log.warning(f"[{self.symbol}] Falha ao obter ticker")
             
             # 2. Atualizar dados de klines para indicadores técnicos
-            klines = self._get_klines(interval="1h", limit=50)
+            # Use configured interval from config
+            interval = getattr(self, 'kline_interval', '3m')
+            klines = self._get_klines(interval=interval, limit=100)
             if klines and len(klines) > 0:
                 # Extrair preços de fechamento para indicadores
                 close_prices = []
@@ -1151,7 +1648,7 @@ class GridLogic:
                     except Exception as e:
                         log.debug(f"[{self.symbol}] Erro ao calcular RSI: {e}")
                     
-                    # ATR (Average True Range)
+                    # ATR (Average True Range) - Com precisão melhorada para tokens de baixo valor
                     try:
                         atr_values = talib.ATR(
                             np.array(high_prices), 
@@ -1159,10 +1656,27 @@ class GridLogic:
                             np.array(close_prices), 
                             timeperiod=14
                         )
-                        if not np.isnan(atr_values[-1]):
-                            self.current_atr = float(atr_values[-1])
+                        if len(atr_values) > 0 and not np.isnan(atr_values[-1]):
+                            new_atr = float(atr_values[-1])
+                            
+                            # Verificar se ATR é extremamente baixo para o preço atual
+                            current_price = close_prices[-1] if close_prices else 1.0
+                            atr_percentage = (new_atr / current_price) * 100 if current_price > 0 else 0
+                            
+                            # Log para debug quando ATR é muito baixo
+                            if atr_percentage < 0.1:  # Menos de 0.1% de volatilidade
+                                log.warning(f"[{self.symbol}] ATR extremamente baixo: {new_atr:.6f} ({atr_percentage:.3f}%) - Preço: ${current_price:.6f}")
+                            
+                            # Só atualizar se ATR for válido e não zero
+                            if new_atr > 0:
+                                self.current_atr = new_atr
+                                log.debug(f"[{self.symbol}] ATR atualizado: {new_atr:.6f} ({atr_percentage:.3f}% do preço)")
+                            else:
+                                log.warning(f"[{self.symbol}] ATR calculado é zero, mantendo valor anterior: {self.current_atr:.6f}")
+                        else:
+                            log.warning(f"[{self.symbol}] ATR inválido ou NaN, mantendo valor anterior: {self.current_atr:.6f}")
                     except Exception as e:
-                        log.debug(f"[{self.symbol}] Erro ao calcular ATR: {e}")
+                        log.error(f"[{self.symbol}] Erro ao calcular ATR: {e}")
                     
                     # ADX (Average Directional Index)
                     try:
@@ -1176,16 +1690,119 @@ class GridLogic:
                             self.current_adx = float(adx_values[-1])
                     except Exception as e:
                         log.debug(f"[{self.symbol}] Erro ao calcular ADX: {e}")
+                    
+                    # BOLLINGER BANDS - Para HFT Range Trading
+                    try:
+                        bb_upper, bb_middle, bb_lower = talib.BBANDS(
+                            np.array(close_prices), 
+                            timeperiod=20, 
+                            nbdevup=2, 
+                            nbdevdn=2, 
+                            matype=0
+                        )
+                        if not (np.isnan(bb_upper[-1]) or np.isnan(bb_lower[-1]) or np.isnan(bb_middle[-1])):
+                            self.bb_upper = float(bb_upper[-1])
+                            self.bb_lower = float(bb_lower[-1])
+                            self.bb_middle = float(bb_middle[-1])
+                            # BB Width para medir volatilidade
+                            self.bb_width = (self.bb_upper - self.bb_lower) / self.bb_middle * 100
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular Bollinger Bands: {e}")
+                    
+                    # KELTNER CHANNELS - Para canais de volatilidade
+                    try:
+                        # EMA e ATR para Keltner Channels
+                        ema_values = talib.EMA(np.array(close_prices), timeperiod=20)
+                        keltner_atr = talib.ATR(
+                            np.array(high_prices), 
+                            np.array(low_prices), 
+                            np.array(close_prices), 
+                            timeperiod=10
+                        )
+                        if not (np.isnan(ema_values[-1]) or np.isnan(keltner_atr[-1])):
+                            kc_multiplier = 2.0
+                            self.kc_upper = float(ema_values[-1] + (keltner_atr[-1] * kc_multiplier))
+                            self.kc_lower = float(ema_values[-1] - (keltner_atr[-1] * kc_multiplier))
+                            self.kc_middle = float(ema_values[-1])
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular Keltner Channels: {e}")
+                    
+                    # VWAP - Para intraday anchor price
+                    try:
+                        # Simplified VWAP calculation
+                        volumes = np.array([float(k[5]) for k in klines])
+                        typical_prices = (np.array(high_prices) + np.array(low_prices) + np.array(close_prices)) / 3
+                        cumulative_volume = np.cumsum(volumes)
+                        cumulative_pv = np.cumsum(typical_prices * volumes)
+                        vwap_values = cumulative_pv / cumulative_volume
+                        if len(vwap_values) > 0 and not np.isnan(vwap_values[-1]):
+                            self.vwap = float(vwap_values[-1])
+                    except Exception as e:
+                        log.debug(f"[{self.symbol}] Erro ao calcular VWAP: {e}")
                 
                 log.debug(f"[{self.symbol}] Klines atualizados: {len(close_prices)} preços, volume 24h: {volume_24h:.2f}")
             else:
                 log.warning(f"[{self.symbol}] Falha ao obter klines")
             
-            # 4. Atualizar métricas do pair_logger
+            # 4. Verificar e atualizar TP/SL ativos
+            self._update_active_tp_sl()
+            
+            # 5. Atualizar métricas do pair_logger
             self._update_pair_logger_metrics(price_change_24h, volume_24h)
                 
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao atualizar dados de mercado: {e}", exc_info=True)
+    
+    def _update_active_tp_sl(self):
+        """
+        Verifica e atualiza ordens TP/SL ativas da Binance.
+        Executado a cada ciclo para manter dados atualizados.
+        """
+        try:
+            # Verificar se há posição ativa
+            if self.market_type == "futures":
+                position = self.api_client.get_futures_position(self.symbol)
+                if not position:
+                    return
+                    
+                # Extrair dados da posição
+                if isinstance(position, list):
+                    position = position[0] if position else None
+                if not position:
+                    return
+                    
+                position_amt = float(position.get('positionAmt', 0))
+                if position_amt == 0:
+                    # Sem posição ativa, limpar TP/SL
+                    self.pair_logger.update_tp_sl(tp_price=None, sl_price=None)
+                    return
+                
+                # Buscar ordens TP/SL ativas
+                orders = self.api_client.get_open_futures_orders(symbol=self.symbol)
+                tp_price = None
+                sl_price = None
+                
+                for order in orders:
+                    order_type = order.get('type', '')
+                    price = float(order.get('price', 0))
+                    
+                    if order_type in ['TAKE_PROFIT_MARKET', 'TAKE_PROFIT'] and price > 0:
+                        tp_price = price
+                    elif order_type in ['STOP_MARKET', 'STOP'] and price > 0:
+                        sl_price = price
+                
+                # Atualizar pair_logger se houver mudanças
+                current_tp = self.pair_logger.metrics.tp_price
+                current_sl = self.pair_logger.metrics.sl_price
+                
+                if tp_price != current_tp or sl_price != current_sl:
+                    self.pair_logger.update_tp_sl(tp_price=tp_price, sl_price=sl_price)
+                    
+                    if tp_price or sl_price:
+                        log.debug(f"[{self.symbol}] TP/SL atualizado: TP={tp_price}, SL={sl_price}")
+                
+        except Exception as e:
+            log.debug(f"[{self.symbol}] Erro ao verificar TP/SL ativos: {e}")
     
     def _update_pair_logger_metrics(self, price_change_24h: float, volume_24h: float):
         """Atualiza métricas no pair_logger com dados de mercado atualizados."""
@@ -1655,6 +2272,9 @@ class GridLogic:
         """Main execution cycle for the grid logic."""
         log.info(f"[{self.symbol}] Running grid cycle...")
 
+        # Track if there's significant activity during this cycle
+        has_trading_activity = False
+
         # 0. First run: Try to recover existing grid
         if not self._recovery_attempted:
             log.info(f"[{self.symbol}] 🔄 Primeira execução - verificando existência de grid ativo na Binance...")
@@ -1662,10 +2282,17 @@ class GridLogic:
             
             if grid_recovered:
                 log.info(f"[{self.symbol}] ✅ Grid ativo recuperado com sucesso da Binance!")
+                has_trading_activity = True  # Recovery is significant activity
                 
                 # Pular para monitoramento direto das ordens recuperadas
                 self.check_and_handle_fills()
                 log.info(f"[{self.symbol}] ✅ Ciclo de recuperação concluído - monitorando ordens da Binance")
+                
+                # Log trading cycle for recovery activity
+                try:
+                    self.pair_logger.log_trading_cycle(force_terminal=True)
+                except Exception as e:
+                    log.error(f"[{self.symbol}] Erro ao registrar ciclo de recuperação: {e}")
                 return
             else:
                 log.info(f"[{self.symbol}] ❌ Nenhum grid ativo encontrado na Binance - iniciando novo grid")
@@ -1690,6 +2317,7 @@ class GridLogic:
                 # Discrete action space (0: no change, 1: increase levels, 2:
                 # decrease levels, etc.)
                 self._apply_discrete_rl_action(rl_action)
+                has_trading_activity = True  # RL action is significant
             elif isinstance(rl_action, dict):
                 # Dictionary with explicit parameters
                 self.update_grid_parameters(
@@ -1697,10 +2325,14 @@ class GridLogic:
                     spacing_percentage=rl_action.get("spacing_percentage"),
                     direction=rl_action.get("direction"),
                 )
+                has_trading_activity = True  # RL action is significant
             else:
                 log.warning(
                     f"[{self.symbol}] Unsupported RL action type: {type(rl_action)}"
                 )
+            
+            # Registrar ação do grid no tracker de atividade
+            self._record_grid_activity("rl_action_applied")
 
         # Apply AI decision if provided (takes priority over RL)
         if ai_decision is not None and isinstance(ai_decision, dict):
@@ -1711,12 +2343,14 @@ class GridLogic:
                     new_levels = suggested_params["grid_levels"]
                     if 5 <= new_levels <= 30:  # Safety bounds
                         self.num_levels = new_levels
+                        has_trading_activity = True  # AI parameter change is significant
                         
                 if "spacing_percentage" in suggested_params:
                     new_spacing = suggested_params["spacing_percentage"]
                     if 0.001 <= new_spacing <= 0.05:  # 0.1% to 5%
                         self.base_spacing_percentage = Decimal(str(new_spacing))
                         self.current_spacing_percentage = Decimal(str(new_spacing))
+                        has_trading_activity = True  # AI parameter change is significant
                 
                 log.debug(f"[{self.symbol}] Applied AI decision: levels={self.num_levels}, spacing={float(self.current_spacing_percentage)*100:.3f}%")
             else:
@@ -1734,12 +2368,19 @@ class GridLogic:
             self.define_grid_levels(current_price)
             if self.grid_levels:
                 self.place_initial_grid_orders()
+                has_trading_activity = True  # Grid creation is significant activity
+                # Registrar criação inicial do grid
+                self._record_grid_activity("initial_grid_created")
             else:
                 log.error(f"[{self.symbol}] Failed to define grid levels.")
                 return
 
         # 2. Check for filled orders
+        fills_before = self.total_trades
         self.check_and_handle_fills()
+        fills_after = self.total_trades
+        if fills_after > fills_before:
+            has_trading_activity = True  # New trades are significant activity
 
         # 3. Check for automatic take profit opportunities
         self._check_automatic_take_profit()
@@ -1747,13 +2388,43 @@ class GridLogic:
         # 4. (Optional) Add other checks like risk management triggers (handled
         # externally for now)
 
-        # 5. Log detailed trading cycle metrics to pair_logger
+        # 5. Log detailed trading cycle metrics to pair_logger only when there's activity
         try:
-            self.pair_logger.log_trading_cycle()
+            if has_trading_activity:
+                # Force terminal display for significant activity
+                self.pair_logger.log_trading_cycle(force_terminal=True)
+            # Always update metrics but don't force terminal display for routine cycles
+            else:
+                # Just update metrics without terminal display
+                pass
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao registrar ciclo de trading no pair_logger: {e}")
 
         log.info(f"[{self.symbol}] Grid cycle finished.")
+    
+    def _record_grid_activity(self, activity_type: str) -> None:
+        """Registra atividade do grid no tracker para monitoramento de rotação."""
+        try:
+            # Importar somente quando necessário para evitar import circular
+            from utils.trade_activity_tracker import get_trade_activity_tracker
+            
+            tracker = get_trade_activity_tracker(config=self.config)
+            tracker.record_grid_action(self.symbol, activity_type)
+            
+        except Exception as e:
+            log.debug(f"[{self.symbol}] Erro ao registrar atividade do grid: {e}")
+    
+    def _record_trade_activity(self, trade_info: dict) -> None:
+        """Registra atividade de trade no tracker para monitoramento de rotação."""
+        try:
+            # Importar somente quando necessário para evitar import circular
+            from utils.trade_activity_tracker import get_trade_activity_tracker
+            
+            tracker = get_trade_activity_tracker(config=self.config)
+            tracker.record_trade(self.symbol, trade_info)
+            
+        except Exception as e:
+            log.debug(f"[{self.symbol}] Erro ao registrar atividade de trade: {e}")
 
     def _check_automatic_take_profit(self):
         """Verifica e cria take profit automático inteligente para lucros pequenos e consistentes."""
@@ -2506,7 +3177,7 @@ class GridLogic:
                 else:
                     # Se as variações são consistentes dentro de cada grupo, considerar válido
                     if (len(buy_spacings) >= 2 and all(abs(s - avg_buy_spacing) / avg_buy_spacing < 0.30 for s in buy_spacings)) or \
-                       (len(sell_spacings) >= 2 and all(abs(s - avg_sell_spacing) / avg_sellSpacing < 0.30 for s in sell_spacings)):
+                       (len(sell_spacings) >= 2 and all(abs(s - avg_sell_spacing) / avg_sell_spacing < 0.30 for s in sell_spacings)):
                         log.info(f"[{self.symbol}] ✅ Grid spacing is consistent within buy/sell groups")
                         return avg_spacing
                     
@@ -2927,28 +3598,30 @@ class GridLogic:
         except Exception as e:
             log.error(f"[{self.symbol}] Error during cancel_all_orders: {e}")
     
-    def _round_price(self, price: float) -> float:
-        """Round price to appropriate precision for the symbol."""
+    def _round_price(self, price: float) -> str:
+        """Round price to appropriate precision for the symbol using proper formatting."""
         try:
-            if self.market_type == "futures":
-                # For futures, round to reasonable decimal places
-                return round(price, 8)
+            # Use the proper formatting function that respects exchange rules
+            formatted = self._format_price(price)
+            if formatted is not None:
+                return formatted
             else:
-                # For spot, round to reasonable decimal places  
-                return round(price, 8)
+                # Fallback to simple rounding if formatting fails
+                return str(round(price, 8))
         except Exception as e:
             log.error(f"[{self.symbol}] Error rounding price {price}: {e}")
-            return float(price)
+            return str(price)
     
-    def _round_quantity(self, quantity: float) -> float:
-        """Round quantity to appropriate precision for the symbol."""
+    def _round_quantity(self, quantity: float) -> str:
+        """Round quantity to appropriate precision for the symbol using proper formatting."""
         try:
-            if self.market_type == "futures":
-                # For futures, round to reasonable decimal places
-                return round(quantity, 6)
+            # Use the proper formatting function that respects exchange rules
+            formatted = self._format_quantity(quantity)
+            if formatted is not None:
+                return formatted
             else:
-                # For spot, round to reasonable decimal places
-                return round(quantity, 6)
+                # Fallback to simple rounding if formatting fails
+                return str(round(quantity, 6))
         except Exception as e:
             log.error(f"[{self.symbol}] Error rounding quantity {quantity}: {e}")
-            return float(quantity)
+            return str(quantity)

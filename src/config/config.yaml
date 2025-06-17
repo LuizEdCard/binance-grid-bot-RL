@@ -13,23 +13,41 @@ exchange:
   - spot
 grid:
   futures:
-    leverage: 10  # Alavancagem inicial 10x para maximizar capital
-    max_leverage: 15  # Máximo 15x permitido
+    leverage: 3   # Alavancagem REDUZIDA para 3x (grid trading seguro)
+    max_leverage: 5   # Máximo 5x permitido (proteção contra perdas)
     position_side: BOTH
-    use_isolated_margin: false
-  initial_levels: 5  # Reduzido para 5 níveis para maior capital por ordem
-  initial_spacing_perc: '0.002'  # 0.2% spacing para melhor spread
+    use_isolated_margin: true
+  initial_levels: 35  # HFT: Aumentado para 35 níveis mínimos
+  max_levels: 60      # HFT: Máximo 60 níveis por par  
+  min_levels: 20      # HFT: Mínimo 20 níveis por par
+  initial_spacing_perc: '0.0006'  # 0.06% spacing para HFT (20+ transações/hora)
   leverage: 1
   spot:
     max_base_asset_allocation: 0.5
-    min_order_size_usd: 5  # Mínimo $5 conforme requisito da Binance
+    min_order_size_usd: 5.5  # Mínimo $5 conforme requisito da Binance
+  dynamic_spacing_atr_period: 14
+  dynamic_spacing_multiplier: 0.5
 logging:
   level: INFO
   log_file: logs/bot.log
   log_to_console: true
   market_performance_log: logs/market_performance.csv
   trade_log_file: logs/trades.csv
-operation_mode: Production
+operation_mode: "Production"
+
+# Configuração de trading
+trading:
+  max_concurrent_pairs: 20              # Múltiplos pares permitidos
+  capital_per_pair_usd: '50.0'          # Capital por par AUMENTADO para reduzir risco
+  enable_auto_pair_addition: true      # Habilitar adição automática de pares
+  balance_threshold_usd: 20            # Saldo mínimo reduzido para facilitar adição
+  cycle_interval_seconds: 3            # Verificações extremamente frequentes para HFT
+  allow_market_switching: true
+  market_switch_cooldown_minutes: 30
+  market_allocation:
+    futures_percentage: 60
+    spot_percentage: 40
+
 pair_selection:
   blacklist:
   - EXAMPLE/USDT
@@ -42,46 +60,33 @@ pair_selection:
   - BNBUSDT    # Removido por preço muito alto
   - SOLUSDT    # Removido por preço muito alto
   use_social_feed_analysis: false  # Temporariamente desabilitado para estabilidade
+
   futures_pairs:
-    min_open_interest_usd: 20000000  # Reduzido para incluir mais pares
+    min_open_interest_usd: 50000000  # Aumentado para reduzir sobrecarga
     max_price_usdt: 1.0             # NOVO: Excluir pares com preço > 1 USDT
     preferred_symbols:
-    # Pares com alta liquidez e preço < 1 USDT
-    - XRPUSDT    # ~$0.5-0.7, alta liquidez
-    - ADAUSDT    # ~$0.3-0.5, alta liquidez  
-    - DOGEUSDT   # ~$0.05-0.1, muito alta liquidez
-    - TRXUSDT    # ~$0.05-0.1, boa liquidez
-    - XLMUSDT    # ~$0.05-0.1, boa liquidez
-    - MATICUSDT  # ~$0.3-0.8, alta liquidez
-    - FTMUSDT    # ~$0.2-0.8, boa liquidez
-    - ALGOUSDT   # ~$0.1-0.3, boa liquidez
-    - VETUSDT    # ~$0.02-0.05, alta liquidez
-    - ZILUSDT    # ~$0.01-0.03, boa liquidez
-    - ONTUSDT    # ~$0.1-0.3, média liquidez
-    - ICXUSDT    # ~$0.1-0.3, média liquidez
-    - IOTAUSDT   # ~$0.1-0.3, média liquidez
-    - EOSUSDT    # ~$0.4-1.2, limite do preço
-    - CELRUSDT   # ~$0.01-0.03, boa liquidez
-    - DENTUSDT   # ~$0.001-0.002, muito baixo preço
-    - HOTUSDT    # ~$0.001-0.003, muito baixo preço
-    - WINUSDT    # ~$0.00008-0.0002, extremamente baixo
-    - BTTCUSDT   # ~$0.0000008-0.000002, extremamente baixo
-    - SHIBUSDT   # ~$0.000007-0.00002, extremamente baixo
-    - PEPEUSDT   # ~$0.000001-0.000008, extremamente baixo
-    - FLOKIUSDT  # ~$0.00008-0.0003, muito baixo preço
-    - 1000BONKUSDT # ~$0.01-0.03, baixo preço (1000x)
-    - 1000PEPEUSDT # ~$0.008-0.02, baixo preço (1000x)
-  max_adx: 30                       # Aumentado para incluir mais pares
-  max_spread_perc: 0.15            # Aumentado para incluir mais pares
-  min_atr_perc_24h: 0.8            # Reduzido para incluir mais pares
-  min_volume_usd_24h: 5000000      # Reduzido para incluir mais pares
+    # Pares completamente diferentes para forçar mudança
+    - LTCUSDT      # LITECOIN - diferente dos anteriores
+    - DOTUSDT      # POLKADOT - alta liquidez
+    - AVAXUSDT     # AVALANCHE - alta volatilidade
+    - LINKUSDT     # CHAINLINK - DeFi
+    - UNIUSDT      # UNISWAP - DEX token
+    - SOLUSDT      # SOLANA - layer 1
+    - BNBUSDT      # BINANCE COIN - exchange token
+    - ETCUSDT      # ETHEREUM CLASSIC
+    - XLMUSDT      # STELLAR - payments
+    - VETUSDT      # VECHAIN - supply chain
+  max_adx: 50                       # Permitir pares com tendências mais fortes
+  max_spread_perc: 0.25            # Permitir spreads maiores para pares voláteis
+  min_atr_perc_24h: 0.15           # REDUZIDO: 0.15% para incluir mais pares ativos
+  min_volume_usd_24h: 1000000      # Volume mínimo ainda mais reduzido
   spot_pairs:
     min_liquidity_depth: 1000000
     preferred_symbols:
     - BTCUSDT
     - ETHUSDT
     - BNBUSDT
-  update_interval_hours: 6
+  update_interval_hours: 0.25
   # Configuração para análise de feeds sociais e notícias
   social_feed_analysis:
     max_news_hours: 24                    # Analisar notícias das últimas 24h
@@ -91,28 +96,72 @@ pair_selection:
     influencer_weight_multiplier: 2.0     # Dar 2x mais peso para posts de influenciadores
     news_weight_multiplier: 1.5           # Dar 1.5x mais peso para notícias oficiais
     use_ai_analysis: true                 # Usar IA local para análise avançada de feeds
+# Configuração do Risk Agent
+risk_agent:
+  enabled: true                         # Habilitar o agente de risco
+  check_interval_seconds: 30            # Verificar riscos a cada 30 segundos
+  alert_cooldown_minutes: 1850            # Cooldown entre alertas similares
+  
+  # Limites de risco individuais
+  individual_limits:
+    max_drawdown_perc: 5.0             # Máximo 5% de drawdown por posição
+    max_daily_var_perc: 5.0             # Máximo 5% de VaR diário
+    max_position_size_perc: 20.0        # Máximo 50% da conta em uma posição
+    min_sharpe_ratio: -0.5              # Sharpe mínimo (-0.5 para alertar)
+    
+  # Limites de risco do portfólio
+  portfolio_limits:
+    max_portfolio_var_perc: 8.0         # Máximo 8% de VaR do portfólio
+    max_correlation_exposure_perc: 70.0 # Máximo 70% em posições correlacionadas
+    max_single_asset_weight_perc: 30.0  # Máximo 30% em um único ativo
+    min_diversification_score: 0.5      # Mínimo 50% de diversificação
+    high_correlation_threshold: 0.8     # Threshold para correlação alta
+    
+  # Limites do sistema
+  system_limits:
+    min_available_margin_perc: 10.0     # Mínimo 10% de margem disponível
+    max_total_exposure_perc: 90.0       # Máximo 90% de exposição total
+    api_health_check_enabled: true      # Verificar saúde da API
+    
+  # Configuração de alertas
+  alerts:
+    enable_telegram: true               # Enviar alertas por Telegram
+    enable_console_log: true            # Log de alertas no console
+    alert_levels:
+      - INFO                            # Alertas informativos
+      - WARNING                         # Alertas de aviso
+      - CRITICAL                        # Alertas críticos
+    
+  # Configuração avançada
+  advanced:
+    var_confidence_level: 0.95          # Nível de confiança para VaR (95%)
+    var_time_horizon_days: 1            # Horizonte de tempo para VaR (1 dia)
+    risk_metrics_history_days: 30       # Histórico para cálculos (30 dias)
+    correlation_window_days: 21         # Janela para correlação (21 dias)
+
 risk_management:
   api_failure_timeout_minutes: 5
   dynamic_sl_profit_lock_perc: 80.0
   futures_risk:
     liquidation_buffer_perc: 15.0
-    max_leverage: 20
+    max_leverage: 5   # Reduzido de 20x para 5x (proteção crítica)
     max_position_size_perc: 50.0
-  loss_protection_trigger_perc: 15.0
+  loss_protection_trigger_perc: 3.0  # Gatilho de proteção em 3% (era 15%)
   max_drawdown_perc: 10.0
   spot_risk:
     max_asset_allocation_perc: 70.0
     min_stable_balance_perc: 30.0
   tp_sl_ratio: 3.0
-  # Configuração do Trailing Stop
+  auto_close_loss_percentage: 0.025  # Auto-close em 2.5% de perda
+  # Configuração do Trailing Stop - ULTRA AGRESSIVO para proteção de capital
   trailing_stop:
     enabled: true                    # Ativar trailing stop
-    trail_amount: 1.0               # 1% de trailing distance
+    trail_amount: 0.15              # 0.15% trailing distance (ULTRA agressivo)
     trail_type: "percentage"        # "percentage" ou "fixed"
-    activation_threshold: 0.5       # 0.5% de lucro para ativar trailing
-    min_trail_distance: 0.001       # Distância mínima (0.1%)
-    max_trail_distance: 0.05        # Distância máxima (5%)
-    update_frequency: 5             # Atualizar a cada 5 segundos
+    activation_threshold: 0.05      # 0.05% de lucro para ativar trailing (INSTANTÂNEO)
+    min_trail_distance: 0.0005      # Distância mínima (0.05%)
+    max_trail_distance: 0.005       # Distância máxima (0.5% - máxima proteção)
+    update_frequency: 1             # Atualizar a cada 1 segundo (MÁXIMA frequência)
   # Configuração de Ordens Condicionais
   conditional_orders:
     enabled: true                   # Ativar ordens condicionais
@@ -122,7 +171,7 @@ risk_management:
     rsi_oversold_threshold: 30      # RSI oversold padrão
     rsi_overbought_threshold: 70    # RSI overbought padrão
     volume_spike_multiplier: 2.0    # Multiplicador para spike de volume
-    use_stop_limit_orders: true     # Preferir STOP_LIMIT ao invés de STOP_MARKET
+    use_stop_limit_orders: false     # Preferir STOP_LIMIT ao invés de STOP_MARKET
 rl_agent:
   enabled: false  # RL desabilitado para reduzir dependências
   algorithm: PPO
@@ -181,15 +230,18 @@ sentiment_analysis:
   rl_feature:
     enabled: true
   smoothing_window: 10
-trading:
-  allow_market_switching: true
-  capital_per_pair_usd: '5'  # Mínimo $5 conforme requisito da Binance
-  cycle_interval_seconds: 60
+# Configuração do Capital Manager
+capital_management:
+  enabled: true
+  max_concurrent_pairs: 25
+  max_capital_per_pair_percentage: 30.0
+  min_capital_per_pair_usd: 10.0
+  safety_buffer_percentage: 10.0
   market_allocation:
-    futures_percentage: 60
     spot_percentage: 40
-  market_switch_cooldown_minutes: 30
-  max_concurrent_pairs: 25  # 25 pares simultâneos - máxima diversificação
+    futures_percentage: 60
+  auto_balance_transfer: true
+  min_transfer_amount: 5.0
 ai_agent:
   enabled: true
   base_url: "http://127.0.0.1:11434"
@@ -200,7 +252,7 @@ ai_agent:
     sentiment_analysis: true
     decision_explanation: true
     report_generation: true
-  analysis_interval_minutes: 15
+  analysis_interval_minutes: 3         # Análise AI a cada 3 minutos
   optimization_interval_hours: 4
   report_generation:
     daily_report: true
@@ -209,7 +261,19 @@ ai_agent:
   model_settings:
     temperature: 0.3
     max_tokens: 1000
-    timeout_seconds: 30
+    timeout_seconds: 80
+  max_concurrent_requests: 3
+  max_queue_size: 15
+  max_requests_per_window: 20
+  http_timeout_seconds: 30
+  http_connect_timeout_seconds: 5
+  model_timeouts:
+    "qwen3:0.6b": 20
+    "gemma3:1b": 25
+    "qwen3:1.7b": 35
+    "gemma3:4b": 45
+    "deepseek-r1:1.5b": 90
+    "qwen3:4b": 50
   # Model Testing Configuration
   model_presets:
     qwen3_fast: 
@@ -236,3 +300,166 @@ ai_agent:
       model_name: "gemma3:4b"
       temperature: 0.3
       max_tokens: 1000
+
+# Configuração TP/SL Agressivo
+aggressive_tp_sl:
+  enabled: true
+  min_profit_usdt: 0.20             # Lucro mínimo $0.20 (mais baixo)
+  max_profit_usdt: 2.0              # Lucro máximo $2.00 (aumentado)
+  default_tp_percentage: 0.005     # 0.5% take profit (MELHOR relação risk/reward)
+  default_sl_percentage: 0.02      # 2% stop loss (PROTEÇÃO CRÍTICA)
+  trailing_distance_percentage: 0.003  # 0.3% trailing distance (mais agressivo)
+  update_interval_seconds: 2        # 2 segundos (mais rápido)
+  max_loss_percentage: 0.03         # 3% max loss (PROTEÇÃO MÁXIMA)
+  loss_timeout_hours: 12
+  shutdown_timeout_seconds: 10
+
+# Configuração Capital Management Avançado
+capital_management_advanced:
+  max_capital_per_pair_percentage: 15.0  # Reduzido para 15% (diversificação)
+  min_capital_per_pair_usd: 10.0
+  safety_buffer_percentage: 10.0
+  min_notional_limits:
+    spot: 10.0
+    futures: 5.0
+  rebalance_threshold_percentage: 5.0
+  emergency_stop_loss_percentage: 5.0  # Emergency SL em 5% (era 20%)
+  min_brl_to_convert: 50.0
+  min_usdt_conversion: 10.0
+  min_transfer_amount: 5.0
+  min_balance_for_transfers: 100.0
+  transfer_buffer: 10.0
+  cache_expiry_seconds: 300
+  default_target_percentage: 0.1
+  
+  # Thresholds de capital para diferentes estratégias
+  futures_capital_thresholds:
+    low: 50
+    medium: 200
+  spot_capital_thresholds:
+    low: 10
+    medium: 50
+    
+  # Multiplicadores de spacing por capital
+  futures_spacing_multipliers:
+    low: 0.5
+    medium: 0.3
+    high: 0.2
+  spot_spacing_multipliers:
+    low: 1.5
+    medium: 1.0
+    high: 0.8
+    
+  # Ajustes de níveis por capital
+  futures_level_adjustments:
+    medium: 5
+    high: 10
+  spot_level_adjustments:
+    high: 5
+    
+  # Tamanhos de posição por capital
+  futures_position_sizes:
+    low: 0.9
+    medium: 0.8
+    high: 0.7
+  spot_position_sizes:
+    low: 0.8
+    medium: 0.7
+    high: 0.6
+
+# Configuração API Client
+api_client:
+  max_retries: 5
+  retry_delays: [1, 2, 4, 8, 16]  # Exponential backoff delays in seconds
+  timeout_seconds: 30
+  cache_ttl:
+    account: 30      # seconds
+    balance: 30
+    ticker: 10
+    positions: 30
+    orders: 15
+  rate_limiting:
+    requests_per_minute: 1200
+    weight_per_minute: 6000
+    burst_allowance: 50
+  max_cache_entries: 100
+  time_sync_warning_threshold_ms: 1000
+  time_sync_critical_threshold_ms: 5000
+  timestamp_buffer_ms: 500
+  timestamp_large_diff_buffer_ms: 1000
+  rate_limit_cache_tolerance_minutes: 5
+  rate_limit_max_delay_seconds: 60
+
+# Configuração Coordinator Agent
+coordinator:
+  max_concurrent_operations: 20
+
+# Configuração Multi-Agent System
+multi_agent_system:
+  max_concurrent_ai_processing: 2
+  stats_update_interval_seconds: 300     # 5 minutes
+  status_summary_interval_seconds: 180   # 3 minutes
+  agent_health_check_seconds: 60
+  coordination_timeout_seconds: 30
+  fallback_mode_enabled: true
+  pair_update_cycle_minutes: 2
+  main_loop_cycle_seconds: 60
+  worker_shutdown_timeout_seconds: 30
+  # Configuração adicional removida de hardcoded
+  min_cycle_interval_seconds: 3           # Tempo mínimo entre ciclos de trading
+
+# Configuração WebSocket e Cache
+websocket_config:
+  join_timeout_seconds: 2
+  reconnect_delay_seconds: 5
+  max_reconnect_attempts: 10
+  ping_interval_seconds: 20
+  api_call_cooldown_seconds: 300
+  kline_cache_max_size: 1000
+  ticker_cache_max_size: 500
+  trade_cache_max_size: 200
+  production_url: "wss://stream.binance.com:9443/ws/"
+  testnet_url: "wss://testnet.binance.vision/ws/"
+
+# Configuração Market Analysis
+market_analysis:
+  kline_limit: 100
+  min_required_klines: 50
+  ta_timeperiod: 14
+  volatility_window: 24  # hours
+  correlation_window_days: 7
+  analysis_interval_minutes: 3         # Análise a cada 3 minutos otimizada
+
+# Configuração HTTP API
+http_api:
+  default_timeout_seconds: 10
+  max_api_limit: 1000
+  request_timeout_seconds: 30
+  connection_pool_size: 20
+  max_retries_per_endpoint: 3
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+  default_kline_interval: "3m"
+  default_kline_limit: 100
+  max_kline_limit: 1000
+  min_kline_limit: 1
+  trading_cycle_sleep_seconds: 30
+  error_retry_delay_seconds: 10
+
+# Trade Activity Tracker Configuration
+trade_activity_tracker:
+  inactivity_timeout_seconds: 3600    # 1 hora para considerar par inativo
+  min_trade_frequency_per_hour: 2     # Mínimo 2 trades por hora
+  max_consecutive_losses: 3           # Máximo 3 perdas seguidas
+  cleanup_days: 7                     # Limpar dados após 7 dias
+
+# Configuração de Logs por Par
+pair_logging:
+  terminal_log_interval_seconds: 30   # Logs no terminal a cada 30 segundos
+  file_log_all_cycles: true          # Salvar todos os ciclos em arquivo
+  log_dir: "logs/pairs"              # Diretório dos logs por par
+  
+# AI Agent Configuration
+ai_agent:
+  enabled: false  # Desabilitado para evitar problemas de asyncio subprocess

@@ -28,6 +28,7 @@ class BinanceWebSocketClient:
         self.subscribers = defaultdict(list)
         self.is_running = False
         self.reconnect_delay = 5
+        self.tasks = set()  # Track running tasks for proper cleanup
         
         # Data storage
         self.local_storage = LocalDataStorage()
@@ -79,6 +80,19 @@ class BinanceWebSocketClient:
                 log.error(f"Error closing connection {stream_name}: {e}")
         
         self.connections.clear()
+        
+        # Cancel all pending tasks to prevent "Bad file descriptor" errors
+        for task in self.tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+                except Exception as e:
+                    log.warning(f"Error cancelling task: {e}")
+        
+        self.tasks.clear()
         
         # Save data before shutdown
         await self.local_storage.save_data_to_cache({
@@ -138,7 +152,9 @@ class BinanceWebSocketClient:
             log.warning(f"Connection {stream_name} already exists")
             return
         
-        asyncio.create_task(self._connection_manager(stream_name, url, handler))
+        task = asyncio.create_task(self._connection_manager(stream_name, url, handler))
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)  # Remove completed tasks
     
     async def _connection_manager(self, stream_name: str, url: str, handler: Callable):
         """Manage WebSocket connection with auto-reconnection."""
@@ -170,8 +186,26 @@ class BinanceWebSocketClient:
                             log.error(f"Error processing message from {stream_name}: {e}")
                             continue
             
+            except (OSError, websockets.exceptions.ConnectionClosed, websockets.exceptions.WebSocketException) as e:
+                if "Bad file descriptor" in str(e):
+                    log.warning(f"WebSocket connection {stream_name} closed unexpectedly (file descriptor issue)")
+                else:
+                    log.error(f"Connection error for {stream_name}: {e}")
+                
+                self.stats["reconnections"] += 1
+                
+                # Clean up connection reference
+                if stream_name in self.connections:
+                    del self.connections[stream_name]
+                
+                if self.is_running:
+                    log.info(f"Reconnecting to {stream_name} in {self.reconnect_delay} seconds...")
+                    await asyncio.sleep(self.reconnect_delay)
+                    self.reconnect_delay = min(self.reconnect_delay * 1.5, 60)  # Exponential backoff
+                else:
+                    break
             except Exception as e:
-                log.error(f"Connection error for {stream_name}: {e}")
+                log.error(f"Unexpected error for {stream_name}: {e}")
                 self.stats["reconnections"] += 1
                 
                 if stream_name in self.connections:
@@ -180,7 +214,7 @@ class BinanceWebSocketClient:
                 if self.is_running:
                     log.info(f"Reconnecting to {stream_name} in {self.reconnect_delay} seconds...")
                     await asyncio.sleep(self.reconnect_delay)
-                    self.reconnect_delay = min(self.reconnect_delay * 1.5, 60)  # Exponential backoff
+                    self.reconnect_delay = min(self.reconnect_delay * 1.5, 60)
                 else:
                     break
     
@@ -343,6 +377,7 @@ class HighFrequencyTradeEngine:
         self.active_symbols = set()
         self.position_tracker = {}
         self.profit_tracker = defaultdict(float)
+        self.hft_tasks = set()  # Track HFT async tasks
         
         # Performance metrics
         self.trade_stats = {
@@ -447,7 +482,9 @@ class HighFrequencyTradeEngine:
                     }
                     
                     # Schedule exit order
-                    asyncio.create_task(self._manage_scalp_position(symbol))
+                    task = asyncio.create_task(self._manage_scalp_position(symbol))
+                    self.hft_tasks.add(task)
+                    task.add_done_callback(self.hft_tasks.discard)
         
         except Exception as e:
             log.error(f"Error placing scalp order for {symbol}: {e}")
@@ -606,8 +643,28 @@ class HighFrequencyTradeEngine:
         """Remove symbol from high-frequency trading."""
         self.active_symbols.discard(symbol)
         if symbol in self.position_tracker:
-            asyncio.create_task(self._exit_scalp_position(symbol, "MANUAL_STOP"))
+            task = asyncio.create_task(self._exit_scalp_position(symbol, "MANUAL_STOP"))
+            self.hft_tasks.add(task)
+            task.add_done_callback(self.hft_tasks.discard)
         log.info(f"Removed {symbol} from high-frequency trading")
+    
+    async def stop(self):
+        """Stop HFT engine and cleanup async tasks."""
+        # Cancel all pending HFT tasks
+        for task in self.hft_tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+                except Exception as e:
+                    log.warning(f"Error cancelling HFT task: {e}")
+        
+        self.hft_tasks.clear()
+        self.active_symbols.clear()
+        self.position_tracker.clear()
+        log.info("HFT engine stopped and cleaned up")
     
     def get_performance_stats(self) -> Dict:
         """Get trading performance statistics."""

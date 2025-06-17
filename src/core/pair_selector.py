@@ -45,48 +45,46 @@ class PairSelector:
         self.api_client = api_client
         # Function to get the latest sentiment score
         self.get_sentiment_score_func = get_sentiment_score_func
-        self.selector_config = config.get("pair_selection", {})
-        self.sentiment_config = config.get("sentiment_analysis", {})
-        self.pair_filtering_config = self.sentiment_config.get("pair_filtering", {})
+        # Market type for trading
+        self.market_type = config["default_market_type"]
+        self.selector_config = config["pair_selection"]
+        self.sentiment_config = config["sentiment_analysis"]
+        self.pair_filtering_config = self.sentiment_config["pair_filtering"]
 
         # --- Standard Selection Parameters --- #
         self.min_volume_usd_24h = Decimal(
-            str(self.selector_config.get("min_volume_usd_24h", "10000000"))
+            str(self.selector_config["min_volume_usd_24h"])
         )
         self.min_atr_perc_24h = (
-            Decimal(str(self.selector_config.get("min_atr_perc_24h", "2.0"))) / 100
+            Decimal(str(self.selector_config["min_atr_perc_24h"])) / 100
         )
         self.max_spread_perc = (
-            Decimal(str(self.selector_config.get("max_spread_perc", "0.1"))) / 100
+            Decimal(str(self.selector_config["max_spread_perc"])) / 100
         )
-        self.max_adx = Decimal(str(self.selector_config.get("max_adx", "25")))
-        self.update_interval_hours = self.selector_config.get(
-            "update_interval_hours", 6
-        )
-        self.blacklist = set(self.selector_config.get("blacklist", []))
-        self.quote_asset = self.config.get("trading", {}).get(
-            "quote_asset", "USDT"
-        )  # e.g., USDT
-        self.max_pairs = self.config.get("trading", {}).get("max_concurrent_pairs", 5)
+        self.max_adx = Decimal(str(self.selector_config["max_adx"]))
+        self.update_interval_hours = self.selector_config[
+            "update_interval_hours"
+        ]
+        self.blacklist = set(self.selector_config["blacklist"])
+        self.quote_asset = "USDT"  # Fixed quote asset for this trading system
+        self.max_pairs = self.config["trading"]["max_concurrent_pairs"]
         
         # --- Market-specific Parameters --- #
-        futures_config = self.selector_config.get("futures_pairs", {})
-        self.max_price_usdt = Decimal(str(futures_config.get("max_price_usdt", "999999")))  # NOVO: Filtro de preço máximo
+        futures_config = self.selector_config["futures_pairs"]
+        self.max_price_usdt = Decimal(str(futures_config["max_price_usdt"]))  # NOVO: Filtro de preço máximo
 
         # --- Optional Filters --- #
-        self.use_candlestick_filter = self.selector_config.get(
-            "use_candlestick_filter", False
-        )
-        self.avoid_patterns = self.selector_config.get(
-            "avoid_candlestick_patterns", ["CDLDOJI", "CDLENGULFING"]
-        )
+        # Candlestick filter disabled by default - not configured in yaml
+        self.use_candlestick_filter = False
+        # Default patterns to avoid - not configured in yaml
+        self.avoid_patterns = ["CDLDOJI", "CDLENGULFING"]
 
         # --- Sentiment Filter Parameters --- #
-        self.sentiment_filtering_enabled = self.pair_filtering_config.get(
-            "enabled", False
-        )
+        self.sentiment_filtering_enabled = self.pair_filtering_config[
+            "enabled"
+        ]
         self.min_sentiment_for_new_pair = Decimal(
-            str(self.pair_filtering_config.get("min_sentiment_for_new_pair", "-0.3"))
+            str(self.pair_filtering_config["min_sentiment_for_new_pair"])
         )
 
         # --- State --- #
@@ -130,7 +128,7 @@ class PairSelector:
             log.debug(f"Could not load cache: {e}")
         
         # If no valid cache, use preferred symbols as fallback
-        preferred = self.selector_config.get("futures_pairs", {}).get("preferred_symbols", [])
+        preferred = self.selector_config["futures_pairs"]["preferred_symbols"]
         if preferred:
             self.selected_pairs = preferred[:self.max_pairs]
             log.info(f"Using preferred symbols as initial selection: {self.selected_pairs}")
@@ -176,12 +174,14 @@ class PairSelector:
 
             kline_data = {}
             symbols_to_fetch_klines = list(relevant_tickers.keys())
-            kline_limit = 50
-            min_required_klines = 30
+            # Load kline limits from config
+            market_analysis_config = self.config['market_analysis']
+            kline_limit = market_analysis_config['kline_limit']
+            min_required_klines = market_analysis_config['min_required_klines']
 
             for symbol in symbols_to_fetch_klines:
                 klines = self.api_client.get_futures_klines(
-                    symbol=symbol, interval="1h", limit=kline_limit
+                    symbol=symbol, interval="3m", limit=kline_limit
                 )
                 if klines and len(klines) >= min_required_klines:
                     df = pd.DataFrame(
@@ -241,11 +241,13 @@ class PairSelector:
 
                 if talib_available:
                     try:
+                        # Use configurable timeperiod from config
+                        ta_timeperiod = market_analysis_config['ta_timeperiod']
                         atr_series = talib.ATR(
-                            high_prices, low_prices, close_prices, timeperiod=14
+                            high_prices, low_prices, close_prices, timeperiod=ta_timeperiod
                         )
                         adx_series = talib.ADX(
-                            high_prices, low_prices, close_prices, timeperiod=14
+                            high_prices, low_prices, close_prices, timeperiod=ta_timeperiod
                         )
                         latest_atr = (
                             atr_series[~np.isnan(atr_series)][-1]
@@ -346,6 +348,77 @@ class PairSelector:
             except Exception as e:
                 log.error(f"Error calculating metrics for {symbol}: {e}", exc_info=True)
         return metrics
+
+    def _get_symbol_metrics(self, symbol: str) -> Optional[Dict]:
+        """Obtém métricas específicas de um símbolo."""
+        try:
+            # Get ticker data
+            if self.market_type == "futures":
+                ticker = self.api_client.get_futures_ticker(symbol=symbol)
+            else:
+                ticker = self.api_client.get_spot_ticker(symbol=symbol)
+            
+            if not ticker or not isinstance(ticker, list) or len(ticker) == 0:
+                return None
+                
+            ticker_info = ticker[0]
+            
+            # Get kline data for ATR calculation
+            market_analysis_config = self.config['market_analysis']
+            kline_limit = market_analysis_config['kline_limit']
+            
+            if self.market_type == "futures":
+                klines = self.api_client.get_futures_klines(symbol, "5m", kline_limit)
+            else:
+                klines = self.api_client.get_spot_klines(symbol, "5m", kline_limit)
+            
+            if not klines or len(klines) < 20:
+                return None
+                
+            # Convert to DataFrame for analysis
+            import pandas as pd
+            df = pd.DataFrame(klines, columns=[
+                "timestamp", "Open", "High", "Low", "Close", "Volume",
+                "close_time", "quote_asset_volume", "number_of_trades",
+                "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignore"
+            ])
+            
+            # Convert to numeric
+            for col in ["Open", "High", "Low", "Close", "Volume"]:
+                df[col] = pd.to_numeric(df[col])
+            
+            # Calculate ATR
+            volume_24h = float(ticker_info.get("quoteVolume", "0"))
+            atr_perc = 0.0
+            
+            if talib_available and len(df) >= 14:
+                try:
+                    ta_timeperiod = market_analysis_config['ta_timeperiod']
+                    atr_series = talib.ATR(
+                        df["High"].values, 
+                        df["Low"].values, 
+                        df["Close"].values, 
+                        timeperiod=ta_timeperiod
+                    )
+                    
+                    if len(atr_series) > 0 and not pd.isna(atr_series[-1]):
+                        current_price = float(ticker_info.get("lastPrice", "0"))
+                        if current_price > 0:
+                            atr_perc = float(atr_series[-1]) / current_price
+                            
+                except Exception as e:
+                    log.debug(f"Erro no cálculo ATR para {symbol}: {e}")
+            
+            return {
+                "atr_perc": atr_perc,
+                "volume_24h": volume_24h,
+                "last_price": float(ticker_info.get("lastPrice", "0")),
+                "price_change_24h": float(ticker_info.get("priceChangePercent", "0"))
+            }
+            
+        except Exception as e:
+            log.debug(f"Erro ao obter métricas para {symbol}: {e}")
+            return None
 
     def _filter_and_rank_pairs(self, metrics):
         """Filters pairs based on criteria (including sentiment) and ranks them."""
@@ -452,35 +525,30 @@ class PairSelector:
                 f"Updating pair selection (Force update: {force_update}, Time elapsed: {(current_time - self.last_update_time)/3600:.2f}h)"
             )
             
+            # NOVO: Verificar pares com posições abertas primeiro
+            existing_position_pairs = self._get_pairs_with_open_positions()
+            log.info(f"Found {len(existing_position_pairs)} pairs with open positions: {existing_position_pairs}")
+            
             # Verificar se temos preferred symbols configurados
-            preferred = self.selector_config.get("futures_pairs", {}).get("preferred_symbols", [])
-            use_social_feed = self.selector_config.get("use_social_feed_analysis", True)
+            preferred = self.selector_config["futures_pairs"]["preferred_symbols"]
+            use_social_feed = self.selector_config["use_social_feed_analysis"]
             
             if preferred and len(preferred) >= 3 and not use_social_feed:
                 # Se temos preferred symbols suficientes E não usar análise social, usar apenas eles (otimização)
                 log.info(f"Using preferred symbols for fast selection: {preferred}")
-                self.selected_pairs = preferred[:self.max_pairs]
-                self.last_update_time = current_time
-                self._save_cache()
-                log.info(f"Fast pair selection completed. Selected pairs: {self.selected_pairs}")
+                selected_pairs = preferred[:self.max_pairs]
             elif use_social_feed:
                 # Usar análise inteligente combinando preferred + social feed
                 log.info("Using intelligent pair selection with social feed analysis...")
                 try:
                     # Usar método sincronizado para evitar conflitos de event loop
                     intelligent_pairs = self._get_intelligent_pair_selection_sync(preferred)
-                    
-                    self.selected_pairs = intelligent_pairs[:self.max_pairs]
-                    self.last_update_time = current_time
-                    self._save_cache()
-                    log.info(f"Intelligent pair selection completed. Selected pairs: {self.selected_pairs}")
+                    selected_pairs = intelligent_pairs[:self.max_pairs]
                 except Exception as e:
                     log.error(f"Error in intelligent selection: {e}")
                     # Fallback para preferred symbols
                     log.warning("Falling back to preferred symbols")
-                    self.selected_pairs = preferred[:self.max_pairs]
-                    self.last_update_time = current_time
-                    self._save_cache()
+                    selected_pairs = preferred[:self.max_pairs]
             else:
                 # Caso contrário, fazer análise completa
                 log.info("No sufficient preferred symbols, performing full market analysis...")
@@ -488,17 +556,33 @@ class PairSelector:
                 if tickers and kline_data:
                     metrics = self._calculate_metrics(tickers, kline_data)
                     ranked_symbols = self._filter_and_rank_pairs(metrics)
-                    self.selected_pairs = ranked_symbols[: self.max_pairs]
-                    self.last_update_time = current_time
-                    self._save_cache()
-                    log.info(
-                        f"Full pair selection updated. Selected pairs: {self.selected_pairs}"
-                    )
+                    selected_pairs = ranked_symbols[:self.max_pairs]
                 else:
-                    log.error(
-                        "Failed to update pair selection due to data fetching errors."
-                    )
-                log.warning(f"Keeping previously selected pairs: {self.selected_pairs}")
+                    log.error("Failed to update pair selection due to data fetching errors.")
+                    selected_pairs = self.selected_pairs  # Keep existing
+            
+            # NOVO: Combinar pares selecionados com pares que têm posições abertas
+            final_pairs = list(existing_position_pairs)  # Sempre incluir pares com posições
+            
+            # Adicionar outros pares selecionados até o limite (se houver espaço)
+            for pair in selected_pairs:
+                if pair not in final_pairs:
+                    final_pairs.append(pair)
+            
+            # Log da seleção final
+            log.info(f"📊 FINAL PAIR SELECTION:")
+            log.info(f"  🔸 Pairs with open positions: {existing_position_pairs}")
+            log.info(f"  🔸 Additional selected pairs: {[p for p in final_pairs if p not in existing_position_pairs]}")
+            log.info(f"  🔸 Total pairs to trade: {len(final_pairs)} (limit was {self.max_pairs})")
+            
+            if len(existing_position_pairs) > self.max_pairs:
+                log.warning(f"⚠️  You have {len(existing_position_pairs)} open positions but max_concurrent_pairs is {self.max_pairs}")
+                log.warning(f"⚠️  Trading ALL {len(existing_position_pairs)} pairs with positions to avoid abandoning them")
+            
+            self.selected_pairs = final_pairs
+            self.last_update_time = current_time
+            self._save_cache()
+            log.info(f"Pair selection completed. Selected pairs: {self.selected_pairs}")
 
         return self.selected_pairs
     
@@ -515,24 +599,95 @@ class PairSelector:
         try:
             log.info("Running simplified intelligent pair selection...")
             
-            # Por enquanto, retornar preferred symbols com análise básica
-            # TODO: Implementar versão simplificada da análise social sem async
+            # Get configuration values instead of hardcoded ones
+            trading_config = self.config["trading"]
+            enable_auto_pair_addition = trading_config["enable_auto_pair_addition"]
+            balance_threshold_usd = Decimal(str(trading_config["balance_threshold_usd"]))
+            capital_per_pair_usd = Decimal(str(trading_config["capital_per_pair_usd"]))
+            max_concurrent_pairs = trading_config["max_concurrent_pairs"]
+            
+            # Check if auto pair addition is enabled
+            if not enable_auto_pair_addition:
+                log.info("🔒 Auto pair addition is DISABLED in config. Using existing pairs only.")
+                return preferred_symbols[:1] if preferred_symbols else []
+            
+            # Check if we have sufficient balance before selecting pairs
+            total_balance = self._get_total_available_balance()
+            
+            if total_balance < balance_threshold_usd:
+                log.warning(
+                    f"❌ INSUFFICIENT BALANCE: ${total_balance:.2f} < ${balance_threshold_usd:.2f} threshold"
+                )
+                log.warning(
+                    f"🛑 STOPPING PAIR SELECTION: Balance below threshold for new pairs"
+                )
+                log.info(
+                    f"💡 Config: balance_threshold_usd={balance_threshold_usd}, capital_per_pair_usd={capital_per_pair_usd}"
+                )
+                return []
+            
+            # Calculate maximum pairs we can afford
+            max_pairs_by_balance = min(
+                int((total_balance - balance_threshold_usd + capital_per_pair_usd) / capital_per_pair_usd),
+                max_concurrent_pairs
+            )
             
             # Verificar se símbolos preferred são válidos
             valid_symbols = []
-            for symbol in preferred_symbols:
+            for symbol in preferred_symbols[:max_pairs_by_balance]:  # Limit by balance
                 if self._is_valid_trading_symbol(symbol):
                     valid_symbols.append(symbol)
             
-            log.info(f"Validated {len(valid_symbols)} preferred symbols: {valid_symbols}")
+            log.info(
+                f"✅ BALANCE CHECK PASSED: ${total_balance:.2f} available (threshold: ${balance_threshold_usd})"
+            )
+            log.info(
+                f"💰 Can afford {max_pairs_by_balance} pairs @ ${capital_per_pair_usd} each (max concurrent: {max_concurrent_pairs})"
+            )
+            log.info(f"📊 Validated {len(valid_symbols)} preferred symbols: {valid_symbols}")
             
-            # Por enquanto, retornar apenas preferred symbols válidos
-            # Em futuras iterações, podemos adicionar análise social básica sem async
+            if len(valid_symbols) > 0:
+                log.info(f"🚀 ADDING {len(valid_symbols)} NEW PAIRS TO TRADING")
+            else:
+                log.warning("⚠️  No valid symbols found despite sufficient balance")
+            
             return valid_symbols
             
         except Exception as e:
             log.error(f"Error in simplified intelligent selection: {e}")
             return preferred_symbols
+    
+    def _get_total_available_balance(self) -> Decimal:
+        """Get total available balance for trading."""
+        try:
+            # Get balances from API client
+            spot_balance = self.api_client.get_balance()
+            futures_balance = self.api_client.get_futures_balance()
+            
+            total_balance = Decimal("0")
+            
+            # Add USDT from spot
+            if spot_balance:
+                for asset in spot_balance:
+                    if asset.get("asset") == "USDT":
+                        free_balance = Decimal(str(asset.get("free", "0")))
+                        total_balance += free_balance
+                        break
+            
+            # Add USDT from futures
+            if futures_balance:
+                for asset in futures_balance:
+                    if asset.get("asset") == "USDT":
+                        available_balance = Decimal(str(asset.get("availableBalance", "0")))
+                        total_balance += available_balance
+                        break
+            
+            log.debug(f"Total available balance: ${total_balance:.2f} USDT")
+            return total_balance
+            
+        except Exception as e:
+            log.error(f"Error getting total balance: {e}")
+            return Decimal("0")
     
     async def _get_intelligent_pair_selection(self, preferred_symbols: List[str]) -> List[str]:
         """
@@ -549,7 +704,7 @@ class PairSelector:
             from utils.binance_social_feed_analyzer import BinanceSocialFeedAnalyzer
             
             # Configuração para análise social
-            social_config = self.selector_config.get("social_feed_analysis", {})
+            social_config = self.selector_config["social_feed_analysis"]
             config_with_social = {**self.config, "social_feed_analysis": social_config}
             
             # Analisar feeds sociais e notícias
@@ -765,6 +920,187 @@ class PairSelector:
             log.warning(f"Error assessing market conditions: {e}")
             return "unknown"
     
+    def monitor_atr_quality(self, active_pairs: List[str], trade_activity_data: Dict[str, Dict] = None) -> Dict[str, Dict]:
+        """
+        Monitora qualidade do ATR dos pares ativos e identifica pares problemáticos.
+        Retorna sugestões de substituição para pares com ATR inadequado ou inativos.
+        
+        Args:
+            active_pairs: Lista de pares atualmente ativos
+            trade_activity_data: Dict com dados de atividade de trading por par
+                Format: {symbol: {"last_trade_time": timestamp, "total_trades": count, "inactive_duration": seconds}}
+        """
+        try:
+            problematic_pairs = {}
+            replacement_suggestions = {}
+            
+            log.info("🔍 Monitorando qualidade de ATR e atividade dos pares ativos...")
+            
+            # Timeout de inatividade: 1 hora (3600 segundos)
+            inactivity_timeout = 3600
+            current_time = time.time()
+            
+            for symbol in active_pairs:
+                try:
+                    # Verificar atividade de trading primeiro (mesmo sem métricas)
+                    inactive_duration = 0
+                    total_trades = 0
+                    last_trade_time = 0
+                    
+                    if trade_activity_data and symbol in trade_activity_data:
+                        activity = trade_activity_data[symbol]
+                        last_trade_time = activity.get("last_trade_time", 0)
+                        total_trades = activity.get("total_trades", 0)
+                        inactive_duration = current_time - last_trade_time if last_trade_time > 0 else 0
+                        
+                        inactive_hours = inactive_duration / 3600
+                    
+                    # Verificar critérios problemáticos baseados em atividade
+                    inactive_too_long = inactive_duration > inactivity_timeout
+                    consecutive_losses = activity.get("consecutive_losses", 0) if trade_activity_data and symbol in trade_activity_data else 0
+                    too_many_losses = consecutive_losses >= 3  # 3 perdas consecutivas
+                    
+                    if inactive_too_long or too_many_losses:
+                        issues = []
+                        if inactive_too_long:
+                            issues.append(f"Inativo há {inactive_hours:.1f}h")
+                        if too_many_losses:
+                            issues.append(f"{consecutive_losses} perdas consecutivas")
+                            
+                        log.info(f"🔄 {symbol}: Detectado como problemático - {', '.join(issues)}")
+                        problematic_pairs[symbol] = {
+                            "atr_percentage": 0,
+                            "volume_24h": 0,
+                            "inactive_duration_hours": inactive_hours,
+                            "total_trades": total_trades,
+                            "consecutive_losses": consecutive_losses,
+                            "issues": issues
+                        }
+                        continue  # Pular análise de métricas se já é problemático por atividade
+                    
+                    # Obter métricas atuais do par
+                    metrics = self._get_symbol_metrics(symbol)
+                    
+                    if not metrics:
+                        continue
+                        
+                    atr_perc = float(metrics.get("atr_perc", 0)) * 100
+                    volume_24h = metrics.get("volume_24h", 0)
+                    
+                    # Definir critérios problemáticos (atividade já foi verificada acima)
+                    atr_low = atr_perc < 0.5
+                    atr_zero = atr_perc == 0.0
+                    volume_low = volume_24h < 1000000
+                    
+                    is_problematic = (atr_low or atr_zero or volume_low)
+                    
+                    if is_problematic:
+                        problematic_pairs[symbol] = {
+                            "atr_percentage": atr_perc,
+                            "volume_24h": volume_24h,
+                            "inactive_duration": inactive_duration,
+                            "last_trade_time": last_trade_time,
+                            "total_trades": total_trades,
+                            "issues": []
+                        }
+                        
+                        if atr_perc < 0.5:
+                            problematic_pairs[symbol]["issues"].append(f"ATR baixo ({atr_perc:.3f}%)")
+                        if atr_perc == 0.0:
+                            problematic_pairs[symbol]["issues"].append("ATR zerado")
+                        if volume_24h < 1000000:
+                            problematic_pairs[symbol]["issues"].append(f"Volume baixo (${volume_24h:,.0f})")
+                        if inactive_duration > inactivity_timeout:
+                            hours_inactive = inactive_duration / 3600
+                            problematic_pairs[symbol]["issues"].append(f"Inativo há {hours_inactive:.1f}h")
+                        
+                        log.warning(f"⚠️ Par problemático: {symbol} - {', '.join(problematic_pairs[symbol]['issues'])}")
+                
+                except Exception as e:
+                    log.error(f"Erro ao analisar {symbol}: {e}")
+            
+            # Se há pares problemáticos, buscar substitutos
+            if problematic_pairs:
+                log.info(f"🔄 Buscando substitutos para {len(problematic_pairs)} pares problemáticos...")
+                
+                # Obter lista de pares alternativos com melhor ATR
+                alternative_pairs = self._get_high_atr_alternatives(exclude_symbols=active_pairs)
+                
+                for problematic_symbol in problematic_pairs.keys():
+                    if alternative_pairs:
+                        best_alternative = alternative_pairs.pop(0)  # Pegar o melhor alternativo
+                        replacement_suggestions[problematic_symbol] = best_alternative
+                        
+                        # Razão da substituição
+                        issues = problematic_pairs[problematic_symbol]["issues"]
+                        reason = f"Motivo: {', '.join(issues)}"
+                        
+                        log.info(f"💡 Sugestão: Substituir {problematic_symbol} por {best_alternative['symbol']} (ATR: {best_alternative['atr_percentage']:.2f}%) - {reason}")
+            
+            return {
+                "problematic_pairs": problematic_pairs,
+                "replacement_suggestions": replacement_suggestions,
+                "total_problematic": len(problematic_pairs),
+                "timestamp": current_time,
+                "inactivity_timeout_hours": inactivity_timeout / 3600
+            }
+            
+        except Exception as e:
+            log.error(f"Erro no monitoramento de ATR: {e}")
+            return {"problematic_pairs": {}, "replacement_suggestions": {}, "total_problematic": 0}
+    
+    def _get_high_atr_alternatives(self, exclude_symbols: List[str] = None, min_atr_perc: float = 1.5) -> List[Dict]:
+        """
+        Busca pares alternativos com ATR alto para substituição.
+        """
+        try:
+            exclude_symbols = exclude_symbols or []
+            alternatives = []
+            
+            # Lista de pares USDT populares para verificar
+            candidate_symbols = [
+                "BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT", "XRPUSDT", "SOLUSDT",
+                "DOGEUSDT", "AVAXUSDT", "DOTUSDT", "MATICUSDT", "LTCUSDT", "UNIUSDT",
+                "LINKUSDT", "XLMUSDT", "VETUSDT", "TRXUSDT", "EOSUSDT", "ETCUSDT",
+                "FILUSDT", "AAVEUSDT", "MKRUSDT", "COMPUSDT", "YFIUSDT", "SUSHIUSDT"
+            ]
+            
+            for symbol in candidate_symbols:
+                if symbol in exclude_symbols:
+                    continue
+                    
+                try:
+                    metrics = self._get_symbol_metrics(symbol)
+                    if not metrics:
+                        continue
+                        
+                    atr_perc = float(metrics.get("atr_perc", 0)) * 100
+                    volume_24h = metrics.get("volume_24h", 0)
+                    
+                    # Critérios para bom substituto
+                    if (atr_perc >= min_atr_perc and 
+                        volume_24h >= 5000000 and 
+                        atr_perc <= 15.0):  # Não muito volátil também
+                        
+                        alternatives.append({
+                            "symbol": symbol,
+                            "atr_percentage": atr_perc,
+                            "volume_24h": volume_24h,
+                            "quality_score": atr_perc * (volume_24h / 1000000)  # Score combinado
+                        })
+                
+                except Exception as e:
+                    log.debug(f"Erro ao analisar candidato {symbol}: {e}")
+            
+            # Ordenar por quality_score decrescente
+            alternatives.sort(key=lambda x: x["quality_score"], reverse=True)
+            
+            return alternatives[:10]  # Retornar top 10
+            
+        except Exception as e:
+            log.error(f"Erro ao buscar alternativas de alta ATR: {e}")
+            return []
+    
     def _get_fallback_market_summary(self) -> dict:
         """Resumo de fallback quando não consegue obter dados reais."""
         return {
@@ -781,3 +1117,62 @@ class PairSelector:
             "timestamp": time.time(),
             "fallback": True
         }
+    
+    def _get_pairs_with_open_positions(self) -> List[str]:
+        """
+        Busca todos os pares que atualmente têm posições abertas na conta futures.
+        
+        Returns:
+            Lista de símbolos que têm posições abertas
+        """
+        pairs_with_positions = []
+        
+        try:
+            # Buscar posições abertas na conta futures
+            positions = self.api_client.get_futures_positions()
+            
+            if not positions:
+                log.warning("Could not retrieve futures positions")
+                return pairs_with_positions
+            
+            # Filtrar posições com quantidade diferente de zero
+            for position in positions:
+                try:
+                    position_amt = float(position.get("positionAmt", 0))
+                    symbol = position.get("symbol", "")
+                    
+                    # Se tem posição aberta (quantidade != 0)
+                    if position_amt != 0 and symbol:
+                        # Verificar se é um par USDT válido
+                        if symbol.endswith("USDT") and symbol not in self.blacklist:
+                            pairs_with_positions.append(symbol)
+                            
+                            # Log informações da posição
+                            entry_price = position.get("entryPrice", "0")
+                            unrealized_pnl = position.get("unrealizedPnl", "0")
+                            side = "LONG" if position_amt > 0 else "SHORT"
+                            
+                            log.info(
+                                f"📈 Open position found: {symbol} {side} "
+                                f"Qty: {abs(position_amt):.6f} "
+                                f"Entry: {entry_price} "
+                                f"PnL: {unrealized_pnl} USDT"
+                            )
+                        
+                except Exception as e:
+                    log.warning(f"Error processing position data: {position} - {e}")
+                    continue
+            
+            # Remover duplicatas e ordenar
+            pairs_with_positions = list(set(pairs_with_positions))
+            pairs_with_positions.sort()
+            
+            log.info(f"🔍 Total pairs with open positions: {len(pairs_with_positions)}")
+            if pairs_with_positions:
+                log.info(f"📋 Pairs: {pairs_with_positions}")
+            
+            return pairs_with_positions
+            
+        except Exception as e:
+            log.error(f"Error getting pairs with open positions: {e}")
+            return pairs_with_positions

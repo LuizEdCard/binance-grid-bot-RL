@@ -1,48 +1,49 @@
 {
   "symbol": "ADAUSDT",
   "market_type": "futures",
-  "num_levels": 5,
-  "current_spacing_percentage": 0.005,
-  "base_spacing_percentage": 0.005,
+  "num_levels": 20,
+  "current_spacing_percentage": 0.004984976842196705,
+  "base_spacing_percentage": 0.004984976842196705,
   "grid_levels": [
     {
-      "price": 0.629,
-      "type": "buy",
-      "quantity": 8.0,
-      "order_id": 54880337983,
-      "status": "active",
-      "recovered": true
-    },
-    {
-      "price": 0.6322,
-      "type": "buy",
-      "quantity": 8.0,
-      "order_id": 54880338027,
-      "status": "active",
-      "recovered": true
-    },
-    {
-      "price": 0.6385,
+      "price": 0.6587,
       "type": "sell",
       "quantity": 8.0,
-      "order_id": 54880338049,
+      "order_id": 54934016930,
       "status": "active",
       "recovered": true
     },
     {
-      "price": 0.6416,
+      "price": 0.662,
       "type": "sell",
       "quantity": 8.0,
-      "order_id": 54880338073,
+      "order_id": 54934017216,
+      "status": "active",
+      "recovered": true
+    },
+    {
+      "price": 0.6653,
+      "type": "sell",
+      "quantity": 8.0,
+      "order_id": 54934017360,
+      "status": "active",
+      "recovered": true
+    },
+    {
+      "price": 0.6686,
+      "type": "sell",
+      "quantity": 8.0,
+      "order_id": 54934017456,
       "status": "active",
       "recovered": true
     }
   ],
   "active_grid_orders": {
-    "0.629": 54880337983,
-    "0.6385": 54881574654,
-    "0.6416": 54880338073
+    "0.6587": 54934016930,
+    "0.662": 54934017216,
+    "0.6653": 54934017360,
+    "0.6686": 54934017456
   },
-  "last_updated": 1749903607.9765668,
+  "last_updated": 1750177621.985883,
   "operation_mode": "production"
 }

@@ -54,18 +54,16 @@ class CapitalManager:
         }
         
         # Configurações de trading
-        self.trading_config = config.get("trading", {})
-        self.max_concurrent_pairs = self.trading_config.get("max_concurrent_pairs", 3)
-        self.market_allocation = self.trading_config.get("market_allocation", {
-            "spot_percentage": 40,
-            "futures_percentage": 60
-        })
+        self.trading_config = config["trading"]
+        self.max_concurrent_pairs = self.trading_config["max_concurrent_pairs"]
+        self.market_allocation = self.trading_config["market_allocation"]
         
         # Configurações de risco
-        self.risk_config = config.get("risk_management", {})
-        self.max_capital_per_pair_percentage = 30.0  # Máximo 30% do capital por par
-        self.min_capital_per_pair_usd = 5.0  # Mínimo $5 por par conforme requisito da Binance
-        self.safety_buffer_percentage = 10.0  # 10% de buffer de segurança
+        self.risk_config = config["risk_management"]
+        self.capital_advanced_config = config["capital_management_advanced"]
+        self.max_capital_per_pair_percentage = self.capital_advanced_config["max_capital_per_pair_percentage"]
+        self.min_capital_per_pair_usd = self.capital_advanced_config["min_capital_per_pair_usd"]
+        self.safety_buffer_percentage = self.capital_advanced_config["safety_buffer_percentage"]
         
         # Cache
         self.last_balance_check = 0
@@ -194,8 +192,8 @@ class CapitalManager:
                 brl_data = spot_balances.get("BRL", {})
                 brl_balance = float(brl_data.get("free", "0"))
             
-            # Mínimo de R$ 50 para converter (evitar conversões muito pequenas)
-            min_brl_to_convert = 50.0
+            # Configurável via config.yaml
+            min_brl_to_convert = self.capital_advanced_config["min_brl_to_convert"]
             
             if brl_balance < min_brl_to_convert:
                 if brl_balance > 0:
@@ -216,9 +214,10 @@ class CapitalManager:
                 
                 log.info(f"BRL/USDT price: {brl_usdt_price:.6f} - Estimated USDT: ${estimated_usdt:.2f}")
                 
-                # Verificar se vale a pena converter (mínimo de $10 USDT)
-                if estimated_usdt < 10.0:
-                    log.info(f"Conversion would yield too little USDT: ${estimated_usdt:.2f} < $10.00")
+                # Configurável via config.yaml
+                min_usdt_conversion = self.capital_advanced_config["min_usdt_conversion"]
+                if estimated_usdt < min_usdt_conversion:
+                    log.info(f"Conversion would yield too little USDT: ${estimated_usdt:.2f} < ${min_usdt_conversion:.2f}")
                     return True
                 
             except Exception as e:
@@ -345,8 +344,8 @@ class CapitalManager:
         if use_proportional_allocation and balances["spot_usdt"] > 0 and balances["futures_usdt"] > 0:
             # Ambos mercados têm saldo - aplicar proporção configurada
             total_to_allocate = capital_per_pair * effective_max_pairs
-            spot_percentage = self.market_allocation.get("spot_percentage", 40) / 100
-            futures_percentage = self.market_allocation.get("futures_percentage", 60) / 100
+            spot_percentage = self.market_allocation["spot_percentage"] / 100
+            futures_percentage = self.market_allocation["futures_percentage"] / 100
             
             target_spot_capital = min(total_to_allocate * spot_percentage, balances["spot_usdt"])
             target_futures_capital = min(total_to_allocate * futures_percentage, balances["futures_usdt"])
@@ -431,7 +430,7 @@ class CapitalManager:
                 grid_levels=grid_params["grid_levels"],
                 spacing_percentage=grid_params["spacing_percentage"],
                 market_type=market_type,
-                leverage=grid_params.get("leverage", 10)
+                leverage=grid_params["leverage"]
             )
             
             allocations.append(allocation)
@@ -475,51 +474,56 @@ class CapitalManager:
         """Calcula parâmetros do grid baseados no capital alocado e tipo de mercado."""
         
         # Configurações base do grid
-        base_grid_levels = self.config.get("grid", {}).get("initial_levels", 10)
-        base_spacing = float(self.config.get("grid", {}).get("initial_spacing_perc", "0.005"))
+        grid_config = self.config["grid"]
+        base_grid_levels = grid_config["initial_levels"]
+        base_spacing = float(grid_config["initial_spacing_perc"])
         
         # Para futures, considerar alavancagem
         if market_type == "futures":
-            leverage = self.config.get("grid", {}).get("futures", {}).get("leverage", 10)
+            leverage = grid_config["futures"]["leverage"]
             effective_capital = allocated_capital * leverage
             
             log.info(f"Futures market - Capital: ${allocated_capital:.2f}, Leverage: {leverage}x, Effective: ${effective_capital:.2f}")
             
-            # Com alavancagem, podemos ter grids mais densos
-            if effective_capital < 50:
-                grid_levels = max(8, base_grid_levels)
-                spacing_percentage = base_spacing * 0.5  # Spacing menor com alavancagem
-                max_position_size = allocated_capital * 0.9  # 90% do capital real
-            elif effective_capital < 200:
-                grid_levels = base_grid_levels + 5
-                spacing_percentage = base_spacing * 0.3  # Spacing bem menor
-                max_position_size = allocated_capital * 0.8
+            # Com alavancagem, podemos ter grids mais densos - Configurável
+            capital_thresholds = self.capital_advanced_config["futures_capital_thresholds"]
+            
+            if effective_capital < capital_thresholds["low"]:
+                grid_levels = max(grid_config["min_levels"], base_grid_levels)
+                spacing_percentage = base_spacing * self.capital_advanced_config["futures_spacing_multipliers"]["low"]
+                max_position_size = allocated_capital * self.capital_advanced_config["futures_position_sizes"]["low"]
+            elif effective_capital < capital_thresholds["medium"]:
+                grid_levels = base_grid_levels + self.capital_advanced_config["futures_level_adjustments"]["medium"]
+                spacing_percentage = base_spacing * self.capital_advanced_config["futures_spacing_multipliers"]["medium"]
+                max_position_size = allocated_capital * self.capital_advanced_config["futures_position_sizes"]["medium"]
             else:
-                grid_levels = min(25, base_grid_levels + 10)
-                spacing_percentage = base_spacing * 0.2  # Spacing muito pequeno
-                max_position_size = allocated_capital * 0.7
+                grid_levels = min(grid_config["max_levels"], base_grid_levels + self.capital_advanced_config["futures_level_adjustments"]["high"])
+                spacing_percentage = base_spacing * self.capital_advanced_config["futures_spacing_multipliers"]["high"]
+                max_position_size = allocated_capital * self.capital_advanced_config["futures_position_sizes"]["high"]
                 
         else:  # spot
-            # Para spot, usar lógica original
-            if allocated_capital < 10:
-                grid_levels = max(5, base_grid_levels // 2)
-                spacing_percentage = base_spacing * 1.5
-                max_position_size = allocated_capital * 0.8
-            elif allocated_capital < 50:
+            # Para spot, usar configurações do config.yaml
+            spot_thresholds = self.capital_advanced_config["spot_capital_thresholds"]
+            
+            if allocated_capital < spot_thresholds["low"]:
+                grid_levels = max(grid_config["min_levels"] // 2, base_grid_levels // 2)
+                spacing_percentage = base_spacing * self.capital_advanced_config["spot_spacing_multipliers"]["low"]
+                max_position_size = allocated_capital * self.capital_advanced_config["spot_position_sizes"]["low"]
+            elif allocated_capital < spot_thresholds["medium"]:
                 grid_levels = base_grid_levels
                 spacing_percentage = base_spacing
-                max_position_size = allocated_capital * 0.7
+                max_position_size = allocated_capital * self.capital_advanced_config["spot_position_sizes"]["medium"]
             else:
-                grid_levels = min(20, base_grid_levels + 5)
-                spacing_percentage = base_spacing * 0.8
-                max_position_size = allocated_capital * 0.6
+                grid_levels = min(grid_config["max_levels"] // 2, base_grid_levels + self.capital_advanced_config["spot_level_adjustments"]["high"])
+                spacing_percentage = base_spacing * self.capital_advanced_config["spot_spacing_multipliers"]["high"]
+                max_position_size = allocated_capital * self.capital_advanced_config["spot_position_sizes"]["high"]
         
         return {
             "grid_levels": grid_levels,
             "spacing_percentage": spacing_percentage,
             "max_position_size": max_position_size,
             "market_type": market_type,
-            "leverage": leverage if market_type == "futures" else 10
+            "leverage": leverage if market_type == "futures" else grid_config["leverage"]
         }
     
     def get_allocation_for_symbol(self, symbol: str) -> Optional[CapitalAllocation]:
@@ -641,16 +645,17 @@ class CapitalManager:
         # Realizar transferências necessárias
         transfers_successful = True
         
-        # Verificar se vale a pena fazer transferências (saldo mínimo para transferir)
-        min_transfer_amount = 5.0  # Mínimo de $5 para transferências
+        # Configurável via config.yaml
+        min_transfer_amount = self.capital_advanced_config["min_transfer_amount"]
+        min_balance_for_transfers = self.capital_advanced_config["min_balance_for_transfers"]
         total_balance = balances["spot_usdt"] + balances["futures_usdt"]
         
         # Se o saldo total é muito baixo, evitar transferências
-        if total_balance < 100.0:
-            log.info(f"Total balance too low (${total_balance:.2f}) to justify transfers. Minimum required: $100. Skipping rebalancing.")
+        if total_balance < min_balance_for_transfers:
+            log.info(f"Total balance too low (${total_balance:.2f}) to justify transfers. Minimum required: ${min_balance_for_transfers:.2f}. Skipping rebalancing.")
             transfers_successful = True  # Considerar como "sucesso" para não bloquear
-        elif spot_deficit > min_transfer_amount and balances["futures_usdt"] >= (spot_deficit + 10):
-            # Transferir de Futures para Spot (deixar pelo menos $10 em Futures)
+        elif spot_deficit > min_transfer_amount and balances["futures_usdt"] >= (spot_deficit + self.capital_advanced_config["transfer_buffer"]):
+            # Transferir de Futures para Spot
             log.info(f"Transferring ${spot_deficit:.2f} from Futures to Spot")
             result = self.api_client.transfer_between_markets("USDT", spot_deficit, "2")  # 2 = Futures->Spot
             
@@ -660,8 +665,8 @@ class CapitalManager:
                 log.error(f"❌ Transfer Futures->Spot failed")
                 transfers_successful = False
         
-        elif futures_deficit > min_transfer_amount and balances["spot_usdt"] >= (futures_deficit + 10):
-            # Transferir de Spot para Futures (deixar pelo menos $10 em Spot)
+        elif futures_deficit > min_transfer_amount and balances["spot_usdt"] >= (futures_deficit + self.capital_advanced_config["transfer_buffer"]):
+            # Transferir de Spot para Futures
             log.info(f"Transferring ${futures_deficit:.2f} from Spot to Futures")
             result = self.api_client.transfer_between_markets("USDT", futures_deficit, "1")  # 1 = Spot->Futures
             
@@ -844,20 +849,18 @@ class DynamicOrderSizer:
         self.api_client = api_client
         self.config = config
         
-        # Limites mínimos por mercado (valores conservadores)
-        self.min_notional_limits = {
-            "spot": 10.0,      # $10 USD mínimo para spot
-            "futures": 5.0     # $5 USD mínimo para futures
-        }
+        # Limites mínimos por mercado
+        self.capital_advanced_config = config["capital_management_advanced"]
+        self.min_notional_limits = self.capital_advanced_config["min_notional_limits"]
         
         # Cache de informações de símbolos para evitar múltiplas consultas
         self._symbol_info_cache = {}
-        self._cache_expiry = 300  # 5 minutos
+        self._cache_expiry = self.capital_advanced_config["cache_expiry_seconds"]
         self._last_cache_update = 0
     
     def get_optimized_order_size(self, symbol: str, market_type: str, 
                                 available_balance: float, price: float,
-                                target_percentage: float = 0.1) -> dict:
+                                target_percentage: float = None) -> dict:
         """
         Calcula tamanho otimizado de ordem baseado no saldo e limites.
         
@@ -866,12 +869,16 @@ class DynamicOrderSizer:
             market_type: 'spot' ou 'futures'
             available_balance: Saldo disponível em USDT
             price: Preço atual do ativo
-            target_percentage: % do saldo a usar (padrão 10%)
+            target_percentage: % do saldo a usar (obtido do config se None)
         
         Returns:
             dict com quantidade, valor notional e se é válida
         """
         try:
+            # Usar configuração padrão se não fornecido
+            if target_percentage is None:
+                target_percentage = self.capital_advanced_config["default_target_percentage"]
+            
             # Obter informações do símbolo
             symbol_info = self._get_symbol_info(symbol, market_type)
             if not symbol_info:
@@ -994,6 +1001,10 @@ class DynamicOrderSizer:
                 elif filter_info["filterType"] == "NOTIONAL":
                     filters["minNotional"] = filter_info.get("minNotional", 
                                                            filters.get("minNotional"))
+            
+            # Garantir que minNotional sempre existe
+            if "minNotional" not in filters:
+                filters["minNotional"] = self.min_notional_limits[market_type]
             
             # Cache resultado
             self._symbol_info_cache[cache_key] = filters
