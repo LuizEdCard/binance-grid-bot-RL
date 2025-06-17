@@ -18,9 +18,19 @@ log = setup_logger("simple_websocket")
 class SimpleBinanceWebSocket:
     """Simplified WebSocket client for real-time Binance price data."""
     
-    def __init__(self, testnet: bool = False):
+    def __init__(self, testnet: bool = False, config: dict = None):
         self.testnet = testnet
-        self.base_url = "wss://stream.binance.com:9443/ws/" if not testnet else "wss://testnet.binance.vision/ws/"
+        
+        # Configuration
+        self.config = config or {}
+        websocket_config = self.config.get('websocket_config', {})
+        
+        # Load URLs from config
+        if testnet:
+            self.base_url = websocket_config.get('testnet_url', "wss://testnet.binance.vision/ws/")
+        else:
+            self.base_url = websocket_config.get('production_url', "wss://stream.binance.com:9443/ws/")
+        self.join_timeout = websocket_config.get('join_timeout_seconds', 2)
         
         # Real-time data storage
         self.ticker_data = {}
@@ -52,7 +62,7 @@ class SimpleBinanceWebSocket:
         if self.ws:
             self.ws.close()
         if self.thread and self.thread.is_alive():
-            self.thread.join(timeout=2)
+            self.thread.join(timeout=self.join_timeout)
         log.info("SimpleBinanceWebSocket stopped")
     
     def subscribe_ticker(self, symbol: str):
@@ -62,9 +72,30 @@ class SimpleBinanceWebSocket:
             self.subscribed_symbols.add(symbol_lower)
             log.info(f"Subscribed to ticker updates for {symbol}")
     
+    def unsubscribe_ticker(self, symbol: str):
+        """Unsubscribe from ticker price updates for a symbol."""
+        symbol_lower = symbol.lower()
+        if symbol_lower in self.subscribed_symbols:
+            self.subscribed_symbols.remove(symbol_lower)
+            log.info(f"Unsubscribed from ticker updates for {symbol}")
+            # Note: To fully unsubscribe, we would need to reconnect with new streams
+            # For now, we just remove from our tracked symbols
+    
     def get_price(self, symbol: str) -> float:
         """Get latest price for a symbol."""
-        return self.ticker_data.get(symbol, {}).get('price', None)
+        # Try both uppercase and lowercase versions
+        price = self.ticker_data.get(symbol.upper(), {}).get('price', None)
+        if price is None:
+            price = self.ticker_data.get(symbol.lower(), {}).get('price', None)
+        if price is None:
+            price = self.ticker_data.get(symbol, {}).get('price', None)
+        
+        # Debug logging if price is still None
+        if price is None:
+            available_symbols = list(self.ticker_data.keys())
+            log.warning(f"No price data for {symbol}. Available symbols: {available_symbols[:5]}...")
+        
+        return price
     
     def _run_websocket(self):
         """Run WebSocket connection."""
@@ -93,7 +124,8 @@ class SimpleBinanceWebSocket:
             except Exception as e:
                 log.error(f"WebSocket error: {e}")
                 if self.is_running:
-                    time.sleep(5)  # Wait before reconnecting
+                    reconnect_delay = websocket_config.get('reconnect_delay_seconds', 5)
+                    time.sleep(reconnect_delay)  # Wait before reconnecting
                     
     def _on_open(self, ws):
         """Called when WebSocket connection opens."""

@@ -8,6 +8,8 @@ import threading
 import time
 from decimal import Decimal
 from typing import Dict, List, Optional
+from queue import Queue
+from threading import Lock
 
 import yaml
 from dotenv import load_dotenv
@@ -28,9 +30,20 @@ from core.pair_selector import PairSelector
 from utils.alerter import Alerter
 from utils.api_client import APIClient
 from utils.async_client import AsyncAPIClient
+
+# Import live data API for real-time data sharing
+try:
+    from routes.live_data_api import update_trading_data, update_agent_decision, update_system_status
+    LIVE_DATA_API_AVAILABLE = True
+except ImportError:
+    LIVE_DATA_API_AVAILABLE = False
+    def update_trading_data(*args, **kwargs): pass
+    def update_agent_decision(*args, **kwargs): pass
+    def update_system_status(*args, **kwargs): pass
 from utils.intelligent_cache import IntelligentCache, get_global_cache
 from utils.logger import log, setup_logger
 from utils.pair_logger import get_multi_pair_logger, get_pair_logger
+from utils.global_tp_sl_manager import get_global_tpsl_manager, start_global_tpsl
 
 # Conditional import of RLAgent (after logger is imported)
 try:
@@ -57,6 +70,58 @@ CONFIG_PATH = os.path.join(SRC_DIR, "config", "config.yaml")
 load_dotenv(dotenv_path=ENV_PATH)
 
 
+class AIProcessingQueue:
+    """Global AI processing queue to limit concurrent AI analysis to 2 pairs"""
+    _instance = None
+    _lock = Lock()
+    
+    def __new__(cls):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
+        return cls._instance
+    
+    def __init__(self):
+        if self._initialized:
+            return
+        self.processing_pairs = set()  # Currently processing pairs
+        # Load from config - will be set later when config is available
+        self.max_concurrent = 2  # Default fallback - overridden by config.yaml multi_agent_system.max_concurrent_ai_processing
+        self.queue_lock = Lock()
+        self._initialized = True
+    
+    def can_process(self, symbol: str) -> bool:
+        """Check if a pair can start AI processing"""
+        with self.queue_lock:
+            return len(self.processing_pairs) < self.max_concurrent or symbol in self.processing_pairs
+    
+    def start_processing(self, symbol: str) -> bool:
+        """Try to start AI processing for a pair"""
+        with self.queue_lock:
+            if symbol in self.processing_pairs:
+                return True  # Already processing
+            if len(self.processing_pairs) < self.max_concurrent:
+                self.processing_pairs.add(symbol)
+                return True
+            return False  # Queue full
+    
+    def finish_processing(self, symbol: str):
+        """Mark AI processing as finished for a pair"""
+        with self.queue_lock:
+            self.processing_pairs.discard(symbol)
+    
+    def get_status(self) -> dict:
+        """Get current processing status"""
+        with self.queue_lock:
+            return {
+                "processing_pairs": list(self.processing_pairs),
+                "count": len(self.processing_pairs),
+                "max_concurrent": self.max_concurrent
+            }
+
+
 class MultiAgentTradingBot:
     """
     Advanced multi-agent trading bot with specialized agents for different tasks.
@@ -74,7 +139,7 @@ class MultiAgentTradingBot:
         setup_logger("multi_agent_bot")
         
         # Core components
-        self.operation_mode = self.config.get("operation_mode", "Shadow").lower()
+        self.operation_mode = self.config["operation_mode"].lower()
         self.api_client = APIClient(self.config, operation_mode=self.operation_mode)
         self.alerter = Alerter(self.api_client)
         
@@ -99,13 +164,23 @@ class MultiAgentTradingBot:
         self.smart_decision_engine = None
         
         # Trading components
+        self.capital_manager = CapitalManager(self.api_client, self.config)
         self.pair_selector = None
         self.trading_workers = {}
         self.rl_agents = {}
         
+        # AI Processing Queue - Global singleton
+        self.ai_queue = AIProcessingQueue()
+        # Apply configuration from config.yaml
+        multi_agent_config = self.config.get('multi_agent_system', {})
+        configured_max = multi_agent_config['max_concurrent_ai_processing']
+        self.ai_queue.max_concurrent = configured_max
+        log.info(f"AI Processing Queue configured with max_concurrent = {configured_max}")
+        
         # Process management
         self.worker_processes = {}
-        self.stop_event = multiprocessing.Event()
+        self.worker_stop_events = {}  # Individual stop events per worker
+        self.stop_event = multiprocessing.Event()  # Global stop event for system shutdown
         self.global_trade_counter = multiprocessing.Value("i", 0)
         
         # Performance monitoring
@@ -206,7 +281,7 @@ class MultiAgentTradingBot:
             self.risk_agent = RiskAgent(self.config, self.api_client, self.alerter)
             
             # Initialize AI Integration if AI agent is available
-            if self.ai_agent:
+            if self.ai_agent is not None:
                 try:
                     self.ai_integration = AITradingIntegration(self.ai_agent)
                     # Initialize Smart Decision Engine
@@ -220,7 +295,9 @@ class MultiAgentTradingBot:
                     self.smart_decision_engine = None
                     log.info("System will continue without AI integration")
             else:
-                log.info("AI agent not available, skipping AI integration")
+                log.info("AI agent disabled in configuration - no AI integration will be used")
+                self.ai_integration = None
+                self.smart_decision_engine = None
             
             # Initialize Pair Selector with sentiment integration
             self.pair_selector = PairSelector(
@@ -236,7 +313,7 @@ class MultiAgentTradingBot:
                 "sentiment": self.sentiment_agent,
                 "risk": self.risk_agent,
             }
-            if self.ai_agent:
+            if self.ai_agent is not None:
                 all_agents["ai"] = self.ai_agent
             
             # Register agents with model API (if available)
@@ -270,6 +347,15 @@ class MultiAgentTradingBot:
             # Initialize agents
             self.initialize_agents()
             
+            # Initialize and start Global TP/SL Manager (singleton)
+            log.info("Initializing Global TP/SL Manager...")
+            global_tpsl = get_global_tpsl_manager(self.api_client, self.config)
+            if global_tpsl:
+                start_global_tpsl()
+                log.info("🎯 Global TP/SL Manager iniciado para todos os pares")
+            else:
+                log.error("❌ Falha ao inicializar Global TP/SL Manager")
+            
             # Start real-time WebSocket for low-latency data
             log.info("Starting real-time WebSocket connection...")
             self.ws_client.start()
@@ -302,11 +388,14 @@ class MultiAgentTradingBot:
     
     def _main_loop(self) -> None:
         """Main coordination loop."""
-        pair_update_interval = self.config.get("pair_selection", {}).get("update_interval_hours", 6) * 3600
+        # Load intervals from config
+        multi_agent_config = self.config.get('multi_agent_system', {})
+        pair_update_cycle_minutes = multi_agent_config['pair_update_cycle_minutes']
+        pair_update_interval = pair_update_cycle_minutes * 60  # Convert to seconds
         last_pair_update = 0
-        stats_update_interval = 300  # 5 minutes
+        stats_update_interval = multi_agent_config['stats_update_interval_seconds']
         last_stats_update = 0
-        status_summary_interval = 180  # 3 minutes
+        status_summary_interval = multi_agent_config['status_summary_interval_seconds']
         last_status_summary = 0
         
         while not self.stop_event.is_set():
@@ -338,12 +427,18 @@ class MultiAgentTradingBot:
                 
                 # Wait for next iteration
                 elapsed = time.time() - loop_start
-                wait_time = max(0, 60 - elapsed)  # 1-minute cycle
+                main_loop_cycle_seconds = multi_agent_config['main_loop_cycle_seconds']
+                wait_time = max(0, main_loop_cycle_seconds - elapsed)
                 if wait_time > 0:
                     self.stop_event.wait(wait_time)
                 
             except Exception as e:
                 log.error(f"Error in main loop: {e}", exc_info=True)
+                # Reportar erro crítico mas continuar executando
+                try:
+                    self.alerter.send_critical_alert(f"Main loop error: {str(e)[:200]}")
+                except:
+                    pass
                 self.stop_event.wait(30)  # Wait before retry
         
         log.info("Main loop exited")
@@ -353,8 +448,126 @@ class MultiAgentTradingBot:
         log.info("Updating trading pairs...")
         
         try:
-            # Get selected pairs from pair selector (use cache if available)
-            selected_pairs = self.pair_selector.get_selected_pairs(force_update=False)
+            # Initialize trade activity tracker if not exists
+            if not hasattr(self, 'trade_activity_tracker'):
+                try:
+                    from .utils.trade_activity_tracker import get_trade_activity_tracker
+                except ImportError:
+                    # Fallback for direct script execution
+                    import sys
+                    import os
+                    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+                    from src.utils.trade_activity_tracker import get_trade_activity_tracker
+                self.trade_activity_tracker = get_trade_activity_tracker(config=self.config)
+            
+            # Check if auto pair addition is enabled
+            auto_pair_enabled = self.config["trading"]["enable_auto_pair_addition"]
+            balance_threshold = self.config["trading"]["balance_threshold_usd"]
+            
+            # Get current balance to determine if we can add more pairs
+            balances = self.capital_manager.get_available_balances()
+            total_available = balances.get("total_usdt", 0)
+            current_pairs = set(self.worker_processes.keys())
+            
+            log.info(f"💰 Saldo disponível: ${total_available:.2f} USDT, Pares ativos: {len(current_pairs)}")
+            
+            # ===== NOVO: VERIFICAÇÃO DE MARGEM INSUFICIENTE =====
+            # Verificar especificamente o saldo futures
+            futures_usdt = balances.get("futures_usdt", 0)
+            if futures_usdt < 5.0 and len(current_pairs) > 0:
+                log.error(f"🚨 MARGEM INSUFICIENTE: Apenas ${futures_usdt:.2f} USDT na conta futures")
+                log.error(f"⚠️ Sistema em MODO DE SOBREVIVÊNCIA - apenas mantendo posições existentes")
+                log.error(f"💡 AÇÃO NECESSÁRIA: Transferir USDT para conta Futures")
+                
+                # Enviar alerta crítico
+                self.alerter.send_critical_alert(
+                    f"🚨 MARGEM INSUFICIENTE: ${futures_usdt:.2f} USDT - Sistema pausado"
+                )
+                
+                # Não adicionar novos pares quando margem insuficiente
+                auto_pair_enabled = False
+                log.warning(f"🛑 Adição automática de pares DESABILITADA por margem insuficiente")
+            
+            # ===== NOVO: SISTEMA DE ROTAÇÃO INTELIGENTE =====
+            # 1. Verificar pares inativos e com performance ruim
+            inactive_pairs = set()
+            poor_performing_pairs = set()
+            
+            if current_pairs:
+                # Obter dados de atividade para análise
+                activity_data = self.trade_activity_tracker.get_activity_data(list(current_pairs))
+                
+                # Usar o monitor de qualidade ATR com dados de atividade
+                atr_analysis = self.pair_selector.monitor_atr_quality(
+                    list(current_pairs), 
+                    trade_activity_data=activity_data
+                )
+                
+                # Identificar pares problemáticos
+                problematic_pairs = atr_analysis.get("problematic_pairs", {})
+                replacement_suggestions = atr_analysis.get("replacement_suggestions", {})
+                
+                if problematic_pairs:
+                    log.info(f"🔄 Análise de rotação: {len(problematic_pairs)} pares precisam ser substituídos")
+                    
+                    for symbol, issues in problematic_pairs.items():
+                        issues_list = issues.get("issues", [])
+                        
+                        # Categorizar por tipo de problema
+                        if any("Inativo" in issue for issue in issues_list):
+                            inactive_pairs.add(symbol)
+                        if any("ATR" in issue or "Volume" in issue for issue in issues_list):
+                            poor_performing_pairs.add(symbol)
+                        
+                        log.info(f"❌ {symbol}: {', '.join(issues_list)}")
+                
+                # Aplicar substituições sugeridas se há capital disponível
+                pairs_to_replace = set(replacement_suggestions.keys())
+                if pairs_to_replace and total_available > balance_threshold:
+                    log.info(f"🔄 Executando {len(pairs_to_replace)} substituições de pares...")
+                    
+                    for old_pair, new_pair_info in replacement_suggestions.items():
+                        new_pair = new_pair_info["symbol"]
+                        
+                        # Parar o par antigo
+                        if old_pair in current_pairs:
+                            log.info(f"🛑 Parando {old_pair} (motivo: rotação por inatividade/baixa performance)")
+                            self._stop_trading_worker(old_pair)
+                            current_pairs.remove(old_pair)
+                        
+                        # Iniciar o novo par
+                        log.info(f"🚀 Iniciando {new_pair} (ATR: {new_pair_info['atr_percentage']:.2f}%)")
+                        self._start_trading_worker(new_pair)
+                        current_pairs.add(new_pair)
+                        
+                        # Registrar a troca
+                        self.multi_pair_logger.log_system_event(
+                            f"🔄 Rotação de par: {old_pair} → {new_pair} (motivo: {', '.join(problematic_pairs.get(old_pair, {}).get('issues', ['performance']))})",
+                            "PAIR_ROTATION"
+                        )
+            
+            # ===== LÓGICA ORIGINAL: ADIÇÃO DE NOVOS PARES =====
+            # Get selected pairs from pair selector
+            if auto_pair_enabled and total_available > balance_threshold:
+                max_pairs = self.config["trading"]["max_concurrent_pairs"]
+                available_slots = max_pairs - len(current_pairs)
+                
+                if available_slots > 0:
+                    # Force update to get fresh pair selection when we have available capital
+                    log.info(f"🔍 Saldo suficiente detectado (${total_available:.2f}) - buscando novos pares para trading...")
+                    log.info(f"📊 Slots disponíveis: {available_slots} de {max_pairs} máximos")
+                    selected_pairs = self.pair_selector.get_selected_pairs(force_update=True)
+                else:
+                    log.info(f"🏪 Máximo de pares atingido ({len(current_pairs)}/{max_pairs})")
+                    selected_pairs = list(current_pairs)
+            else:
+                # Use cache if available or return preferred symbols if no balance/auto disabled
+                selected_pairs = self.pair_selector.get_selected_pairs(force_update=False)
+                if not selected_pairs and len(current_pairs) == 0:
+                    # Force start with preferred symbols if nothing is running
+                    log.warning("🆘 Nenhum par ativo - forçando início com símbolos preferred...")
+                    preferred = self.config["pair_selection"]["futures_pairs"]["preferred_symbols"]
+                    selected_pairs = preferred[:3] if preferred else []
             
             if not selected_pairs:
                 log.warning("No pairs selected for trading")
@@ -363,17 +576,18 @@ class MultiAgentTradingBot:
             log.info(f"Selected pairs for trading: {selected_pairs}")
             
             # Update worker processes
-            current_pairs = set(self.worker_processes.keys())
             target_pairs = set(selected_pairs)
             
-            # Stop workers for deselected pairs
+            # Stop workers for deselected pairs (que não foram substituídos)
             pairs_to_stop = current_pairs - target_pairs
             for pair in pairs_to_stop:
+                log.info(f"🛑 Parando trading para {pair}")
                 self._stop_trading_worker(pair)
             
-            # Start workers for new pairs
+            # Start workers for new pairs (que não foram da substituição)
             pairs_to_start = target_pairs - current_pairs
             for pair in pairs_to_start:
+                log.info(f"🚀 Iniciando trading para novo par: {pair}")
                 self._start_trading_worker(pair)
             
             # Add pairs to risk monitoring
@@ -395,26 +609,75 @@ class MultiAgentTradingBot:
             log.error(f"Error updating trading pairs: {e}", exc_info=True)
             self.alerter.send_critical_alert(f"Error updating trading pairs: {e}")
     
+    def _cancel_orders_for_symbol(self, symbol: str) -> None:
+        """Cancel all orders for a specific symbol directly via API (independent of worker state)."""
+        log.info(f"[{symbol}] Cancelling all orders directly via API...")
+        
+        try:
+            orders_cancelled = 0
+            
+            # Cancel futures orders
+            try:
+                futures_orders = self.api_client.get_futures_open_orders(symbol=symbol)
+                for order in futures_orders:
+                    try:
+                        self.api_client.cancel_futures_order(symbol=symbol, orderId=order['orderId'])
+                        orders_cancelled += 1
+                        log.info(f"[{symbol}] ✅ Cancelled FUTURES order {order['orderId']}")
+                    except Exception as e:
+                        log.warning(f"[{symbol}] ⚠️ Failed to cancel FUTURES order {order['orderId']}: {e}")
+            except Exception as e:
+                log.warning(f"[{symbol}] Error fetching/cancelling FUTURES orders: {e}")
+            
+            # Cancel spot orders (if any)
+            try:
+                spot_orders = self.api_client.get_spot_open_orders(symbol=symbol)
+                for order in spot_orders:
+                    try:
+                        self.api_client.cancel_spot_order(symbol=symbol, orderId=order['orderId'])
+                        orders_cancelled += 1
+                        log.info(f"[{symbol}] ✅ Cancelled SPOT order {order['orderId']}")
+                    except Exception as e:
+                        log.warning(f"[{symbol}] ⚠️ Failed to cancel SPOT order {order['orderId']}: {e}")
+            except Exception as e:
+                log.warning(f"[{symbol}] Error fetching/cancelling SPOT orders: {e}")
+            
+            if orders_cancelled > 0:
+                log.info(f"[{symbol}] 🎯 Successfully cancelled {orders_cancelled} orders directly")
+                self.multi_pair_logger.log_system_event(
+                    f"Cancelled {orders_cancelled} orders for {symbol} during pair rotation", "ORDER_CLEANUP"
+                )
+            else:
+                log.info(f"[{symbol}] No open orders found to cancel")
+                
+        except Exception as e:
+            log.error(f"[{symbol}] Error during direct order cancellation: {e}")
+            self.alerter.send_critical_alert(f"Failed to cancel orders for {symbol}: {e}")
+    
     def _start_trading_worker(self, symbol: str) -> None:
         """Start a trading worker process for a symbol."""
         log.info(f"Starting trading worker for {symbol}")
         
         try:
-            max_concurrent = self.config.get("trading", {}).get("max_concurrent_pairs", 5)
+            max_concurrent = self.config["trading"]["max_concurrent_pairs"]
             if len(self.worker_processes) >= max_concurrent:
                 log.warning(f"Max concurrent pairs ({max_concurrent}) reached. Cannot start worker for {symbol}")
                 return
             
+            # Create individual stop event for this worker
+            worker_stop_event = multiprocessing.Event()
+            self.worker_stop_events[symbol] = worker_stop_event
+            
             # Prepare shared resources for worker
             shared_resources = {
-                "ai_agent": self.ai_agent,
+                "ai_agent": self.ai_agent if self.ai_agent is not None else None,
                 "smart_decision_engine": self.smart_decision_engine
             }
             
-            # Create worker process
+            # Create worker process with both individual and global stop events
             process = multiprocessing.Process(
                 target=self._trading_worker_main,
-                args=(symbol, self.config, self.stop_event, self.global_trade_counter, shared_resources),
+                args=(symbol, self.config, worker_stop_event, self.stop_event, self.global_trade_counter, shared_resources),
                 daemon=True,
                 name=f"TradingWorker-{symbol}"
             )
@@ -428,37 +691,70 @@ class MultiAgentTradingBot:
             log.error(f"Error starting trading worker for {symbol}: {e}")
     
     def _stop_trading_worker(self, symbol: str) -> None:
-        """Stop a trading worker process for a symbol."""
-        log.info(f"Stopping trading worker for {symbol}")
+        """Stop a trading worker process with proper cleanup."""
+        log.info(f"🛑 Stopping trading worker for {symbol}")
         
         try:
+            # STEP 1: Cancel all orders IMMEDIATELY (independent of worker state)
+            log.info(f"[{symbol}] Step 1: Cancelling orders before stopping worker...")
+            self._cancel_orders_for_symbol(symbol)
+            
+            # STEP 2: Stop the worker process
             if symbol in self.worker_processes:
                 process = self.worker_processes[symbol]
                 
                 if process.is_alive():
-                    # Send termination signal
-                    try:
-                        os.kill(process.pid, signal.SIGTERM)
-                        process.join(timeout=15)
-                        
-                        if process.is_alive():
-                            log.warning(f"Worker for {symbol} did not terminate gracefully. Sending SIGKILL.")
-                            process.kill()
-                            process.join(timeout=5)
-                    except ProcessLookupError:
-                        log.warning(f"Process for {symbol} already terminated")
+                    # Use individual stop event (not global)
+                    if symbol in self.worker_stop_events:
+                        self.worker_stop_events[symbol].set()
+                        log.info(f"[{symbol}] Step 2: Signaled individual stop event for worker")
+                    
+                    # Wait for graceful shutdown
+                    multi_agent_config = self.config.get('multi_agent_system', {})
+                    worker_shutdown_timeout = multi_agent_config['worker_shutdown_timeout_seconds']
+                    process.join(timeout=worker_shutdown_timeout)
+                    
+                    if process.is_alive():
+                        log.warning(f"[{symbol}] Worker did not terminate gracefully. Sending SIGTERM.")
+                        try:
+                            os.kill(process.pid, signal.SIGTERM)
+                            process.join(timeout=worker_shutdown_timeout // 2)
+                            
+                            if process.is_alive():
+                                log.warning(f"[{symbol}] Worker still alive after SIGTERM. Sending SIGKILL.")
+                                process.kill()
+                                process.join(timeout=worker_shutdown_timeout // 6)
+                        except ProcessLookupError:
+                            log.info(f"[{symbol}] Process already terminated")
+                        except Exception as kill_error:
+                            log.error(f"[{symbol}] Error killing process: {kill_error}")
                 
+                # STEP 3: Cleanup resources
                 del self.worker_processes[symbol]
-                log.info(f"Trading worker for {symbol} stopped")
+                if symbol in self.worker_stop_events:
+                    del self.worker_stop_events[symbol]
+                    
+                log.info(f"[{symbol}] ✅ Trading worker stopped and cleaned up")
+            else:
+                log.warning(f"[{symbol}] Worker process not found in worker_processes")
         
         except Exception as e:
-            log.error(f"Error stopping trading worker for {symbol}: {e}")
+            log.error(f"[{symbol}] Error stopping trading worker: {e}")
+            # Still try to cleanup resources even if stopping failed
+            try:
+                if symbol in self.worker_processes:
+                    del self.worker_processes[symbol]
+                if symbol in self.worker_stop_events:
+                    del self.worker_stop_events[symbol]
+            except:
+                pass
     
     def _trading_worker_main(
         self,
         symbol: str,
         config: dict,
-        stop_event: multiprocessing.Event,
+        individual_stop_event: multiprocessing.Event,
+        global_stop_event: multiprocessing.Event,
         global_trade_counter: multiprocessing.Value,
         shared_resources: dict = None
     ) -> None:
@@ -470,7 +766,7 @@ class MultiAgentTradingBot:
             log.info(f"[{symbol}] Trading worker started (PID: {os.getpid()})")
             
             # Initialize components for this worker
-            operation_mode = config.get("operation_mode", "Shadow").lower()
+            operation_mode = config["operation_mode"].lower()
             api_client = APIClient(config, operation_mode=operation_mode)
             alerter = Alerter(api_client)
             
@@ -556,10 +852,12 @@ class MultiAgentTradingBot:
                 log.error(f"[{symbol}] Symbol not valid for {allocation.market_type} market. Skipping.")
                 return
             
-            # Use global WebSocket client for real-time data
-            worker_ws_client = get_global_websocket()
+            # Initialize WebSocket client for worker process
+            testnet = operation_mode == "shadow"
+            worker_ws_client = SimpleBinanceWebSocket(testnet=testnet, config=config)
+            worker_ws_client.start()
             worker_ws_client.subscribe_ticker(symbol)
-            log.info(f"[{symbol}] Subscribed to real-time WebSocket data")
+            log.info(f"[{symbol}] Started and subscribed to real-time WebSocket data")
             
             try:
                 grid_logic = GridLogic(symbol, adapted_config, api_client, 
@@ -573,7 +871,7 @@ class MultiAgentTradingBot:
             
             # Initialize RL agent (if enabled and available)
             rl_agent = None
-            rl_enabled = config.get("rl_agent", {}).get("enabled", True)
+            rl_enabled = config["rl_agent"]["enabled"]
             if rl_enabled and RL_AVAILABLE and RLAgent is not None:
                 try:
                     rl_agent = RLAgent(config, symbol)
@@ -591,16 +889,29 @@ class MultiAgentTradingBot:
                 else:
                     log.info(f"[{symbol}] RL agent module not found")
             
-            # Trading loop
-            cycle_interval = config.get("trading", {}).get("cycle_interval_seconds", 60)
+            # Trading loop - AI-driven cycle (wait for previous analysis to complete)
+            min_cycle_interval = config["trading"]["cycle_interval_seconds"]  # Minimum wait time
             local_trade_count = 0
             
             # Initialize pair logger
             pair_logger = get_pair_logger(symbol)
-            pair_logger.log_info(f"Iniciando sistema de trading para {symbol}")
+            pair_logger.log_info(f"Iniciando sistema de trading AI-driven para {symbol}")
             
-            while not stop_event.is_set():
+            cycle_count = 0
+            last_heartbeat = time.time()
+            
+            while not individual_stop_event.is_set() and not global_stop_event.is_set():
                 cycle_start = time.time()
+                cycle_count += 1
+                
+                # Heartbeat a cada 50 ciclos (≈5 minutos se ciclo = 6s)
+                if cycle_count % 50 == 0:
+                    current_time = time.time()
+                    elapsed_minutes = (current_time - last_heartbeat) / 60
+                    ai_queue_status = AIProcessingQueue().get_status()
+                    log.info(f"[{symbol}] ❤️ Heartbeat: Cycle #{cycle_count}, {elapsed_minutes:.1f}min since last heartbeat, "
+                            f"AI Queue: {ai_queue_status['count']}/{ai_queue_status['max_concurrent']} processing {ai_queue_status['processing_pairs']}")
+                    last_heartbeat = current_time
                 
                 try:
                     # Get smart trading decision (AI + Dynamic Sizing)
@@ -626,6 +937,30 @@ class MultiAgentTradingBot:
                         entry_price = float(position.get('entryPrice', 0)) if position else 0
                         unrealized_pnl = float(position.get('unrealizedPnl', 0)) if position else 0
                         position_side = "LONG" if position_size > 0 else "SHORT" if position_size < 0 else "NONE"
+                        
+                        # NOVO: Verificar se posição deve ser fechada por perda excessiva
+                        if position_size != 0 and entry_price > 0:
+                            loss_percentage = abs(unrealized_pnl / (abs(position_size) * entry_price))
+                            risk_config = config.get('risk_management', {})
+                            auto_close_loss_percentage = risk_config['auto_close_loss_percentage']
+                            if loss_percentage > auto_close_loss_percentage:
+                                log.warning(f"[{symbol}] Excessive loss detected: {loss_percentage*100:.2f}% (${unrealized_pnl:.2f})")
+                                try:
+                                    # Fechar posição por ordem de mercado
+                                    close_side = "SELL" if position_size > 0 else "BUY"
+                                    close_result = api_client.place_futures_order(
+                                        symbol=symbol,
+                                        side=close_side,
+                                        order_type="MARKET",
+                                        quantity=str(abs(position_size)),
+                                        reduceOnly="true"
+                                    )
+                                    if close_result:
+                                        log.info(f"[{symbol}] ✅ Closed losing position: ${unrealized_pnl:.2f}")
+                                        pair_logger.log_error(f"🛑 Posição fechada por perda excessiva: {loss_percentage*100:.2f}%")
+                                except Exception as e:
+                                    log.error(f"[{symbol}] Failed to close losing position: {e}")
+                        
                     except:
                         position_size = 0
                         entry_price = 0
@@ -670,25 +1005,41 @@ class MultiAgentTradingBot:
                     balances = capital_manager.get_available_balances()
                     available_balance = balances["futures_usdt"] + balances["spot_usdt"]
                     
-                    # Try Smart Decision Engine first (AI + Dynamic Sizer)
+                    # Try Smart Decision Engine first (AI + Dynamic Sizer) - Global Queue approach
                     if shared_resources and shared_resources.get("smart_decision_engine"):
-                        try:
-                            # Get async smart decision
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                            ai_decision = loop.run_until_complete(
-                                shared_resources["smart_decision_engine"].get_smart_trading_action(
-                                    symbol, market_data, current_grid_params, available_balance
+                        # Get global AI processing queue
+                        ai_queue = AIProcessingQueue()
+                        
+                        # Check if this pair can process AI analysis
+                        if ai_queue.start_processing(symbol):
+                            try:
+                                # Get async smart decision
+                                loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(loop)
+                                ai_decision = loop.run_until_complete(
+                                    shared_resources["smart_decision_engine"].get_smart_trading_action(
+                                        symbol, market_data, current_grid_params, available_balance
+                                    )
                                 )
-                            )
-                            loop.close()
-                            
-                            if ai_decision and ai_decision.get("action") is not None:
-                                rl_action = ai_decision["action"]
-                                log.info(f"[{symbol}] AI Decision: action={rl_action}, confidence={ai_decision.get('confidence', 0):.2f}, "
-                                        f"reasoning={ai_decision.get('reasoning', 'N/A')}")
-                        except Exception as e:
-                            log.error(f"[{symbol}] Error getting AI decision: {e}")
+                                loop.close()
+                                
+                                if ai_decision and ai_decision.get("action") is not None:
+                                    rl_action = ai_decision["action"]
+                                    log.info(f"[{symbol}] AI Decision: action={rl_action}, confidence={ai_decision.get('confidence', 0):.2f}, "
+                                            f"reasoning={ai_decision.get('reasoning', 'N/A')}")
+                                
+                            except Exception as e:
+                                log.error(f"[{symbol}] Error getting AI decision: {e}")
+                                rl_action = None
+                            finally:
+                                # Always release the AI processing slot
+                                ai_queue.finish_processing(symbol)
+                        else:
+                            # AI queue is full, skip AI analysis this cycle
+                            queue_status = ai_queue.get_status()
+                            log.debug(f"[{symbol}] AI queue full ({queue_status['count']}/{queue_status['max_concurrent']}), "
+                                     f"processing: {queue_status['processing_pairs']}")
+                            rl_action = None
                     
                     # Fallback to traditional RL if AI decision failed and RL is available
                     if rl_action is None and rl_agent is not None:
@@ -697,7 +1048,7 @@ class MultiAgentTradingBot:
                             try:
                                 # Get sentiment if available
                                 sentiment_config = config.get("sentiment_analysis", {})
-                                if sentiment_config.get("rl_feature", {}).get("enabled", False):
+                                if sentiment_config["rl_feature"]["enabled"]:
                                     sentiment_score = 0.0
                                     rl_action = rl_agent.predict_action(market_state, sentiment_score=sentiment_score)
                                 else:
@@ -709,17 +1060,18 @@ class MultiAgentTradingBot:
                                 log.error(f"[{symbol}] Error getting RL action: {e}")
                                 rl_action = 0  # Safe fallback
                     
-                    # Log trading cycle with detailed metrics
-                    pair_logger.log_trading_cycle()
-                    
                     # Execute trading logic with AI/RL decision
                     previous_orders = len(getattr(grid_logic, 'active_orders', []))
                     grid_logic.run_cycle(rl_action=rl_action, ai_decision=ai_decision)
                     current_orders = len(getattr(grid_logic, 'active_orders', []))
                     
+                    # Track activity to decide if we should log trading cycle
+                    has_activity = False
+                    
                     # Check for new orders
                     if current_orders > previous_orders:
                         pair_logger.log_info(f"Novas ordens criadas: {current_orders - previous_orders}")
+                        has_activity = True
                     
                     # Update trade counter
                     new_trade_count = grid_logic.total_trades
@@ -731,6 +1083,7 @@ class MultiAgentTradingBot:
                         
                         # Log trade completion
                         pair_logger.log_info(f"✅ {trades_made} trade(s) executado(s)! Total: {new_trade_count}")
+                        has_activity = True
                     
                     # Check for position changes
                     try:
@@ -742,19 +1095,26 @@ class MultiAgentTradingBot:
                             new_side = "LONG" if new_position_size > 0 else "SHORT" if new_position_size < 0 else "NONE"
                             new_entry = float(new_position.get('entryPrice', 0)) if new_position else 0
                             pair_logger.log_position_update(new_side, new_entry, new_position_size, new_unrealized_pnl)
+                            has_activity = True
                     except Exception as pos_error:
                         pass  # Ignore position check errors
+                    
+                    # Only log full trading cycle when there's relevant activity
+                    if has_activity:
+                        pair_logger.log_trading_cycle(force_terminal=True)
                 
                 except Exception as e:
                     pair_logger.log_error(f"Erro no ciclo de trading: {e}")
                     log.error(f"[{symbol}] Error in trading cycle: {e}", exc_info=True)
                     alerter.send_critical_alert(f"Error in {symbol} trading cycle: {e}")
                 
-                # Wait for next cycle
+                # Standard cycle timing with minimum interval
                 elapsed = time.time() - cycle_start
-                wait_time = max(0, cycle_interval - elapsed)
+                wait_time = max(0, min_cycle_interval - elapsed)
+                
                 if wait_time > 0:
-                    stop_event.wait(wait_time)
+                    # Wait on individual stop event, but check global stop event periodically
+                    individual_stop_event.wait(wait_time)
         
         except Exception as e:
             log.error(f"[{symbol}] Critical error in trading worker: {e}", exc_info=True)
@@ -764,11 +1124,37 @@ class MultiAgentTradingBot:
                 pass
         
         finally:
-            log.info(f"[{symbol}] Trading worker shutting down")
+            log.info(f"[{symbol}] Trading worker shutting down - starting cleanup")
             try:
-                # Cleanup: cancel orders if in production mode
-                if "grid_logic" in locals() and operation_mode == "production":
+                # Enhanced cleanup process
+                if "grid_logic" in locals():
+                    # Stop TP/SL manager first
+                    if hasattr(grid_logic, 'tpsl_manager'):
+                        log.info(f"[{symbol}] Stopping TP/SL manager...")
+                        grid_logic.tpsl_manager.stop_monitoring()
+                    
+                    # Cancel orders in all modes (production, shadow, etc.)
+                    log.info(f"[{symbol}] Cancelling all orders during worker cleanup...")
                     grid_logic.cancel_all_orders()
+                
+                # Clean up loggers to prevent memory leaks
+                try:
+                    from utils.pair_logger import cleanup_process_loggers
+                    cleanup_process_loggers()
+                    log.info(f"[{symbol}] Cleaned up process loggers")
+                except Exception as cleanup_error:
+                    log.warning(f"[{symbol}] Error cleaning up loggers: {cleanup_error}")
+                
+                # Clean up WebSocket connections
+                if "worker_ws_client" in locals():
+                    try:
+                        worker_ws_client.unsubscribe_ticker(symbol)
+                        log.info(f"[{symbol}] Unsubscribed from WebSocket")
+                    except Exception as ws_error:
+                        log.warning(f"[{symbol}] Error unsubscribing from WebSocket: {ws_error}")
+                
+                log.info(f"[{symbol}] Worker cleanup completed")
+                
             except Exception as e:
                 log.error(f"[{symbol}] Error during cleanup: {e}")
     
@@ -842,8 +1228,7 @@ class MultiAgentTradingBot:
             elif health_percentage < 60:
                 log.warning(f"Poor system health: {health_percentage:.1f}%")
                 self.alerter.send_message(
-                    f"⚠️ WARNING: System health at {health_percentage:.1f}%",
-                    level="WARNING"
+                    f"⚠️ WARNING: System health at {health_percentage:.1f}%"
                 )
         
         except Exception as e:
@@ -894,7 +1279,15 @@ class MultiAgentTradingBot:
         
         self._shutdown_started = True
         log.info("Stopping Multi-Agent Trading System...")
-        self.stop_event.set()
+        self.stop_event.set()  # Global stop event for system components
+        
+        # Signal all individual worker stop events
+        for symbol, stop_event in list(self.worker_stop_events.items()):
+            try:
+                stop_event.set()
+                log.info(f"Signaled stop event for worker {symbol}")
+            except Exception as e:
+                log.error(f"Error signaling stop event for {symbol}: {e}")
         
         try:
             # Stop all trading workers with timeout
@@ -917,6 +1310,28 @@ class MultiAgentTradingBot:
                         process.join(timeout=2)
                     except Exception as e:
                         log.error(f"Error force killing worker: {e}")
+            
+            # Cleanup AI agent asyncio components first
+            if self.ai_agent is not None:
+                try:
+                    log.info("Cleaning up AI agent resources...")
+                    import asyncio
+                    loop = None
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if not loop.is_closed():
+                            loop.run_until_complete(self.ai_agent.close_session())
+                    except RuntimeError:
+                        # Event loop is closed, create new one for cleanup
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        loop.run_until_complete(self.ai_agent.close_session())
+                        loop.close()
+                    log.info("AI agent cleanup complete")
+                except Exception as e:
+                    log.error(f"Error cleaning up AI agent: {e}")
+            else:
+                log.info("AI agent was disabled - no cleanup needed")
             
             # Stop other components with timeout
             components_to_stop = [

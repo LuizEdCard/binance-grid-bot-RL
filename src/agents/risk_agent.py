@@ -173,13 +173,15 @@ class PortfolioRiskManager:
     
     def __init__(self, config: dict):
         self.config = config
-        self.risk_config = config.get("risk_management", {})
+        self.risk_config = config.get("risk_agent", {})
         
-        # Risk limits
-        self.max_portfolio_var = Decimal(str(self.risk_config.get("max_portfolio_var", "0.05")))
-        self.max_correlation_exposure = Decimal(str(self.risk_config.get("max_correlation_exposure", "0.7")))
-        self.max_single_asset_weight = Decimal(str(self.risk_config.get("max_single_asset_weight", "0.3")))
-        self.min_diversification_score = Decimal(str(self.risk_config.get("min_diversification_score", "0.5")))
+        # Portfolio limits from config
+        portfolio_limits = self.risk_config.get("portfolio_limits", {})
+        self.max_portfolio_var = Decimal(str(portfolio_limits.get("max_portfolio_var_perc", 8.0))) / 100
+        self.max_correlation_exposure = Decimal(str(portfolio_limits.get("max_correlation_exposure_perc", 70.0))) / 100
+        self.max_single_asset_weight = Decimal(str(portfolio_limits.get("max_single_asset_weight_perc", 30.0))) / 100
+        self.min_diversification_score = Decimal(str(portfolio_limits.get("min_diversification_score", 0.5)))
+        self.high_correlation_threshold = portfolio_limits.get("high_correlation_threshold", 0.8)
         
         # Position tracking
         self.position_weights = {}
@@ -327,7 +329,7 @@ class PortfolioRiskManager:
             return risks
         
         # Check for high correlations
-        high_corr_threshold = 0.8
+        high_corr_threshold = self.high_correlation_threshold
         for symbol1 in correlation_matrix:
             for symbol2 in correlation_matrix[symbol1]:
                 if symbol1 != symbol2:
@@ -375,14 +377,46 @@ class RiskAgent:
             "avg_check_time": 0.0
         }
         
-        # Configuration
-        self.check_interval = config.get("risk_agent", {}).get("check_interval_seconds", 30)
-        self.alert_cooldown_minutes = config.get("risk_agent", {}).get("alert_cooldown_minutes", 15)
+        # Configuration from risk_agent section
+        risk_agent_config = config.get("risk_agent", {})
+        self.enabled = risk_agent_config.get("enabled", True)
+        self.check_interval = risk_agent_config.get("check_interval_seconds", 30)
+        self.alert_cooldown_minutes = risk_agent_config.get("alert_cooldown_minutes", 15)
+        
+        # Individual limits
+        individual_limits = risk_agent_config.get("individual_limits", {})
+        self.max_drawdown_perc = individual_limits.get("max_drawdown_perc", 10.0) / 100
+        self.max_daily_var_perc = individual_limits.get("max_daily_var_perc", 5.0) / 100
+        self.max_position_size_perc = individual_limits.get("max_position_size_perc", 50.0) / 100
+        self.min_sharpe_ratio = individual_limits.get("min_sharpe_ratio", -0.5)
+        
+        # System limits
+        system_limits = risk_agent_config.get("system_limits", {})
+        self.min_available_margin_perc = system_limits.get("min_available_margin_perc", 10.0) / 100
+        self.max_total_exposure_perc = system_limits.get("max_total_exposure_perc", 90.0) / 100
+        self.api_health_check_enabled = system_limits.get("api_health_check_enabled", True)
+        
+        # Alert configuration
+        alert_config = risk_agent_config.get("alerts", {})
+        self.enable_telegram = alert_config.get("enable_telegram", True)
+        self.enable_console_log = alert_config.get("enable_console_log", True)
+        self.alert_levels = alert_config.get("alert_levels", ["INFO", "WARNING", "CRITICAL"])
+        
+        # Advanced configuration
+        advanced_config = risk_agent_config.get("advanced", {})
+        self.var_confidence_level = advanced_config.get("var_confidence_level", 0.95)
+        self.var_time_horizon_days = advanced_config.get("var_time_horizon_days", 1)
+        self.risk_metrics_history_days = advanced_config.get("risk_metrics_history_days", 30)
+        self.correlation_window_days = advanced_config.get("correlation_window_days", 21)
         
         log.info("RiskAgent initialized")
     
     def start(self) -> None:
         """Start the risk monitoring agent."""
+        if not self.enabled:
+            log.info("RiskAgent is disabled in configuration")
+            return
+            
         self.stop_event.clear()
         self.risk_thread = threading.Thread(
             target=self._risk_monitoring_loop,
@@ -390,7 +424,7 @@ class RiskAgent:
             name="RiskAgent-Monitor"
         )
         self.risk_thread.start()
-        log.info("RiskAgent started")
+        log.info(f"RiskAgent started - Check interval: {self.check_interval}s, Alert cooldown: {self.alert_cooldown_minutes}min")
     
     def stop(self) -> None:
         """Stop the risk monitoring agent."""
@@ -490,28 +524,28 @@ class RiskAgent:
         try:
             # Check drawdown
             max_dd = self.risk_metrics.calculate_max_drawdown(symbol)
-            if max_dd is not None and max_dd < -0.1:  # -10% max drawdown
+            if max_dd is not None and max_dd < -self.max_drawdown_perc:
                 self._send_risk_alert(
                     symbol,
-                    f"High drawdown detected: {max_dd*100:.1f}%",
+                    f"High drawdown detected: {max_dd*100:.1f}% (limit: {self.max_drawdown_perc*100:.1f}%)",
                     "WARNING"
                 )
             
             # Check VaR
-            var = self.risk_metrics.calculate_var(symbol)
-            if var is not None and var < -0.05:  # -5% daily VaR limit
+            var = self.risk_metrics.calculate_var(symbol, self.var_confidence_level, self.var_time_horizon_days)
+            if var is not None and var < -self.max_daily_var_perc:
                 self._send_risk_alert(
                     symbol,
-                    f"High VaR detected: {var*100:.1f}%",
+                    f"High VaR detected: {var*100:.1f}% (limit: {self.max_daily_var_perc*100:.1f}%)",
                     "WARNING"
                 )
             
             # Check Sharpe ratio
             sharpe = self.risk_metrics.calculate_sharpe_ratio(symbol)
-            if sharpe is not None and sharpe < 0:  # Negative Sharpe ratio
+            if sharpe is not None and sharpe < self.min_sharpe_ratio:
                 self._send_risk_alert(
                     symbol,
-                    f"Poor risk-adjusted returns: Sharpe {sharpe:.2f}",
+                    f"Poor risk-adjusted returns: Sharpe {sharpe:.2f} (limit: {self.min_sharpe_ratio:.2f})",
                     "INFO"
                 )
             
@@ -534,10 +568,10 @@ class RiskAgent:
                 
                 if total_balance > 0:
                     position_ratio = position_value / total_balance
-                    if position_ratio > Decimal("0.5"):  # 50% of account in single position
+                    if position_ratio > Decimal(str(self.max_position_size_perc)):
                         self._send_risk_alert(
                             symbol,
-                            f"Large position size: {position_ratio*100:.1f}% of account",
+                            f"Large position size: {position_ratio*100:.1f}% of account (limit: {self.max_position_size_perc*100:.1f}%)",
                             "WARNING"
                         )
         
@@ -580,10 +614,10 @@ class RiskAgent:
         try:
             # Check diversification
             diversification = portfolio_risk.get("diversification_score", 1.0)
-            if diversification < 0.3:  # Poor diversification
+            if diversification < float(self.portfolio_manager.min_diversification_score):
                 self._send_risk_alert(
                     "PORTFOLIO",
-                    f"Poor diversification: {diversification*100:.1f}%",
+                    f"Poor diversification: {diversification*100:.1f}% (limit: {self.portfolio_manager.min_diversification_score*100:.1f}%)",
                     "WARNING"
                 )
             
@@ -599,10 +633,10 @@ class RiskAgent:
             
             # Check portfolio VaR
             portfolio_var = portfolio_risk.get("portfolio_var", 0)
-            if portfolio_var > 0.1:  # 10% portfolio VaR limit
+            if portfolio_var > float(self.portfolio_manager.max_portfolio_var):
                 self._send_risk_alert(
                     "PORTFOLIO",
-                    f"High portfolio VaR: {portfolio_var*100:.1f}%",
+                    f"High portfolio VaR: {portfolio_var*100:.1f}% (limit: {self.portfolio_manager.max_portfolio_var*100:.1f}%)",
                     "CRITICAL"
                 )
         
@@ -652,6 +686,10 @@ class RiskAgent:
     
     def _send_risk_alert(self, context: str, message: str, level: str = "WARNING") -> None:
         """Send a risk alert with cooldown."""
+        # Check if this alert level is enabled
+        if level not in self.alert_levels:
+            return
+        
         current_time = time.time()
         alert_key = f"{context}_{message}"
         
@@ -663,15 +701,21 @@ class RiskAgent:
         
         # Send alert
         try:
-            if level == "CRITICAL":
-                self.alerter.send_critical_alert(f"[{context}] {message}")
-            else:
-                self.alerter.send_message(f"⚠️ [{context}] {message}")
+            # Console logging
+            if self.enable_console_log:
+                log.warning(f"Risk alert [{level}] - [{context}] {message}")
+            
+            # Telegram alerts
+            if self.enable_telegram and hasattr(self, 'alerter'):
+                if level == "CRITICAL":
+                    self.alerter.send_critical_alert(f"🚨 [{context}] {message}")
+                elif level == "WARNING":
+                    self.alerter.send_message(f"⚠️ [{context}] {message}")
+                else:  # INFO
+                    self.alerter.send_message(f"ℹ️ [{context}] {message}")
             
             self.alert_cooldown[alert_key] = current_time
             self.stats["alerts_sent"] += 1
-            
-            log.warning(f"Risk alert sent - [{context}] {message}")
         
         except Exception as e:
             log.error(f"Error sending risk alert: {e}")

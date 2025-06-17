@@ -213,6 +213,7 @@ main() {
     # Parse command line arguments
     MODE="normal"
     EXTRA_ARGS=""
+    START_API=true
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -232,6 +233,14 @@ main() {
                 EXTRA_ARGS="$EXTRA_ARGS --debug"
                 shift
                 ;;
+            --no-api)
+                START_API=false
+                shift
+                ;;
+            --bot-only)
+                START_API=false
+                shift
+                ;;
             --help)
                 echo "Usage: $0 [OPTIONS]"
                 echo ""
@@ -240,7 +249,11 @@ main() {
                 echo "  --shadow      Run in shadow mode (default)"
                 echo "  --production  Run in production mode"
                 echo "  --debug       Enable debug logging"
+                echo "  --no-api      Don't start Flask API (bot only)"
+                echo "  --bot-only    Same as --no-api"
                 echo "  --help        Show this help message"
+                echo ""
+                echo "Default: Start both Flask API and Multi-Agent Bot"
                 exit 0
                 ;;
             *)
@@ -251,8 +264,64 @@ main() {
         esac
     done
     
-    print_status "Starting Multi-Agent Trading Bot in $MODE mode..."
+    if [ "$START_API" = true ]; then
+        print_status "Starting Complete Trading System (Flask API + Multi-Agent Bot) in $MODE mode..."
+    else
+        print_status "Starting Multi-Agent Bot only in $MODE mode..."
+    fi
     echo ""
+    
+    # Variables for process management
+    API_PID=""
+    BOT_PID=""
+    
+    # Function to handle cleanup
+    cleanup_processes() {
+        echo ""
+        print_status "Shutting down system..."
+        
+        if [ ! -z "$API_PID" ] && kill -0 $API_PID 2>/dev/null; then
+            print_status "Stopping Flask API..."
+            kill -TERM $API_PID
+            wait $API_PID 2>/dev/null || true
+        fi
+        
+        if [ ! -z "$BOT_PID" ] && kill -0 $BOT_PID 2>/dev/null; then
+            print_status "Stopping Multi-Agent Bot..."
+            kill -TERM $BOT_PID
+            wait $BOT_PID 2>/dev/null || true
+        fi
+        
+        print_status "System shutdown completed"
+    }
+    
+    # Set up signal handlers
+    trap cleanup_processes EXIT INT TERM
+    
+    # Start Flask API if requested
+    if [ "$START_API" = true ] && [ "$MODE" != "test" ]; then
+        print_status "Starting Flask API..."
+        cd "$SCRIPT_DIR"
+        export PYTHONPATH="$SCRIPT_DIR/src:$PYTHONPATH"
+        
+        # Start Flask API in background
+        source venv/bin/activate 2>/dev/null || true
+        $PYTHON_CMD src/main.py > logs/flask_api.log 2>&1 &
+        API_PID=$!
+        
+        # Wait for API to start
+        sleep 3
+        
+        # Check if API started successfully
+        if kill -0 $API_PID 2>/dev/null; then
+            print_status "Flask API started successfully (PID: $API_PID)"
+            print_status "API available at: http://localhost:5000"
+        else
+            print_error "Failed to start Flask API"
+            print_error "Check logs/flask_api.log for details"
+            exit 1
+        fi
+    fi
     
     # Start the bot
     cd "$SRC_DIR"
@@ -262,15 +331,39 @@ main() {
         $PYTHON_CMD -m pytest tests/ -v
     else
         print_status "Starting multi-agent bot..."
+        
+        if [ "$START_API" = true ]; then
+            print_status "System running: Flask API (http://localhost:5000) + Multi-Agent Bot"
+        fi
+        
         print_status "Press Ctrl+C to stop"
         echo ""
         
         # Start the bot and capture PID
+        source venv/bin/activate 2>/dev/null || true
         $PYTHON_CMD multi_agent_bot.py $EXTRA_ARGS &
         BOT_PID=$!
         
-        # Wait for the bot process
-        wait $BOT_PID
+        # Monitor both processes if API is running
+        if [ "$START_API" = true ]; then
+            while true; do
+                # Check if both processes are still running
+                if ! kill -0 $API_PID 2>/dev/null; then
+                    print_error "Flask API process died unexpectedly"
+                    break
+                fi
+                
+                if ! kill -0 $BOT_PID 2>/dev/null; then
+                    print_error "Multi-Agent Bot process died unexpectedly"
+                    break
+                fi
+                
+                sleep 5
+            done
+        else
+            # Just wait for the bot if no API
+            wait $BOT_PID
+        fi
     fi
 }
 

@@ -13,6 +13,7 @@ from decimal import Decimal
 from typing import Dict, Optional, Any
 from dataclasses import dataclass
 import logging
+from logging.handlers import RotatingFileHandler
 
 # Cores ANSI para terminal
 class Colors:
@@ -70,6 +71,12 @@ class TradingMetrics:
     filled_orders: int = 0
     grid_profit: float = 0.0
     
+    # Dados recuperados da Binance (histórico real)
+    realized_pnl: float = 0.0       # PnL realizado das últimas 24h
+    total_invested: float = 0.0     # Capital real investido
+    total_orders: int = 0           # Total de ordens executadas
+    roi_percentage: float = 0.0     # ROI baseado no capital real
+    
     # Status
     position_side: str = "NONE"
     market_type: str = "FUTURES"
@@ -98,7 +105,24 @@ class PairLogger:
         for handler in self.logger.handlers[:]:
             self.logger.removeHandler(handler)
         
-        # Handler para arquivo
+        # Handler para arquivo - sempre limpar logs antigos
+        # Remover arquivo existente
+        if os.path.exists(self.log_file):
+            try:
+                os.remove(self.log_file)
+            except:
+                pass
+        
+        # Limpar backups do RotatingFileHandler
+        for i in range(1, 6):
+            backup_file = f"{self.log_file}.{i}"
+            if os.path.exists(backup_file):
+                try:
+                    os.remove(backup_file)
+                except:
+                    pass
+        
+        # Simple file handler - sem rotação já que limpamos no início
         file_handler = logging.FileHandler(self.log_file)
         file_formatter = logging.Formatter(
             '%(asctime)s - %(levelname)s - %(message)s'
@@ -149,7 +173,20 @@ class PairLogger:
                     setattr(self.metrics, key, value)
             self.metrics.last_update = datetime.now()
     
-    def log_trading_cycle(self):
+    def update_tp_sl(self, tp_price: float = None, sl_price: float = None):
+        """Atualizar preços de TP/SL"""
+        with self.lock:
+            if tp_price is not None:
+                self.metrics.tp_price = tp_price
+            if sl_price is not None:
+                self.metrics.sl_price = sl_price
+            self.metrics.last_update = datetime.now()
+        
+        # Log da atualização de TP/SL
+        if tp_price or sl_price:
+            self.log_info(f"🎯 TP/SL atualizado - TP: {tp_price or 'N/A'}, SL: {sl_price or 'N/A'}")
+    
+    def log_trading_cycle(self, force_terminal: bool = None):
         """Log do ciclo de trading com métricas completas"""
         m = self.metrics
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -188,10 +225,15 @@ class PairLogger:
         
         # Indicadores técnicos
         rsi_color = Colors.BRIGHT_RED if m.rsi > 70 else Colors.BRIGHT_GREEN if m.rsi < 30 else Colors.YELLOW
+        
+        # ATR com precisão dinâmica baseada no valor
+        atr_precision = 6 if m.atr < 0.001 else 4 if m.atr < 0.1 else 4
+        atr_color = Colors.BRIGHT_RED if m.atr < 0.0001 else Colors.CYAN
+        
         indicators_section = (
             f"{Colors.BLUE}📊 INDICADORES:{Colors.RESET} "
             f"RSI: {rsi_color}{m.rsi:.1f}{Colors.RESET} | "
-            f"ATR: {Colors.CYAN}{m.atr:.4f}{Colors.RESET} | "
+            f"ATR: {atr_color}{m.atr:.{atr_precision}f}{Colors.RESET} | "
             f"ADX: {Colors.MAGENTA}{m.adx:.1f}{Colors.RESET}"
         )
         
@@ -203,6 +245,18 @@ class PairLogger:
             f"Executadas: {Colors.GREEN}{m.filled_orders}{Colors.RESET} | "
             f"Lucro: {Colors.BRIGHT_GREEN}{m.grid_profit:+.4f} USDT{Colors.RESET}"
         )
+        
+        # Dados recuperados da Binance (histórico real)
+        recovery_section = ""
+        if m.total_invested > 0 or m.realized_pnl != 0:
+            roi_color = Colors.BRIGHT_GREEN if m.roi_percentage >= 0 else Colors.BRIGHT_RED
+            recovery_section = (
+                f"{Colors.MAGENTA}📊 HISTÓRICO REAL:{Colors.RESET} "
+                f"PnL: {Colors.CYAN}{m.realized_pnl:+.4f} USDT{Colors.RESET} | "
+                f"Investido: {Colors.WHITE}${m.total_invested:.2f}{Colors.RESET} | "
+                f"ROI: {roi_color}{m.roi_percentage:+.2f}%{Colors.RESET} | "
+                f"Ordens: {Colors.YELLOW}{m.total_orders}{Colors.RESET}"
+            )
         
         # Volume e alavancagem com melhores formatações
         volume_formatted = f"{m.volume_24h:,.0f}" if m.volume_24h > 0 else "N/A"
@@ -220,10 +274,17 @@ class PairLogger:
             pnl_section,
             tp_sl_section,
             indicators_section,
-            grid_section,
+            grid_section
+        ]
+        
+        # Adicionar seção de recuperação se houver dados
+        if recovery_section:
+            message_parts.append(recovery_section)
+            
+        message_parts.extend([
             volume_section,
             f"{Colors.DIM}{'─' * 80}{Colors.RESET}\n"
-        ]
+        ])
         
         full_message = "\n".join(filter(None, message_parts))
         
@@ -231,8 +292,37 @@ class PairLogger:
         clean_message = self._remove_ansi_codes(full_message)
         self.logger.info(clean_message)
         
-        # Print para terminal (com cores)
-        print(full_message)
+        # Print para terminal (com cores) apenas se permitido
+        # Usar o controle global do MultiPairLogger se disponível
+        should_print = force_terminal
+        if hasattr(self, '_multi_pair_logger_ref'):
+            should_print = self._multi_pair_logger_ref.should_log_to_terminal(self.symbol, force_terminal)
+        elif force_terminal is None:
+            # Fallback: controle local se não há referência do MultiPairLogger
+            current_time = time.time()
+            # Usar configuração do sistema
+            import yaml
+            try:
+                # Descobrir o caminho correto do config.yaml
+                current_dir = os.path.dirname(__file__)  # .../src/utils/
+                src_dir = os.path.dirname(current_dir)    # .../src/
+                config_path = os.path.join(src_dir, "config", "config.yaml")
+                
+                with open(config_path, "r") as f:
+                    config = yaml.safe_load(f)
+                    terminal_interval = config["pair_logging"]["terminal_log_interval_seconds"]
+            except Exception as e:
+                print(f"❌ PairLogger fallback: ERRO CRÍTICO - não foi possível carregar configuração: {e}")
+                raise e
+            
+            if not hasattr(self, '_last_terminal_log_local') or (current_time - self._last_terminal_log_local) >= terminal_interval:
+                should_print = True
+                self._last_terminal_log_local = current_time
+            else:
+                should_print = False
+        
+        if should_print:
+            print(full_message)
     
     def log_order_event(self, side: str, price: float, quantity: float, order_type: str = "GRID"):
         """Log de evento de ordem"""
@@ -323,6 +413,8 @@ class MultiPairLogger:
     """Gerenciador de logs para múltiplos pares"""
     
     def __init__(self, log_dir: str = "logs/pairs"):
+        import os  # Import necessário no topo da função
+        
         self.log_dir = log_dir
         self.pair_loggers: Dict[str, PairLogger] = {}
         self.lock = threading.Lock()
@@ -331,9 +423,25 @@ class MultiPairLogger:
         self.main_logger = logging.getLogger("multi_pair")
         self.main_logger.setLevel(logging.INFO)
         
-        # Handler para arquivo principal
+        # Handler para arquivo principal - sempre limpar logs antigos
         main_log_file = os.path.join(log_dir, "multi_pair.log")
         os.makedirs(log_dir, exist_ok=True)
+        
+        # Remover arquivo existente
+        if os.path.exists(main_log_file):
+            try:
+                os.remove(main_log_file)
+            except:
+                pass
+        
+        # Limpar backups do RotatingFileHandler
+        for i in range(1, 6):
+            backup_file = f"{main_log_file}.{i}"
+            if os.path.exists(backup_file):
+                try:
+                    os.remove(backup_file)
+                except:
+                    pass
         
         file_handler = logging.FileHandler(main_log_file)
         file_formatter = logging.Formatter(
@@ -343,6 +451,26 @@ class MultiPairLogger:
         self.main_logger.addHandler(file_handler)
         
         self._print_header()
+        
+        # Controle de frequência para logs do terminal (configurável)
+        self.last_terminal_logs = {}  # {symbol: timestamp}
+        
+        # Configuração do intervalo de logs no terminal
+        import yaml
+        try:
+            # Descobrir o caminho correto do config.yaml
+            current_dir = os.path.dirname(__file__)  # .../src/utils/
+            src_dir = os.path.dirname(current_dir)    # .../src/
+            config_path = os.path.join(src_dir, "config", "config.yaml")
+            
+            with open(config_path, "r") as f:
+                config = yaml.safe_load(f)
+                pair_logging_config = config["pair_logging"]
+                self.terminal_log_interval = pair_logging_config["terminal_log_interval_seconds"]
+                print(f"📊 MultiPairLogger: Terminal log interval configurado para {self.terminal_log_interval} segundos")
+        except Exception as e:
+            print(f"❌ MultiPairLogger: ERRO CRÍTICO - não foi possível carregar configuração: {e}")
+            raise e
     
     def _print_header(self):
         """Imprime header do sistema"""
@@ -361,8 +489,31 @@ class MultiPairLogger:
         with self.lock:
             if symbol not in self.pair_loggers:
                 self.pair_loggers[symbol] = PairLogger(symbol, self.log_dir)
+                # Definir referência para controle de frequência
+                self.pair_loggers[symbol]._multi_pair_logger_ref = self
                 self.main_logger.info(f"Created logger for {symbol}")
+                # Inicializar controle de tempo para este par
+                self.last_terminal_logs[symbol] = 0
             return self.pair_loggers[symbol]
+    
+    def should_log_to_terminal(self, symbol: str, force_terminal: bool = None) -> bool:
+        """Verifica se deve fazer log no terminal baseado no intervalo configurado"""
+        if force_terminal is False:
+            return False
+        if force_terminal is True:
+            return True
+            
+        current_time = time.time()
+        last_log_time = self.last_terminal_logs.get(symbol, 0)
+        time_since_last = current_time - last_log_time
+        
+        # Se passou o intervalo configurado desde o último log no terminal
+        should_log = time_since_last >= self.terminal_log_interval
+        
+        if should_log:
+            self.last_terminal_logs[symbol] = current_time
+        
+        return should_log
     
     def log_system_event(self, message: str, level: str = "INFO"):
         """Log de evento do sistema"""
@@ -437,15 +588,34 @@ class MultiPairLogger:
         
         print(f"{Colors.BLUE}{'─' * 80}{Colors.RESET}\n")
 
-# Instância global
-_multi_pair_logger = None
+# Process-specific logger instances to prevent sharing across workers
+import os
+_multi_pair_loggers = {}
 
 def get_multi_pair_logger() -> MultiPairLogger:
-    """Obtém instância global do multi pair logger"""
-    global _multi_pair_logger
-    if _multi_pair_logger is None:
-        _multi_pair_logger = MultiPairLogger()
-    return _multi_pair_logger
+    """Get process-specific multi pair logger to prevent cross-process issues"""
+    process_id = os.getpid()
+    if process_id not in _multi_pair_loggers:
+        _multi_pair_loggers[process_id] = MultiPairLogger()
+    return _multi_pair_loggers[process_id]
+
+def cleanup_process_loggers():
+    """Clean up loggers for current process"""
+    process_id = os.getpid()
+    if process_id in _multi_pair_loggers:
+        # Close all file handlers
+        logger = _multi_pair_loggers[process_id]
+        for symbol, pair_logger in logger.pair_loggers.items():
+            for handler in pair_logger.logger.handlers[:]:
+                handler.close()
+                pair_logger.logger.removeHandler(handler)
+        
+        # Close main logger handlers
+        for handler in logger.main_logger.handlers[:]:
+            handler.close()
+            logger.main_logger.removeHandler(handler)
+            
+        del _multi_pair_loggers[process_id]
 
 def get_pair_logger(symbol: str) -> PairLogger:
     """Obtém logger para um par específico"""

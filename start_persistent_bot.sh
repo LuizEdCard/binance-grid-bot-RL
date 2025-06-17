@@ -1,17 +1,19 @@
 #!/bin/bash
 
-# Script para iniciar o bot de forma persistente (continua rodando mesmo após bloqueio de tela)
-# Usa tmux para criar uma sessão em background
+# Script para iniciar o sistema completo de trading de forma persistente
+# Inicia Flask API + Multi-Agent Bot usando tmux para sessões em background
 
 # Cores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Iniciando Multi-Agent Trading Bot em modo PERSISTENTE${NC}"
-echo -e "${YELLOW}📋 Este bot continuará rodando mesmo após bloqueio de tela${NC}"
+echo -e "${CYAN}🚀 Sistema Completo de Trading - MODO PERSISTENTE${NC}"
+echo -e "${YELLOW}📋 Flask API + Multi-Agent Bot continuarão rodando após bloqueio de tela${NC}"
 
 # Verificar se tmux está instalado
 if ! command -v tmux &> /dev/null; then
@@ -19,38 +21,70 @@ if ! command -v tmux &> /dev/null; then
     sudo apt update && sudo apt install -y tmux
 fi
 
-# Nome da sessão tmux
-SESSION_NAME="trading-bot"
+# Nomes das sessões tmux
+API_SESSION="trading-api"
+BOT_SESSION="trading-bot"
 
-# Verificar se já existe uma sessão ativa
-if tmux has-session -t $SESSION_NAME 2>/dev/null; then
-    echo -e "${YELLOW}⚠️  Sessão '$SESSION_NAME' já existe${NC}"
-    echo -e "${BLUE}Opções:${NC}"
-    echo "1) Conectar à sessão existente"
-    echo "2) Parar sessão existente e criar nova"
-    echo "3) Cancelar"
-    read -p "Escolha (1/2/3): " choice
+# Função para verificar e gerenciar sessões existentes
+manage_existing_sessions() {
+    local has_api_session=false
+    local has_bot_session=false
     
-    case $choice in
-        1)
-            echo -e "${GREEN}🔗 Conectando à sessão existente...${NC}"
-            tmux attach-session -t $SESSION_NAME
-            exit 0
-            ;;
-        2)
-            echo -e "${YELLOW}🛑 Parando sessão existente...${NC}"
-            tmux kill-session -t $SESSION_NAME
-            ;;
-        3)
-            echo -e "${BLUE}❌ Cancelado pelo usuário${NC}"
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}❌ Opção inválida${NC}"
-            exit 1
-            ;;
-    esac
-fi
+    if tmux has-session -t $API_SESSION 2>/dev/null; then
+        has_api_session=true
+    fi
+    
+    if tmux has-session -t $BOT_SESSION 2>/dev/null; then
+        has_bot_session=true
+    fi
+    
+    if [ "$has_api_session" = true ] || [ "$has_bot_session" = true ]; then
+        echo -e "${YELLOW}⚠️  Sessões existentes detectadas:${NC}"
+        [ "$has_api_session" = true ] && echo -e "   ${BLUE}Flask API:${NC} $API_SESSION"
+        [ "$has_bot_session" = true ] && echo -e "   ${PURPLE}Multi-Agent Bot:${NC} $BOT_SESSION"
+        echo ""
+        echo -e "${BLUE}Opções:${NC}"
+        echo "1) Conectar às sessões existentes"
+        echo "2) Parar todas e criar novas"
+        echo "3) Cancelar"
+        read -p "Escolha (1/2/3): " choice
+        
+        case $choice in
+            1)
+                echo -e "${GREEN}🔗 Conectando às sessões existentes...${NC}"
+                if [ "$has_api_session" = true ] && [ "$has_bot_session" = true ]; then
+                    # Criar uma nova sessão temporária para mostrar as duas
+                    tmux new-session -d -s "trading-monitor"
+                    tmux split-window -h -t "trading-monitor"
+                    tmux send-keys -t "trading-monitor:0.0" "tmux attach -t $API_SESSION" C-m
+                    tmux send-keys -t "trading-monitor:0.1" "tmux attach -t $BOT_SESSION" C-m
+                    tmux attach-session -t "trading-monitor"
+                elif [ "$has_api_session" = true ]; then
+                    tmux attach-session -t $API_SESSION
+                else
+                    tmux attach-session -t $BOT_SESSION
+                fi
+                exit 0
+                ;;
+            2)
+                echo -e "${YELLOW}🛑 Parando sessões existentes...${NC}"
+                [ "$has_api_session" = true ] && tmux kill-session -t $API_SESSION
+                [ "$has_bot_session" = true ] && tmux kill-session -t $BOT_SESSION
+                ;;
+            3)
+                echo -e "${BLUE}❌ Cancelado pelo usuário${NC}"
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}❌ Opção inválida${NC}"
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+# Verificar sessões existentes
+manage_existing_sessions
 
 # Verificar diretório do projeto
 PROJECT_DIR="/home/luiz/PycharmProjects/binance-grid-bot-RL"
@@ -67,34 +101,105 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}✅ Iniciando nova sessão tmux...${NC}"
+# Função para iniciar Flask API
+start_flask_api() {
+    echo -e "${BLUE}🌐 Iniciando Flask API em sessão persistente...${NC}"
+    
+    # Criar sessão para API
+    tmux new-session -d -s $API_SESSION -c $PROJECT_DIR
+    
+    # Configurar API
+    tmux send-keys -t $API_SESSION "clear" C-m
+    tmux send-keys -t $API_SESSION "echo '🌐 Flask API - Sessão Persistente'" C-m
+    tmux send-keys -t $API_SESSION "echo '📋 Sessão: $API_SESSION | $(date)'" C-m
+    tmux send-keys -t $API_SESSION "echo '🔗 Interface: http://localhost:5000'" C-m
+    tmux send-keys -t $API_SESSION "echo '⚠️  Para sair sem parar: Ctrl+B, depois D'" C-m
+    tmux send-keys -t $API_SESSION "echo ''" C-m
+    
+    # Ativar ambiente virtual
+    tmux send-keys -t $API_SESSION "if [ -d 'venv' ]; then source venv/bin/activate; echo '✅ Ambiente virtual ativado'; fi" C-m
+    
+    # Configurar PYTHONPATH
+    tmux send-keys -t $API_SESSION "export PYTHONPATH=\"$PROJECT_DIR/src:\$PYTHONPATH\"" C-m
+    
+    # Iniciar Flask API
+    tmux send-keys -t $API_SESSION "python src/main.py" C-m
+    
+    echo -e "${BLUE}✅ Flask API iniciada na sessão '$API_SESSION'${NC}"
+}
 
-# Criar nova sessão tmux em background e executar o bot
-tmux new-session -d -s $SESSION_NAME -c $PROJECT_DIR
+# Função para iniciar Multi-Agent Bot
+start_multi_agent_bot() {
+    echo -e "${PURPLE}🤖 Iniciando Multi-Agent Bot em sessão persistente...${NC}"
+    
+    # Criar sessão para Bot
+    tmux new-session -d -s $BOT_SESSION -c $PROJECT_DIR
+    
+    # Configurar Bot
+    tmux send-keys -t $BOT_SESSION "clear" C-m
+    tmux send-keys -t $BOT_SESSION "echo '🤖 Multi-Agent Trading Bot - Sessão Persistente'" C-m
+    tmux send-keys -t $BOT_SESSION "echo '📋 Sessão: $BOT_SESSION | $(date)'" C-m
+    tmux send-keys -t $BOT_SESSION "echo '🧠 AI Multi-Agent System Ativo'" C-m
+    tmux send-keys -t $BOT_SESSION "echo '⚠️  Para sair sem parar: Ctrl+B, depois D'" C-m
+    tmux send-keys -t $BOT_SESSION "echo ''" C-m
+    
+    # Ativar ambiente virtual
+    tmux send-keys -t $BOT_SESSION "if [ -d 'venv' ]; then source venv/bin/activate; echo '✅ Ambiente virtual ativado'; fi" C-m
+    
+    # Iniciar Bot
+    tmux send-keys -t $BOT_SESSION "python src/multi_agent_bot.py" C-m
+    
+    echo -e "${PURPLE}✅ Multi-Agent Bot iniciado na sessão '$BOT_SESSION'${NC}"
+}
 
-# Configurar tmux para logging automático
-tmux send-keys -t $SESSION_NAME "clear" C-m
-tmux send-keys -t $SESSION_NAME "echo '🚀 Multi-Agent Trading Bot - Sessão Persistente'" C-m
-tmux send-keys -t $SESSION_NAME "echo '📋 Sessão: $SESSION_NAME | $(date)'" C-m
-tmux send-keys -t $SESSION_NAME "echo '⚠️  Para sair sem parar o bot: Ctrl+B, depois D'" C-m
-tmux send-keys -t $SESSION_NAME "echo '🔄 Para reconectar: tmux attach -t $SESSION_NAME'" C-m
-tmux send-keys -t $SESSION_NAME "echo ''" C-m
+echo -e "${GREEN}✅ Iniciando sistema completo em sessões tmux...${NC}"
 
-# Ativar ambiente virtual se existir
-tmux send-keys -t $SESSION_NAME "if [ -d 'venv' ]; then source venv/bin/activate; echo '✅ Ambiente virtual ativado'; fi" C-m
+# Iniciar componentes
+start_flask_api
+sleep 3  # Aguardar API inicializar
+start_multi_agent_bot
 
-# Iniciar o bot
-tmux send-keys -t $SESSION_NAME "python src/multi_agent_bot.py" C-m
-
-echo -e "${GREEN}✅ Bot iniciado na sessão tmux '$SESSION_NAME'${NC}"
-echo -e "${BLUE}📋 Comandos úteis:${NC}"
-echo -e "   ${YELLOW}Conectar à sessão:${NC} tmux attach -t $SESSION_NAME"
-echo -e "   ${YELLOW}Ver sessões ativas:${NC} tmux list-sessions"
-echo -e "   ${YELLOW}Sair sem parar bot:${NC} Ctrl+B, depois D"
-echo -e "   ${YELLOW}Parar o bot:${NC} tmux kill-session -t $SESSION_NAME"
 echo ""
-echo -e "${GREEN}🎯 Conectando à sessão automaticamente...${NC}"
+echo -e "${CYAN}🎉 Sistema completo iniciado com sucesso!${NC}"
+echo -e "${BLUE}📋 Sessões ativas:${NC}"
+echo -e "   ${BLUE}Flask API:${NC} $API_SESSION (http://localhost:5000)"
+echo -e "   ${PURPLE}Multi-Agent Bot:${NC} $BOT_SESSION"
+echo ""
+echo -e "${YELLOW}📋 Comandos úteis:${NC}"
+echo -e "   ${YELLOW}Ver sessões:${NC} tmux list-sessions"
+echo -e "   ${YELLOW}Conectar API:${NC} tmux attach -t $API_SESSION"
+echo -e "   ${YELLOW}Conectar Bot:${NC} tmux attach -t $BOT_SESSION"
+echo -e "   ${YELLOW}Monitor completo:${NC} ./monitor_bot.sh"
+echo -e "   ${YELLOW}Parar API:${NC} tmux kill-session -t $API_SESSION"
+echo -e "   ${YELLOW}Parar Bot:${NC} tmux kill-session -t $BOT_SESSION"
+echo -e "   ${YELLOW}Parar tudo:${NC} tmux kill-server"
+echo ""
+echo -e "${GREEN}🎯 Criando sessão de monitoramento integrada...${NC}"
 sleep 2
 
-# Conectar à sessão
-tmux attach-session -t $SESSION_NAME
+# Criar sessão de monitoramento que mostra ambas
+tmux new-session -d -s "trading-monitor"
+tmux split-window -h -t "trading-monitor"
+tmux split-window -v -t "trading-monitor:0.1"
+
+# Painel 0: API logs
+tmux send-keys -t "trading-monitor:0.0" "touch logs/flask_api.log && tail -f logs/flask_api.log" C-m
+
+# Painel 1: Bot logs  
+tmux send-keys -t "trading-monitor:0.1" "touch logs/bot.log && tail -f logs/bot.log" C-m
+
+# Painel 2: Sistema de monitoramento
+tmux send-keys -t "trading-monitor:0.2" "echo '📊 Monitor do Sistema de Trading'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo '========================'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo 'Flask API: http://localhost:5000'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo '🔍 Para verificar posições: python check_positions.py'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo '📊 Comandos úteis:'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo '  tmux attach -t $API_SESSION  # Conectar à API'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo '  tmux attach -t $BOT_SESSION  # Conectar ao Bot'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo ''" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo 'Pressione Ctrl+B, depois D para sair'" C-m
+tmux send-keys -t "trading-monitor:0.2" "echo ''" C-m
+tmux send-keys -t "trading-monitor:0.2" "if [ -d 'venv' ]; then source venv/bin/activate; fi" C-m
+
+# Conectar à sessão de monitoramento
+tmux attach-session -t "trading-monitor"

@@ -59,6 +59,9 @@ class RiskManager:
         self.sentiment_config = config.get("sentiment_analysis", {})
         self.risk_adjustment_config = self.sentiment_config.get("risk_adjustment", {})
         
+        # Get kline interval from config
+        self.kline_interval = config.get("http_api", {}).get("default_kline_interval", "3m")
+        
         # Configurações específicas por mercado
         self.market_specific_config = self.risk_config.get(
             f"{self.market_type}_risk", {}
@@ -310,11 +313,11 @@ class RiskManager:
             # Busca klines baseado no tipo de mercado
             if self.market_type == "spot":
                 klines = self.api_client.get_spot_klines(
-                    symbol=self.symbol, interval="1h", limit=limit
+                    symbol=self.symbol, interval=getattr(self, 'kline_interval', '3m'), limit=limit
                 )
             else:  # futures
                 klines = self.api_client.get_futures_klines(
-                    symbol=self.symbol, interval="1h", limit=limit
+                    symbol=self.symbol, interval=getattr(self, 'kline_interval', '3m'), limit=limit
                 )
             if not klines or len(klines) < periods_needed:
                 log.warning(
@@ -840,7 +843,7 @@ class RiskManager:
                 quantity=quantity,
                 stop_price=stop_price,
                 price=limit_price,
-                reduce_only=reduce_only
+                reduceOnly="true" if reduce_only else "false"
             )
             
             if result:

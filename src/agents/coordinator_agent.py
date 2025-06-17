@@ -178,7 +178,7 @@ class CoordinatorAgent:
         # Monitoring and balancing
         self.health_monitor = AgentHealthMonitor()
         self.load_balancer = LoadBalancer(
-            max_concurrent_operations=config.get('coordinator', {}).get('max_concurrent_operations', 20)
+            max_concurrent_operations=config['coordinator']['max_concurrent_operations']
         )
         
         # Communication channels
@@ -219,17 +219,18 @@ class CoordinatorAgent:
             log.info("Sentiment Agent initialized")
             
             # Initialize AI Agent (if enabled)
-            ai_config = self.config.get("ai_agent", {})
-            if ai_config.get("enabled", False):
+            ai_config = self.config["ai_agent"]
+            if ai_config["enabled"]:
                 try:
-                    ai_base_url = ai_config.get("base_url", "http://127.0.0.1:11434")
+                    ai_base_url = ai_config["base_url"]
                     self.agents['ai'] = AIAgent(self.config, ai_base_url)
                     log.info("AI Agent initialized (will check availability on start)")
                 except Exception as e:
                     log.warning(f"Failed to initialize AI Agent: {e}")
                     log.info("System will continue without AI functionality")
             else:
-                log.info("AI Agent disabled in configuration")
+                log.info("AI Agent disabled in configuration - skipping initialization completely")
+                self.agents['ai'] = None
             
             # Set up inter-agent communication
             self._setup_inter_agent_communication()
@@ -273,6 +274,11 @@ class CoordinatorAgent:
         
         # Start all agents
         for agent_name, agent in self.agents.items():
+            # Skip agents that are None (disabled)
+            if agent is None:
+                log.info(f"{agent_name} agent is disabled - skipping start")
+                continue
+                
             try:
                 log.info(f"Starting {agent_name} agent...")
                 if agent_name == 'ai':
@@ -286,9 +292,8 @@ class CoordinatorAgent:
                 if agent_name == 'ai':
                     log.warning(f"AI agent failed to start: {e}")
                     log.info("System will continue without AI functionality")
-                    # Remove AI agent from agents dict to prevent issues
-                    if 'ai' in self.agents:
-                        del self.agents['ai']
+                    # Set AI agent to None to prevent further issues
+                    self.agents['ai'] = None
                 else:
                     log.error(f"Error starting {agent_name} agent: {e}")
                     self.alerter.send_critical_alert(f"Failed to start {agent_name} agent: {e}")
@@ -323,6 +328,11 @@ class CoordinatorAgent:
         
         # Stop all agents
         for agent_name, agent in self.agents.items():
+            # Skip agents that are None (disabled)
+            if agent is None:
+                log.info(f"{agent_name} agent is disabled - skipping stop")
+                continue
+                
             try:
                 log.info(f"Stopping {agent_name} agent...")
                 agent.stop()
@@ -427,6 +437,10 @@ class CoordinatorAgent:
     def _monitor_agent_health(self) -> None:
         """Monitor health of all agents."""
         for agent_name, agent in self.agents.items():
+            # Skip agents that are None (disabled)
+            if agent is None:
+                continue
+                
             try:
                 if hasattr(agent, 'get_statistics'):
                     stats = agent.get_statistics()
@@ -555,7 +569,10 @@ class CoordinatorAgent:
     
     def broadcast_message(self, message: str, level: str = "INFO") -> None:
         """Broadcast a message through the alerter."""
-        self.alerter.send_message(message, level=level)
+        if level == "CRITICAL":
+            self.alerter.send_critical_alert(message)
+        else:
+            self.alerter.send_message(message)
 
     def _process_market_overview(self) -> None:
         """
@@ -568,7 +585,7 @@ class CoordinatorAgent:
                 return
                 
             ai_agent = self.agents['ai']
-            if not ai_agent.is_available:
+            if not ai_agent or not hasattr(ai_agent, 'is_available') or not ai_agent.is_available:
                 log.debug("AI agent not ready for market overview")
                 return
             
@@ -689,7 +706,11 @@ class CoordinatorAgent:
                     "timestamp": current_time,
                     "event_type": "market_analysis", 
                     "analysis_status": "active",
-                    "ai_available": self.agents.get('ai', {}).is_available if 'ai' in self.agents else False
+                    "ai_available": (
+                        self.agents.get('ai') and 
+                        hasattr(self.agents.get('ai'), 'is_available') and 
+                        self.agents.get('ai').is_available
+                    ) if 'ai' in self.agents else False
                 })
             
             # Performance metrics as coordination events

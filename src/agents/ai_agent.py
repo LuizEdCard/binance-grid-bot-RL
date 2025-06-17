@@ -116,23 +116,23 @@ class RequestQueue:
 class CPUResourceManager:
     """Manages CPU resources for AI requests to prevent overload."""
     
-    def __init__(self, max_concurrent: int = 3, max_queue_size: int = 15):
+    def __init__(self, max_concurrent: int = 3, max_queue_size: int = 15, max_requests_per_window: int = 20):
         self.max_concurrent = max_concurrent
         self.max_queue_size = max_queue_size
         self.request_queue = RequestQueue(max_concurrent)
         self.rate_limiter = asyncio.Semaphore(max_concurrent)
         
-        # Rate limiting (requests per time window) - Optimized settings
+        # Rate limiting (requests per time window) - Conservative for 2 pairs
         self.rate_limit_window = 60  # seconds
-        self.max_requests_per_window = 50  # Increased for better throughput
+        self.max_requests_per_window = max_requests_per_window
         self.request_timestamps = deque()
         
         # Background processor
         self.processor_task = None
         self.stop_event = asyncio.Event()
         
-        # System monitoring
-        self.cpu_usage_threshold = 80  # Pause if CPU usage > 80%
+        # System monitoring - More conservative for stability
+        self.cpu_usage_threshold = 70  # Pause if CPU usage > 70%
         self.last_system_check = 0
         
     async def start(self):
@@ -302,39 +302,30 @@ class CPUResourceManager:
 class LocalAIClient:
     """Client for communicating with local AI server."""
     
-    def __init__(self, base_url: str = "http://127.0.0.1:11434", enable_cpu_management: bool = True):
+    def __init__(self, base_url: str = "http://127.0.0.1:11434", enable_cpu_management: bool = True, config: dict = None):
         self.base_url = base_url.rstrip('/')
         self.session = None
-        self.timeout = aiohttp.ClientTimeout(total=30, connect=5)
+        
+        # Load timeout settings from config
+        ai_config = config['ai_agent'] if config else {}
+        http_timeout = ai_config['http_timeout_seconds']
+        http_connect_timeout = ai_config['http_connect_timeout_seconds']
+        self.timeout = aiohttp.ClientTimeout(total=http_timeout, connect=http_connect_timeout)
         
         # CPU Resource Management
         self.enable_cpu_management = enable_cpu_management
         self.resource_manager = None
         if enable_cpu_management:
-            # Conservative settings for CPU-only systems
-            max_concurrent = 3  # Allow 3 concurrent requests for better performance
-            max_queue_size = 15  # Larger queue for better throughput
-            self.resource_manager = CPUResourceManager(max_concurrent, max_queue_size)
+            # Load settings from config
+            max_concurrent = ai_config['max_concurrent_requests']
+            max_queue_size = ai_config['max_queue_size']
+            max_requests_per_window = ai_config['max_requests_per_window']
+            self.resource_manager = CPUResourceManager(max_concurrent, max_queue_size, max_requests_per_window)
             # Set reference to this client for actual request execution
             self.resource_manager._ai_client_ref = self
         
         # Model-specific timeout configurations
-        self.model_timeouts = {
-            # Fast models
-            "qwen3:0.6b": 20,
-            "gemma3:1b": 25,
-            
-            # Balanced models
-            "qwen3:1.7b": 35,
-            "gemma3:4b": 45,
-            
-            # Reasoning models (longer timeouts)
-            "deepseek-r1:1.5b": 90,  # Reasoning models think more
-            "qwen3:4b": 50,
-            
-            # Default fallback
-            "default": 60
-        }
+        self.model_timeouts = ai_config['model_timeouts']
         
         # Performance tracking
         self.stats = {
@@ -364,13 +355,39 @@ class LocalAIClient:
         )
     
     async def close_session(self) -> None:
-        """Close the aiohttp session."""
+        """Close the aiohttp session and cleanup processes."""
         # Stop resource manager if running
         if self.resource_manager:
             await self.resource_manager.stop()
+        
+        # Cleanup Ollama processes
+        if hasattr(self, '_ollama_processes'):
+            for process in self._ollama_processes:
+                try:
+                    if process.returncode is None:
+                        process.terminate()
+                        try:
+                            await asyncio.wait_for(process.wait(), timeout=5.0)
+                        except asyncio.TimeoutError:
+                            process.kill()
+                            await process.wait()
+                except Exception as e:
+                    log.debug(f"Error cleaning up Ollama process: {e}")
+            self._ollama_processes.clear()
             
-        if self.session:
+        if self.session and not self.session.closed:
             await self.session.close()
+            # Small delay to ensure proper cleanup
+            await asyncio.sleep(0.1)
+    
+    def __del__(self):
+        """Destructor to ensure session cleanup."""
+        try:
+            if hasattr(self, 'session') and self.session and not self.session.closed:
+                import warnings
+                warnings.warn("AI client session was not properly closed")
+        except Exception:
+            pass
     
     async def health_check(self) -> bool:
         """Check if the local AI is available (Ollama format)."""
@@ -410,30 +427,72 @@ class LocalAIClient:
             
             # Check if systemctl is available (most Linux distributions)
             if shutil.which("systemctl"):
-                log.info("Attempting to start Ollama via systemctl...")
-                process = await asyncio.create_subprocess_exec(
-                    "systemctl", "start", "ollama",
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=10)
+                # Try user mode first (no sudo needed)
+                try:
+                    log.info("Attempting to start Ollama via systemctl (user mode)...")
+                    process = await asyncio.create_subprocess_exec(
+                        "systemctl", "--user", "start", "ollama",
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
+                    )
+                    stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=10)
+                    
+                    if process.returncode == 0:
+                        log.info("Successfully started Ollama service via systemctl (user mode)")
+                        return True
+                    else:
+                        log.debug(f"User mode failed: {stderr.decode()}")
+                except Exception as e:
+                    log.debug(f"User mode systemctl failed: {e}")
                 
-                if process.returncode == 0:
-                    log.info("Successfully started Ollama service via systemctl")
-                    return True
-                else:
-                    log.warning(f"Failed to start Ollama via systemctl: {stderr.decode()}")
+                # Try system mode with sudo as fallback
+                try:
+                    log.info("Attempting to start Ollama via systemctl (system mode)...")
+                    process = await asyncio.create_subprocess_exec(
+                        "sudo", "systemctl", "start", "ollama",
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
+                    )
+                    stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=10)
+                    
+                    if process.returncode == 0:
+                        log.info("Successfully started Ollama service via systemctl (system mode)")
+                        return True
+                    else:
+                        log.warning(f"System mode failed: {stderr.decode()}")
+                        log.info("Note: If you see 'Access denied', you may need to set up sudo permissions for systemctl")
+                except Exception as e:
+                    log.warning(f"System mode systemctl failed: {e}")
             
             # Fallback: try to start ollama directly
             if shutil.which("ollama"):
+                # Check if Ollama is already running to avoid duplicates
+                try:
+                    ps_result = await asyncio.create_subprocess_exec(
+                        "pgrep", "-f", "ollama serve",
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.DEVNULL
+                    )
+                    stdout, _ = await ps_result.communicate()
+                    if stdout.strip():
+                        log.info("Ollama serve is already running, skipping start")
+                        return True
+                except Exception:
+                    pass  # If pgrep fails, continue with start attempt
+                
                 log.info("Attempting to start Ollama directly...")
                 # Start ollama serve in background
-                await asyncio.create_subprocess_exec(
+                process = await asyncio.create_subprocess_exec(
                     "ollama", "serve",
                     stdout=asyncio.subprocess.DEVNULL,
                     stderr=asyncio.subprocess.DEVNULL,
                     start_new_session=True
                 )
+                # Store process reference to avoid event loop issues
+                if hasattr(self, '_ollama_processes'):
+                    self._ollama_processes.append(process)
+                else:
+                    self._ollama_processes = [process]
                 log.info("Started Ollama serve in background")
                 return True
             
@@ -1193,12 +1252,12 @@ class AIAgent:
     
     def __init__(self, config: dict, ai_base_url: str = "http://127.0.0.1:11434"):
         self.config = config
-        self.ai_config = config.get("ai_agent", {})
+        self.ai_config = config["ai_agent"]
         self.ai_base_url = ai_base_url
         self.model_name = None  # Auto-detect model dynamically
         
         # AI components  
-        self.ai_client = LocalAIClient(ai_base_url)
+        self.ai_client = LocalAIClient(ai_base_url, config=config)
         self.market_analysis = MarketAnalysisAI(self.ai_client, None)  # Auto-detect
         self.decision_support = DecisionSupportAI(self.ai_client, None)  # Auto-detect
         
@@ -1278,6 +1337,24 @@ class AIAgent:
         log.info("Stopping AI Agent...")
         self.stop_event.set()
         
+        # Close AI client session asynchronously if available
+        try:
+            if hasattr(self, 'ai_client') and self.ai_client:
+                import asyncio
+                # Create a new event loop if none exists
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # If loop is running, schedule the close for later
+                        loop.create_task(self.ai_client.close_session())
+                    else:
+                        loop.run_until_complete(self.ai_client.close_session())
+                except RuntimeError:
+                    # No event loop, create a new one
+                    asyncio.run(self.ai_client.close_session())
+        except Exception as e:
+            log.warning(f"Error closing AI client session: {e}")
+        
         # Stop health check thread
         if self.health_check_thread and self.health_check_thread.is_alive():
             self.health_check_thread.join(timeout=5)
@@ -1291,8 +1368,11 @@ class AIAgent:
     async def _check_ai_availability(self) -> None:
         """Check if local AI is available."""
         try:
-            async with self.ai_client:
-                self.is_available = await self.ai_client.health_check()
+            # Ensure we have a clean session for each check
+            if not self.ai_client.session or self.ai_client.session.closed:
+                await self.ai_client.start_session()
+            
+            self.is_available = await self.ai_client.health_check()
                 
             if self.is_available:
                 log.info("Local AI is available and responding")
@@ -1309,8 +1389,16 @@ class AIAgent:
         
         while not self.stop_event.is_set():
             try:
-                asyncio.run(self._check_ai_availability())
-                self.last_health_check = time.time()
+                # Use a safer approach to run async code from sync thread
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(self._check_ai_availability())
+                    loop.close()
+                    self.last_health_check = time.time()
+                except Exception as inner_e:
+                    log.warning(f"Health check failed: {inner_e}")
+                    self.is_available = False
                 
             except Exception as e:
                 log.error(f"Error in health check loop: {e}")
@@ -1325,8 +1413,14 @@ class AIAgent:
                 
                 # Check for model changes periodically
                 if current_time - self.last_model_check > self.model_check_interval:
-                    asyncio.run(self._check_for_model_changes())
-                    self.last_model_check = current_time
+                    try:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        loop.run_until_complete(self._check_for_model_changes())
+                        loop.close()
+                        self.last_model_check = current_time
+                    except Exception as inner_e:
+                        log.warning(f"Model check failed: {inner_e}")
                 
             except Exception as e:
                 log.error(f"Error in model monitor loop: {e}")
@@ -1673,7 +1767,8 @@ class AIAgent:
         try:
             async with self.ai_client:
                 # Use direct AI client for text analysis since MarketAnalysisAI doesn't have analyze_market_text
-                response = await self.ai_client.analyze(prompt)
+                messages = [{"role": "user", "content": prompt}]
+                response = await self.ai_client.chat_completion(messages)
                 
                 if response:
                     self.stats["analyses_performed"] += 1
