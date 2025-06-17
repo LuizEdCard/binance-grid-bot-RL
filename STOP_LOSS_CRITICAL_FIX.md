@@ -11,40 +11,20 @@ O usuário perdeu **$20 USD** com perdas individuais de até **$4 USDT** enquant
 
 ---
 
-## ✅ **CORREÇÕES IMPLEMENTADAS**
+## ✅ **CORREÇÕES IMPLEMENTADAS (APENAS STOP LOSS)**
 
-### **1. STOP LOSS ULTRA AGRESSIVO**
+### **1. STOP LOSS MUITO MAIS AGRESSIVO**
 ```yaml
 # ANTES (PERIGOSO):
 default_sl_percentage: 0.15     # 15% stop loss
 max_loss_percentage: 0.20       # 20% max loss
 
-# DEPOIS (PROTEÇÃO):
-default_sl_percentage: 0.02     # 2% stop loss
+# DEPOIS (PROTEÇÃO CRÍTICA):
+default_sl_percentage: 0.02     # 2% stop loss  
 max_loss_percentage: 0.03       # 3% max loss
 ```
 
-### **2. ALAVANCAGEM REDUZIDA**
-```yaml
-# ANTES (ALTO RISCO):
-leverage: 10                    # 10x alavancagem
-max_leverage: 15                # 15x máximo
-
-# DEPOIS (SEGURO):
-leverage: 3                     # 3x alavancagem
-max_leverage: 5                 # 5x máximo
-```
-
-### **3. CAPITAL AUMENTADO**
-```yaml
-# ANTES:
-capital_per_pair_usd: '30.0'    # $30 por par
-
-# DEPOIS:
-capital_per_pair_usd: '50.0'    # $50 por par
-```
-
-### **4. TAKE PROFIT OTIMIZADO**
+### **2. TAKE PROFIT OTIMIZADO**
 ```yaml
 # ANTES:
 default_tp_percentage: 0.0015   # 0.15% take profit
@@ -55,26 +35,19 @@ default_tp_percentage: 0.005    # 0.5% take profit
 min_profit_usdt: 0.20           # $0.20 mínimo
 ```
 
-### **5. TRAILING STOP ULTRA AGRESSIVO**
+### **3. CONFIGURAÇÕES MANTIDAS (NÃO ALTERADAS)**
 ```yaml
-# ANTES:
-trail_amount: 0.3               # 0.3% trailing
-activation_threshold: 0.1       # 0.1% para ativar
+# Alavancagem (MANTIDA):
+leverage: 10                    # 10x alavancagem
+max_leverage: 15                # 15x máximo
 
-# DEPOIS:
-trail_amount: 0.15              # 0.15% trailing
-activation_threshold: 0.05      # 0.05% para ativar
-```
+# Capital (MANTIDO):
+capital_per_pair_usd: '30.0'    # $30 por par
 
-### **6. PROTEÇÕES ADICIONAIS**
-```yaml
-# Risk Management:
-loss_protection_trigger_perc: 3.0        # Era 15.0%
-auto_close_loss_percentage: 0.025        # Era 0.10 (10%)
-emergency_stop_loss_percentage: 5.0      # Era 20.0%
-
-# Capital Management:
-max_capital_per_pair_percentage: 15.0    # Era 30.0%
+# Risk Management (MANTIDO):
+loss_protection_trigger_perc: 15.0
+auto_close_loss_percentage: 0.10
+emergency_stop_loss_percentage: 20.0
 ```
 
 ---
@@ -82,19 +55,19 @@ max_capital_per_pair_percentage: 15.0    # Era 30.0%
 ## 📊 **COMPARAÇÃO: ANTES vs DEPOIS**
 
 ### **CENÁRIO ANTERIOR (PROBLEMÁTICO):**
-- Alavancagem: **10x**
+- Alavancagem: **10x** (mantida)
 - Stop Loss: **15%**
-- Capital: **$30/par**
+- Capital: **$30/par** (mantido)
 - **Perda máxima: $45** (15% de $300) 😱
 
 ### **CENÁRIO CORRIGIDO:**
-- Alavancagem: **3x**
+- Alavancagem: **10x** (mantida)
 - Stop Loss: **2%**
-- Capital: **$50/par**
-- **Perda máxima: $3** (2% de $150) ✅
+- Capital: **$30/par** (mantido)
+- **Perda máxima: $6** (2% de $300) ✅
 
-### **REDUÇÃO DE RISCO: 93%**
-**De $45 para $3 de perda máxima = 93% menos risco!**
+### **REDUÇÃO DE RISCO: 86%**
+**De $45 para $6 de perda máxima = 86% menos risco!**
 
 ---
 
@@ -102,8 +75,8 @@ max_capital_per_pair_percentage: 15.0    # Era 30.0%
 
 ### **Perdas Controladas:**
 - **Antes**: $4+ USDT por perda
-- **Depois**: Máximo $3 USDT por perda
-- **Proteção**: 25% menor perda máxima
+- **Depois**: Máximo $6 USDT por perda (vs $45 possível)
+- **Proteção**: 86% menor perda máxima
 
 ### **Lucros Otimizados:**
 - **Take Profit**: Mais rápido (0.5% vs 0.15%)

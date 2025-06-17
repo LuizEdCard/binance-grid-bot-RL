@@ -13,8 +13,8 @@ exchange:
   - spot
 grid:
   futures:
-    leverage: 3   # Alavancagem REDUZIDA para 3x (grid trading seguro)
-    max_leverage: 5   # Máximo 5x permitido (proteção contra perdas)
+    leverage: 10  # Alavancagem inicial 10x para maximizar capital
+    max_leverage: 15  # Máximo 15x permitido
     position_side: BOTH
     use_isolated_margin: true
   initial_levels: 35  # HFT: Aumentado para 35 níveis mínimos
@@ -38,7 +38,7 @@ operation_mode: "Production"
 # Configuração de trading
 trading:
   max_concurrent_pairs: 20              # Múltiplos pares permitidos
-  capital_per_pair_usd: '50.0'          # Capital por par AUMENTADO para reduzir risco
+  capital_per_pair_usd: '30.0'          # Capital máximo por par conforme solicitação
   enable_auto_pair_addition: true      # Habilitar adição automática de pares
   balance_threshold_usd: 20            # Saldo mínimo reduzido para facilitar adição
   cycle_interval_seconds: 3            # Verificações extremamente frequentes para HFT
@@ -144,24 +144,24 @@ risk_management:
   dynamic_sl_profit_lock_perc: 80.0
   futures_risk:
     liquidation_buffer_perc: 15.0
-    max_leverage: 5   # Reduzido de 20x para 5x (proteção crítica)
+    max_leverage: 20
     max_position_size_perc: 50.0
-  loss_protection_trigger_perc: 3.0  # Gatilho de proteção em 3% (era 15%)
+  loss_protection_trigger_perc: 15.0
   max_drawdown_perc: 10.0
   spot_risk:
     max_asset_allocation_perc: 70.0
     min_stable_balance_perc: 30.0
   tp_sl_ratio: 3.0
-  auto_close_loss_percentage: 0.025  # Auto-close em 2.5% de perda
-  # Configuração do Trailing Stop - ULTRA AGRESSIVO para proteção de capital
+  auto_close_loss_percentage: 0.10
+  # Configuração do Trailing Stop - AGRESSIVO para evitar perdas
   trailing_stop:
     enabled: true                    # Ativar trailing stop
-    trail_amount: 0.15              # 0.15% trailing distance (ULTRA agressivo)
+    trail_amount: 0.3               # 0.3% trailing distance (bem agressivo)
     trail_type: "percentage"        # "percentage" ou "fixed"
-    activation_threshold: 0.05      # 0.05% de lucro para ativar trailing (INSTANTÂNEO)
-    min_trail_distance: 0.0005      # Distância mínima (0.05%)
-    max_trail_distance: 0.005       # Distância máxima (0.5% - máxima proteção)
-    update_frequency: 1             # Atualizar a cada 1 segundo (MÁXIMA frequência)
+    activation_threshold: 0.1       # 0.1% de lucro para ativar trailing (muito rápido)
+    min_trail_distance: 0.001       # Distância mínima (0.1%)
+    max_trail_distance: 0.01        # Distância máxima (1% - mais agressivo)
+    update_frequency: 2             # Atualizar a cada 2 segundos (mais frequente)
   # Configuração de Ordens Condicionais
   conditional_orders:
     enabled: true                   # Ativar ordens condicionais
@@ -316,14 +316,14 @@ aggressive_tp_sl:
 
 # Configuração Capital Management Avançado
 capital_management_advanced:
-  max_capital_per_pair_percentage: 15.0  # Reduzido para 15% (diversificação)
+  max_capital_per_pair_percentage: 30.0
   min_capital_per_pair_usd: 10.0
   safety_buffer_percentage: 10.0
   min_notional_limits:
     spot: 10.0
     futures: 5.0
   rebalance_threshold_percentage: 5.0
-  emergency_stop_loss_percentage: 5.0  # Emergency SL em 5% (era 20%)
+  emergency_stop_loss_percentage: 20.0
   min_brl_to_convert: 50.0
   min_usdt_conversion: 10.0
   min_transfer_amount: 5.0
