@@ -8,6 +8,7 @@ import numpy as np  # Importa numpy para TA-Lib
 import pandas as pd  # Importa pandas para manipulação de dados
 from binance.enums import (
     ORDER_TYPE_LIMIT,
+    ORDER_TYPE_MARKET,
     TIME_IN_FORCE_GTC,
     ORDER_STATUS_NEW,
     SIDE_BUY,
@@ -24,6 +25,7 @@ from utils.pair_logger import get_pair_logger
 from utils.trade_logger import get_trade_logger
 from utils.global_tp_sl_manager import get_global_tpsl_manager, add_position_to_global_tpsl, remove_position_from_global_tpsl
 from utils.trading_state_recovery import TradingStateRecovery
+from utils.market_order_manager import MarketOrderManager
 log = setup_logger("grid_logic")
 
 # Tentativa de importar TA-Lib
@@ -151,6 +153,17 @@ class GridLogic:
         else:
             log.warning(f"[{self.symbol}] Falha ao conectar com Global TP/SL Manager")
         
+        # Initialize Market Order Manager with slippage control
+        market_order_config = config.get("market_orders", {})
+        if market_order_config.get("enabled", True):
+            self.market_order_manager = MarketOrderManager(self.api_client, config)
+            # Apply risk reduction parameters
+            self._apply_market_order_risk_adjustments()
+            log.info(f"[{self.symbol}] Market Order Manager inicializado com controle de slippage máximo {self.market_order_manager.max_slippage}%")
+        else:
+            self.market_order_manager = None
+            log.info(f"[{self.symbol}] Market Order Manager desabilitado - usando ordens limite")
+        
         # Initialize trading state recovery system
         self.state_recovery = TradingStateRecovery(self.api_client)
         self.recovered_state = None
@@ -212,9 +225,36 @@ class GridLogic:
                 f"[{self.symbol}] Falha ao inicializar informações do símbolo. Não é possível iniciar GridLogic."
             )
         
-        # Initialize trading state recovery (run once per symbol)
+        # Initialize state recovery after symbol info is set up
         self._initialize_state_recovery()
-
+    
+    def _apply_market_order_risk_adjustments(self):
+        """Aplica ajustes de redução de risco quando usando ordens de mercado."""
+        try:
+            market_order_config = self.config.get("market_orders", {})
+            
+            # Reduzir tamanho das posições
+            position_multiplier = market_order_config.get("reduced_position_size_multiplier", 0.7)
+            self.position_size_multiplier = position_multiplier
+            
+            # Reduzir espaçamento do grid
+            spacing_multiplier = market_order_config.get("reduced_grid_spacing_multiplier", 0.8)
+            original_spacing = self.base_spacing_percentage
+            self.base_spacing_percentage = original_spacing * Decimal(str(spacing_multiplier))
+            self.current_spacing_percentage = self.base_spacing_percentage
+            
+            # Reduzir número de níveis para diminuir exposição
+            level_reduction = max(2, int(self.num_levels * 0.15))  # Reduzir 15%
+            self.num_levels = max(self.min_levels, self.num_levels - level_reduction)
+            
+            log.info(f"[{self.symbol}] Ajustes de risco aplicados para ordens de mercado:")
+            log.info(f"[{self.symbol}] - Multiplicador de posição: {position_multiplier}")
+            log.info(f"[{self.symbol}] - Espaçamento reduzido: {original_spacing*100:.3f}% → {self.base_spacing_percentage*100:.3f}%")
+            log.info(f"[{self.symbol}] - Níveis reduzidos em: {level_reduction}")
+            
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao aplicar ajustes de risco: {e}")
+    
     def _initialize_symbol_info(self) -> bool:
         """Inicializa informações do símbolo para Spot ou Futuros com validação melhorada."""
         log.info(f"[{self.symbol}] Inicializando informações de exchange para mercado {self.market_type.upper()}...")
@@ -569,9 +609,41 @@ class GridLogic:
 
     def _place_order_unified(self, side, price_str, qty_str):
         """Coloca ordem baseado no tipo de mercado com proteção contra margem insuficiente."""
+        
+        # Determinar tipo de ordem baseado na configuração e condições
+        order_type = ORDER_TYPE_LIMIT  # Padrão
+        urgency_level = "normal"
+        
+        # 🚀 MODO HFT: SEMPRE usar ordens de mercado quando ativo
+        if self.market_order_manager:
+            market_config = self.config.get("market_orders", {})
+            min_capital = market_config.get("min_capital_for_market_orders", 6.0)
+            
+            # Estimar capital disponível
+            current_price = float(price_str)
+            order_value = current_price * float(qty_str)
+            
+            if order_value >= min_capital:
+                # 🎯 SEMPRE USAR MERCADO para HFT (execução instantânea)
+                order_type = ORDER_TYPE_MARKET
+                
+                # Determinar urgência para controle de slippage
+                if hasattr(self, 'current_rsi'):
+                    if self.current_rsi < 25 or self.current_rsi > 75:
+                        urgency_level = "high"  # Condições extremas
+                    elif self.current_rsi < 35 or self.current_rsi > 65:
+                        urgency_level = "normal"  # Condições favoráveis
+                    else:
+                        urgency_level = "low"  # Condições neutras
+                
+                log.info(f"[{self.symbol}] 🚀 HFT: Ordem de MERCADO (urgência: {urgency_level}, valor: ${order_value:.2f})")
+            else:
+                log.debug(f"[{self.symbol}] Capital insuficiente para HFT (${order_value:.2f} < ${min_capital}) - usando LIMITE")
+        
         log.info(
-            f"[{self.symbol} - {self.operation_mode.upper()}] Colocando ordem {side} LIMIT no mercado {self.market_type.upper()} em {price_str}, Qtd: {qty_str}"
+            f"[{self.symbol} - {self.operation_mode.upper()}] Colocando ordem {side} {order_type} no mercado {self.market_type.upper()} em {price_str}, Qtd: {qty_str}"
         )
+        
         try:
             # NOVO: Verificar saldo antes de tentar colocar ordem
             if self.market_type == "futures":
@@ -589,26 +661,41 @@ class GridLogic:
                 except Exception as e:
                     log.debug(f"[{self.symbol}] Erro ao verificar saldo futures: {e}")
             
-            if self.market_type == "spot":
-                # Ordem no mercado Spot
-                order = self.api_client.place_spot_order(
+            # Colocar ordem baseada no tipo determinado
+            if order_type == ORDER_TYPE_MARKET and self.market_order_manager:
+                # Usar MarketOrderManager para ordens de mercado
+                order = self.market_order_manager.place_market_order_with_slippage_control(
                     symbol=self.symbol,
                     side=side,
-                    order_type=ORDER_TYPE_LIMIT,
                     quantity=qty_str,
-                    price=price_str,
-                    timeInForce=TIME_IN_FORCE_GTC,
+                    market_type=self.market_type
                 )
-            else:  # futures
-                # Ordem no mercado Futuros
-                order = self.api_client.place_futures_order(
-                    symbol=self.symbol,
-                    side=side,
-                    order_type=ORDER_TYPE_LIMIT,
-                    quantity=qty_str,
-                    price=price_str,
-                    timeInForce=TIME_IN_FORCE_GTC,
-                )
+            else:
+                # Usar ordens limite tradicionais
+                if self.market_type == "spot":
+                    # Ordem no mercado Spot
+                    order = self.api_client.place_spot_order(
+                        symbol=self.symbol,
+                        side=side,
+                        order_type=order_type,
+                        quantity=qty_str,
+                        price=price_str if order_type == ORDER_TYPE_LIMIT else None,
+                        timeInForce=TIME_IN_FORCE_GTC if order_type == ORDER_TYPE_LIMIT else None,
+                    )
+                else:  # futures
+                    # Ordem no mercado Futuros
+                    order_params = {
+                        "symbol": self.symbol,
+                        "side": side,
+                        "order_type": order_type,
+                        "quantity": qty_str,
+                    }
+                    
+                    if order_type == ORDER_TYPE_LIMIT:
+                        order_params["price"] = price_str
+                        order_params["timeInForce"] = TIME_IN_FORCE_GTC
+                    
+                    order = self.api_client.place_futures_order(**order_params)
             
             if order and "orderId" in order:
                 order_id = order["orderId"]
@@ -1047,6 +1134,12 @@ class GridLogic:
         capital_per_grid = total_capital_usd / Decimal(str(num_grids))
         exposure_per_grid = capital_per_grid * leverage
         quantity = exposure_per_grid / current_price
+        
+        # Apply position size reduction if using market orders
+        if hasattr(self, 'position_size_multiplier'):
+            original_quantity = quantity
+            quantity = quantity * Decimal(str(self.position_size_multiplier))
+            log.info(f"[{self.symbol}] Aplicando redução de posição para ordens de mercado: {original_quantity} → {quantity} (fator: {self.position_size_multiplier})")
         
         # Ensure minimum notional value is met (minimum $5 per order)
         min_notional = self.min_notional if self.min_notional else Decimal("5")
@@ -2610,6 +2703,62 @@ class GridLogic:
                 status["message"] = base_message
 
             return status
+        
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao obter status: {e}")
+            return {
+                "status": "error",
+                "symbol": self.symbol,
+                "message": f"Error getting status: {str(e)}"
+            }
+    
+    def _place_grid_order_at_level(self, price, order_type):
+        """Coloca uma ordem em um nível específico do grid."""
+        try:
+            # Obter preço atual para calcular quantidade
+            ticker = self._get_ticker()
+            current_price = self._get_current_price_from_ticker(ticker)
+            if current_price is None:
+                log.error(f"[{self.symbol}] Não foi possível obter preço atual para ordem em {price}")
+                return None
+            
+            current_price_decimal = Decimal(str(current_price))
+            quantity_per_order = self._calculate_quantity_per_order(current_price_decimal)
+            
+            if quantity_per_order <= Decimal("0"):
+                log.error(f"[{self.symbol}] Quantidade calculada é zero para nível {price}")
+                return None
+            
+            # Formatar preço e quantidade
+            formatted_price_str = self._format_price(price)
+            formatted_qty_str = self._format_quantity(quantity_per_order, current_price)
+            
+            if not formatted_price_str or not formatted_qty_str:
+                log.error(f"[{self.symbol}] Erro ao formatar preço ou quantidade para nível {price}")
+                return None
+            
+            # Verificar notional mínimo
+            if not self._check_min_notional(formatted_price_str, formatted_qty_str):
+                log.warning(f"[{self.symbol}] Ordem em {price} não atende ao mínimo nocional")
+                return None
+            
+            # Determinar lado da ordem
+            side = SIDE_BUY if order_type == "buy" else SIDE_SELL
+            
+            # Colocar ordem
+            order_id = self._place_order(side, formatted_price_str, formatted_qty_str)
+            
+            if order_id:
+                self.active_grid_orders[price] = order_id
+                log.info(f"[{self.symbol}] Ordem recriada com sucesso: {side} @ {formatted_price_str}")
+                return order_id
+            else:
+                log.error(f"[{self.symbol}] Falha ao recriar ordem em {price}")
+                return None
+                
+        except Exception as e:
+            log.error(f"[{self.symbol}] Erro ao colocar ordem no nível {price}: {e}")
+            return None
 
         except Exception as e:
             log.error(f"[{self.symbol}] Erro ao obter status: {e}")
@@ -3625,3 +3774,54 @@ class GridLogic:
         except Exception as e:
             log.error(f"[{self.symbol}] Error rounding quantity {quantity}: {e}")
             return str(quantity)
+    
+    def get_slippage_statistics(self) -> dict:
+        """Retorna estatísticas de slippage para ordens de mercado."""
+        if not self.market_order_manager:
+            return {"enabled": False, "message": "Market orders disabled"}
+        
+        return {
+            "enabled": True,
+            "statistics": self.market_order_manager.get_statistics(),
+            "symbol_stats": self.market_order_manager.slippage_monitors.get(self.symbol, {}).get_statistics() if self.symbol in self.market_order_manager.slippage_monitors else {}
+        }
+    
+    def optimize_market_order_parameters(self) -> dict:
+        """Otimiza parâmetros de ordens de mercado baseado no histórico."""
+        if not self.market_order_manager:
+            return {"enabled": False, "message": "Market orders disabled"}
+        
+        return self.market_order_manager.optimize_parameters(self.symbol)
+    
+    def force_market_order_mode(self, enabled: bool = True, max_slippage_override: float = None):
+        """Força ou desabilita modo de ordens de mercado temporariamente."""
+        if not self.market_order_manager:
+            log.warning(f"[{self.symbol}] Market Order Manager não está disponível")
+            return
+        
+        if enabled:
+            # Temporariamente definir que todas as ordens devem usar mercado
+            self._force_market_orders = True
+            if max_slippage_override:
+                self._temp_slippage_override = max_slippage_override
+            log.info(f"[{self.symbol}] Modo forçado de ordens de mercado ATIVADO")
+        else:
+            self._force_market_orders = False
+            self._temp_slippage_override = None
+            log.info(f"[{self.symbol}] Modo forçado de ordens de mercado DESATIVADO")
+    
+    def get_market_order_config(self) -> dict:
+        """Retorna configuração atual das ordens de mercado."""
+        if not self.market_order_manager:
+            return {"enabled": False}
+        
+        market_config = self.config.get("market_orders", {})
+        return {
+            "enabled": True,
+            "max_slippage_percentage": self.market_order_manager.max_slippage,
+            "reduced_position_size_multiplier": getattr(self, 'position_size_multiplier', 1.0),
+            "reduced_grid_spacing_multiplier": float(self.current_spacing_percentage / self.base_spacing_percentage) if self.base_spacing_percentage > 0 else 1.0,
+            "min_capital_for_market_orders": market_config.get("min_capital_for_market_orders", 50.0),
+            "enable_pre_execution_check": self.market_order_manager.enable_pre_execution_check,
+            "force_market_orders": getattr(self, '_force_market_orders', False)
+        }

@@ -20,7 +20,7 @@ grid:
   initial_levels: 35  # HFT: Aumentado para 35 níveis mínimos
   max_levels: 60      # HFT: Máximo 60 níveis por par  
   min_levels: 20      # HFT: Mínimo 20 níveis por par
-  initial_spacing_perc: '0.0006'  # 0.06% spacing para HFT (20+ transações/hora)
+  initial_spacing_perc: '0.0003'  # 0.03% spacing reduzido para ordens a mercado HFT
   leverage: 1
   spot:
     max_base_asset_allocation: 0.5
@@ -38,9 +38,9 @@ operation_mode: "Production"
 # Configuração de trading
 trading:
   max_concurrent_pairs: 20              # Múltiplos pares permitidos
-  capital_per_pair_usd: '30.0'          # Capital máximo por par conforme solicitação
+  capital_per_pair_usd: '6.0'          # Capital reduzido para ordens a mercado (HFT)
   enable_auto_pair_addition: true      # Habilitar adição automática de pares
-  balance_threshold_usd: 20            # Saldo mínimo reduzido para facilitar adição
+  balance_threshold_usd: 10            # Saldo mínimo reduzido para HFT
   cycle_interval_seconds: 3            # Verificações extremamente frequentes para HFT
   allow_market_switching: true
   market_switch_cooldown_minutes: 30
@@ -449,8 +449,8 @@ http_api:
 
 # Trade Activity Tracker Configuration
 trade_activity_tracker:
-  inactivity_timeout_seconds: 3600    # 1 hora para considerar par inativo
-  min_trade_frequency_per_hour: 2     # Mínimo 2 trades por hora
+  inactivity_timeout_seconds: 900     # 15 minutos para rotação rápida HFT
+  min_trade_frequency_per_hour: 4     # Mínimo 4 trades por hora (HFT)
   max_consecutive_losses: 3           # Máximo 3 perdas seguidas
   cleanup_days: 7                     # Limpar dados após 7 dias
 
@@ -460,6 +460,25 @@ pair_logging:
   file_log_all_cycles: true          # Salvar todos os ciclos em arquivo
   log_dir: "logs/pairs"              # Diretório dos logs por par
   
+# Configuração de Ordens de Mercado - MODO HFT ATIVADO
+market_orders:
+  enabled: true                        # ✅ ATIVADO - Ordens a mercado para HFT
+  max_slippage_percentage: 0.10         # Slippage reduzido para 0.10% (controle rigoroso)
+  max_order_size_percentage: 0.3        # Máximo 30% do volume para reduzir impacto
+  enable_pre_execution_check: true      # ✅ Verificação de liquidez obrigatória
+  reduced_position_size_multiplier: 0.6 # Reduzir posições para $6 USDT ($60 com leverage)
+  reduced_grid_spacing_multiplier: 0.5  # Espaçamento reduzido para 50% (HFT)
+  min_capital_for_market_orders: 6.0    # Capital mínimo para ordens a mercado
+  urgency_levels:
+    low: 0.05      # 50% do slippage máximo (controle rigoroso)
+    normal: 0.075  # 75% do slippage máximo  
+    high: 0.10     # 100% do slippage máximo
+    critical: 0.15 # 150% do slippage máximo (reduzido)
+  optimization:
+    auto_adjust_limits: true            # Ajustar limites automaticamente
+    min_orders_for_optimization: 10     # Mínimo de ordens para otimização
+    performance_window_hours: 24        # Janela para análise de performance
+
 # AI Agent Configuration
 ai_agent:
   enabled: false  # Desabilitado para evitar problemas de asyncio subprocess
