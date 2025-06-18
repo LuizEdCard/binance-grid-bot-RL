@@ -72,7 +72,7 @@ class AggressiveTPSLManager:
         self.monitor_thread: Optional[Thread] = None
         
         log.info(
-            f"AggressiveTPSLManager initialized - SL AGRESSIVO DE 5% ATIVADO - "
+            f"AggressiveTPSLManager initialized - SL AGRESSIVO DE {self.default_sl_percentage*100:.1f}% ATIVADO - "
             f"Target profits: ${self.min_profit_usdt}-${self.max_profit_usdt} USDT, "
             f"TP: {self.default_tp_percentage*100:.1f}%, SL: {self.default_sl_percentage*100:.1f}% (AGRESSIVO), "
             f"Trailing: {self.trailing_distance_percentage*100:.1f}%"
