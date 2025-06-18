@@ -521,19 +521,54 @@ class MultiAgentTradingBot:
                         
                         log.info(f"❌ {symbol}: {', '.join(issues_list)}")
                 
-                # Aplicar substituições sugeridas se há capital disponível
+                # Aplicar substituições para pares inativos (sempre) e para poor performers (se há capital)
                 pairs_to_replace = set(replacement_suggestions.keys())
-                if pairs_to_replace and total_available > balance_threshold:
-                    log.info(f"🔄 Executando {len(pairs_to_replace)} substituições de pares...")
+                inactive_replacements = {k: v for k, v in replacement_suggestions.items() if k in inactive_pairs}
+                performance_replacements = {k: v for k, v in replacement_suggestions.items() if k in poor_performing_pairs}
+                
+                # SEMPRE substituir pares inativos (>1h sem atividade) - independente do saldo
+                if inactive_replacements:
+                    log.info(f"🔄 Executando {len(inactive_replacements)} substituições de pares INATIVOS...")
                     
-                    for old_pair, new_pair_info in replacement_suggestions.items():
+                    for old_pair, new_pair_info in inactive_replacements.items():
+                        new_pair = new_pair_info["symbol"]
+                        
+                        # Parar o par antigo PRIMEIRO (libera capital)
+                        if old_pair in current_pairs:
+                            log.info(f"🛑 Parando {old_pair} (motivo: inativo há >1h)")
+                            self._cancel_orders_for_symbol(old_pair)  # Cancela ordens primeiro
+                            self._stop_trading_worker(old_pair)
+                            current_pairs.remove(old_pair)
+                        
+                        # Aguardar um momento para liberação do capital
+                        time.sleep(1)
+                        
+                        # Iniciar o novo par
+                        log.info(f"🚀 Iniciando {new_pair} (ATR: {new_pair_info['atr_percentage']:.2f}%)")
+                        self._start_trading_worker(new_pair)
+                        current_pairs.add(new_pair)
+                        
+                        # Registrar a troca
+                        self.multi_pair_logger.log_system_event(
+                            f"🔄 Rotação de par: {old_pair} → {new_pair} (motivo: {', '.join(problematic_pairs.get(old_pair, {}).get('issues', ['inatividade']))})",
+                            "PAIR_ROTATION"
+                        )
+                
+                # Substituir pares com performance ruim APENAS se há capital disponível
+                if performance_replacements and total_available > balance_threshold:
+                    log.info(f"🔄 Executando {len(performance_replacements)} substituições de pares com BAIXA PERFORMANCE...")
+                    
+                    for old_pair, new_pair_info in performance_replacements.items():
                         new_pair = new_pair_info["symbol"]
                         
                         # Parar o par antigo
                         if old_pair in current_pairs:
-                            log.info(f"🛑 Parando {old_pair} (motivo: rotação por inatividade/baixa performance)")
+                            log.info(f"🛑 Parando {old_pair} (motivo: baixa performance)")
+                            self._cancel_orders_for_symbol(old_pair)
                             self._stop_trading_worker(old_pair)
                             current_pairs.remove(old_pair)
+                        
+                        time.sleep(1)
                         
                         # Iniciar o novo par
                         log.info(f"🚀 Iniciando {new_pair} (ATR: {new_pair_info['atr_percentage']:.2f}%)")
