@@ -357,11 +357,11 @@ capital_management_advanced:
   spot_level_adjustments:
     high: 5
     
-  # Tamanhos de posição por capital
+  # Tamanhos de posição por capital - LIMITADO para HFT
   futures_position_sizes:
-    low: 0.9
-    medium: 0.8
-    high: 0.7
+    low: 0.8   # 80% de $6 = $4.8 USDT margem máxima
+    medium: 0.7 # 70% de $6 = $4.2 USDT margem máxima  
+    high: 0.6   # 60% de $6 = $3.6 USDT margem máxima
   spot_position_sizes:
     low: 0.8
     medium: 0.7

@@ -610,6 +610,19 @@ class GridLogic:
     def _place_order_unified(self, side, price_str, qty_str):
         """Coloca ordem baseado no tipo de mercado com proteção contra margem insuficiente."""
         
+        # 🚨 HFT: Verificar se posição já está no limite ANTES de colocar ordem
+        current_position = self._get_position()
+        if current_position:
+            position_size = abs(float(current_position.get('positionAmt', 0)))
+            current_price = float(price_str)
+            position_value = position_size * current_price
+            
+            # Limite: $60 notional ($6 margem com 10x leverage)
+            max_notional = 60.0
+            if position_value > max_notional:
+                log.warning(f"[{self.symbol}] 🚨 POSIÇÃO MÁXIMA ATINGIDA: ${position_value:.2f} > ${max_notional} - BLOQUEANDO nova ordem")
+                return None
+        
         # Determinar tipo de ordem baseado na configuração e condições
         order_type = ORDER_TYPE_LIMIT  # Padrão
         urgency_level = "normal"
@@ -1469,16 +1482,19 @@ class GridLogic:
             position_side = "LONG" if float(new_pos_amt) > 0 else "SHORT"
             position_key = f"{self.symbol}_{position_side}_{float(new_entry_price):.6f}"
             
-            # Only add if position size changed significantly (>1%) to avoid micro-changes
-            size_change_threshold = 0.01  # 1%
+            # Only add if position size changed significantly (>0.1%) to capture HFT positions
+            size_change_threshold = 0.001  # 0.1% para capturar posições HFT menores
             current_amt = float(self._last_position_amt)
             new_amt = float(new_pos_amt)
             size_change = abs(abs(new_amt) - abs(current_amt))
             size_change_percent = size_change / max(abs(current_amt), abs(new_amt), 0.01) if max(abs(current_amt), abs(new_amt)) > 0 else 0
             
-            # Add position only if significant size change AND not already tracked
-            if (size_change_percent > size_change_threshold and 
-                position_key not in self._active_tpsl_positions):
+            # Add position if: significant size change OR position is large (>$10 notional)
+            position_notional = abs(new_amt) * float(new_entry_price)
+            should_add = ((size_change_percent > size_change_threshold) or 
+                         (position_notional > 10.0)) and position_key not in self._active_tpsl_positions
+            
+            if should_add:
                 
                 try:
                     position_id = add_position_to_global_tpsl(
